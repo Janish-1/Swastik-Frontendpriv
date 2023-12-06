@@ -23,6 +23,7 @@ const Members = () => {
   });
   const [membersData, setMembersData] = useState([]);
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(null);
+  const [uniquememberid,setuniquememberid] = useState(0);
   const [branchNames, setBranchNames] = useState([]);
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -94,6 +95,10 @@ const Members = () => {
       } else {
         // console.error('Invalid format for members data:', data);
       }
+      const uniquememberresponse = await axios.get(
+        "http://localhost:3001/randomgenMemberId"
+      );
+      setuniquememberid(uniquememberresponse.data.uniqueid);
     } catch (error) {
       // console.error('Error fetching data:', error);
     }
@@ -175,7 +180,7 @@ const Members = () => {
                 type="text"
                 placeholder="Enter member number"
                 name="memberNo"
-                value={formData.memberNo}
+                value={uniquememberid}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -319,7 +324,6 @@ const Members = () => {
       >
         <thead>
           <tr>
-            <th>Unique Table Object ID</th>
             <th>Member No</th>
             <th>First Name</th>
             <th>Last Name</th>
@@ -331,7 +335,6 @@ const Members = () => {
         <tbody>
           {membersData.map((member) => (
             <tr>
-              <td>{member._id}</td>
               <td>{member.memberNo}</td>
               <td>{member.firstName}</td>
               <td>{member.lastName}</td>

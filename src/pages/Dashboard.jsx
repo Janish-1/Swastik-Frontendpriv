@@ -79,6 +79,8 @@ const Ecommerce = () => {
     fetchData();
   }, []);
 
+const navigate=useNavigate()
+
   return (
     <div className="mt-18">
       <div className="flex flex-wrap lg:flex-nowrap justify-center">
@@ -89,7 +91,7 @@ const Ecommerce = () => {
               <p className="text-2xl">{totalMembers}</p>
             </div>
           </div>
-          <div className="mt-6">
+          <div className="mt-2 ml-4">
             <button
               onClick={() => navigate("/members")}
               className="bg-cyan-500
@@ -109,7 +111,7 @@ const Ecommerce = () => {
               <p className="text-2xl">{depositRequests}</p>
             </div>
           </div>
-          <div className="mt-6">
+          <div className="mt-2 ml-4">
             <button
               onClick={() => navigate("/deposit")}
               className="bg-cyan-500
@@ -129,7 +131,7 @@ const Ecommerce = () => {
               <p className="text-2xl">{withdrawRequests}</p>
             </div>
           </div>
-          <div className="mt-6">
+          <div className="mt-2 ml-4">
             <button
               onClick={() => navigate("/withdraw")}
               className="bg-cyan-500
@@ -148,7 +150,7 @@ const Ecommerce = () => {
               <p className="text-2xl">{pendingLoans}</p>
             </div>
           </div>
-          <div className="mt-6">
+          <div className="mt-2 ml-4">
             <button
               onClick={() => navigate("/loans")}
               className="bg-cyan-500
@@ -186,6 +188,7 @@ const Ecommerce = () => {
       </div>
 
       <div className="mx-6 ">
+        <h1 className="text-3xl m-2 text-cyan-500 font-medium">Recent Transaction</h1>
         <table className="table text-center bg-info text-white rounded-lg overflow-hidden ">
           <thead>
             <tr class="table-secondary">
@@ -201,7 +204,7 @@ const Ecommerce = () => {
           <tbody className="table-success">
             {transactions.slice(0, 10).map((transaction, index) => (
               <tr key={index}>
-                <td>{transaction.date}</td>
+                <td>{new Date(transaction.date).toLocaleString()}</td>
                 <td>{transaction.member}</td>
                 <td>{transaction.accountNumber}</td>
                 <td>{transaction.transactionAmount}</td>

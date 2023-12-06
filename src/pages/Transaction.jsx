@@ -7,7 +7,7 @@ import "./depositform.css";
 
 const Transaction = () => {
   const [formData, setFormData] = useState({
-    date: "",
+    date: new Date(),
     member: "",
     accountNumber: "",
     amount: "",
@@ -73,7 +73,7 @@ const Transaction = () => {
 
       // Reset form fields after successful submission if needed
       setFormData({
-        date: "",
+        date: new Date(),
         member: "",
         accountNumber: "",
         transactionAmount: "",

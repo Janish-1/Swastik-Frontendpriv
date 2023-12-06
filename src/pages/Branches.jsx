@@ -28,6 +28,32 @@ const Branches = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(null);
   const [filteredMembers, setFilteredMembers] = useState([]); // State to hold filtered members
+  const [presetemail,setEmail] = useState("");
+  const [presetpassword,setPassword] = useState("");
+
+  useEffect( async () => {
+    const token = localStorage.getItem('token');
+    if (token){
+      response = await axios.post('http://localhost:3001/getuseremailpassword'),{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token
+        }),
+    }.then(response => response.json())
+    .then(data => {
+      console.log('Username:', data.username);
+      setEmail(data.email);
+      setPassword(data.password);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Handle errors that occurred during the request
+    });
+  }
+  },[]);
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -102,9 +128,15 @@ const Branches = () => {
         setShowAlert(true);
       }
     }
-
     // Reset form data
-    setFormData({ branchName: "", email: "", phone: "", address: "" });
+    setFormData({
+      branchName: "",
+      managerName: "",
+      contactemail: "",
+      password: "",
+      contactphone: "",
+      branchaddress: "",
+    });
 
     // Close modal after a delay (you can adjust the delay as needed)
     setTimeout(() => {
@@ -125,6 +157,15 @@ const Branches = () => {
       // console.log(response.data);
       // Close the edit modal
       handleCloseEditModal();
+      // Reset form data
+      setFormData({
+        branchName: "",
+        managerName: "",
+        contactemail: "",
+        password: "",
+        contactphone: "",
+        branchaddress: "",
+      });
       fetchData();
     } catch (error) {
       console.error("Error updating data:", error);
@@ -164,8 +205,27 @@ const Branches = () => {
 
       // Update filteredMembers state with the filtered data
       setFilteredMembers(filteredData);
-    } catch (error) {
-      console.error("Error while fetching data:", error);
+
+      const token = localStorage.getItem("token");
+      if (token) {
+        axios.post('http://localhost:3001/getuseremailpassword', { token }, {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => {
+          // console.log('data: ', response.data);
+          const { email, password } = response.data;
+          setEmail(email);
+          setPassword(password);
+        })
+        .catch(error => {
+          // console.error('Error fetching user data:', error);
+          // Handle errors
+        });
+      }
+        } catch (error) {
+      // console.error("Error while fetching data:", error);
       // Handle the error or show an error message to the user
     }
   };
@@ -222,13 +282,33 @@ const Branches = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
+            <Form.Group controlId="formmanagerName">
+              <Form.Label>Manager Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Manager Name"
+                name="managerName"
+                value={formData.managerName}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
             <Form.Group controlId="formEmail">
               <Form.Label>Email </Form.Label>
               <Form.Control
                 type="email"
                 placeholder="Enter email"
                 name="contactemail"
-                value={formData.contactemail}
+                value={presetemail}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formpassword">
+              <Form.Label>Password </Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter Password"
+                name="password"
+                value={presetpassword}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -287,6 +367,16 @@ const Branches = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
+            <Form.Group controlId="formmanagerName">
+              <Form.Label>Manager Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Manager Name"
+                name="managerName"
+                value={formData.managerName}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
             <Form.Group controlId="formEmail">
               <Form.Label>Email </Form.Label>
               <Form.Control
@@ -294,6 +384,16 @@ const Branches = () => {
                 placeholder="Enter email"
                 name="contactemail"
                 value={formData.contactemail}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formpassword">
+              <Form.Label>Password </Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter Password"
+                name="password"
+                value={formData.password}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -344,8 +444,8 @@ const Branches = () => {
       >
         <thead>
           <tr>
-            <th>Unique Branch ID</th>
             <th>Name</th>
+            <th>Manager Name</th>
             <th>Email</th>
             <th>Phone</th>
             <th>Address</th>
@@ -355,8 +455,8 @@ const Branches = () => {
         <tbody>
           {filteredMembers.map((member) => (
             <tr>
-              <td>{member._id}</td>
               <td>{member.branchName}</td>
+              <td>{member.managerName}</td>
               <td>{member.contactemail}</td>
               <td>{member.contactphone}</td>
               <td>{member.branchaddress}</td>

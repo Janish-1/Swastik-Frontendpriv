@@ -77,14 +77,17 @@ const memberSchema = new mongoose.Schema(
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    branchName: { type: String, requires: true },
+    branchName: { type: String, required: true },
+    aadhar: { type:String, required:true },
+    pancard: { type:String, required:true},
+    accountType: {type:String, required:true},
   },
   { collection: "members" }
 );
 
 const loanSchema = new mongoose.Schema(
   {
-    loanId: { type: String, required: true, unique: true },
+    loanId: { type: Number, required: true, unique: true },
     loanProduct: { type: String, required: true },
     borrower: { type: String, required: true },
     memberNo: { type: Number, required: true },
@@ -112,7 +115,7 @@ const repaymentSchema = new mongoose.Schema(
 
 const accountSchema = new mongoose.Schema(
   {
-    accountNumber: { type: String, required: true, unique: true },
+    accountNumber: { type: Number, required: true, unique: true },
     member: { type: String, required: true },
     accountType: { type: String, required: true },
     status: { type: String, required: true },
@@ -547,7 +550,7 @@ app.get("/branches/names", limiter, async (req, res) => {
 });
 
 app.post("/createmember", limiter, async (req, res) => {
-  const { memberNo, firstName, lastName, email, branchName } = req.body;
+  const { memberNo, firstName, lastName, email, branchName,aadhar, pancard, accountType } = req.body;
 
   try {
     const newMember = new memberModel({
@@ -556,6 +559,9 @@ app.post("/createmember", limiter, async (req, res) => {
       lastName,
       email,
       branchName,
+      aadhar,
+      pancard,
+      accountType,
     });
 
     await newMember.save();
@@ -571,12 +577,12 @@ app.post("/createmember", limiter, async (req, res) => {
 
 app.put("/updatemember/:id", limiter, async (req, res) => {
   const memberId = req.params.id;
-  const { memberNo, firstName, lastName, email, branchName } = req.body;
+  const { memberNo, firstName, lastName, email, branchName, aadhar, pancard, accountType } = req.body;
 
   try {
     const updatedMember = await memberModel.findByIdAndUpdate(
       memberId,
-      { memberNo, firstName, lastName, email, branchName },
+      { memberNo, firstName, lastName, email, branchName, aadhar, pancard, accountType },
       { new: true }
     );
 
@@ -1853,6 +1859,89 @@ app.get("/api/cleanOrphanedImages", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+app.post('/getuseremailpassword', limiter, async (req, res) => {
+  const { token } = req.body;
+
+  // Check if the token exists
+  if (!token) {
+    return res.status(401).json({ error: "Token is missing" });
+  }
+
+  try {
+    // Verify and decode the token to extract the username
+    const decoded = jwt.verify(token, "yourSecretKey");
+
+    // Extract the username from the decoded token payload
+    const { email } = decoded;
+    const { password } = decoded;
+
+    // Note: Avoid sending sensitive data like passwords here
+    // Instead, send only necessary non-sensitive data
+    res.json({ email,password });
+  } catch (err) {
+    // Handle token verification or decoding errors
+    console.error("Token verification error:", err);
+    res.status(401).json({ error: "Unauthorized" });
+  }
+});
+
+app.get('/randomgenMemberId', limiter, async (req, res) => {
+  let isUniqueIdFound = false;
+  let uniqueid;
+
+  while (!isUniqueIdFound) {
+    const random = Math.floor(Math.random() * 9000 + 1000);
+    uniqueid = 51520000 + random;
+
+    const allMembers = await memberModel.find({}, "memberNo"); // Fetch only the 'memberNo' field
+    const memberIds = allMembers.map((member) => member.memberNo);
+
+    if (!memberIds.includes(uniqueid)) {
+      isUniqueIdFound = true;
+    }
+  }
+
+  res.json({ uniqueid });
+});
+
+app.get('/randomgenLoanId', limiter, async (req, res) => {
+  let isUniqueIdFound = false;
+  let uniqueid;
+
+  while (!isUniqueIdFound) {
+    const random = Math.floor(Math.random() * 9000 + 1000);
+    uniqueid = 51530000 + random;
+
+    const allLoans = await loansModel.find({}, "loanId"); // Fetch only the 'loanId' field
+    const loanIds = allLoans.map((loan) => loan.loanId);
+
+    if (!loanIds.includes(uniqueid)) {
+      isUniqueIdFound = true;
+    }
+  }
+
+  res.json({ uniqueid });
+});
+
+app.get('/randomgenAccountId', limiter, async (req, res) => {
+  let isUniqueIdFound = false;
+  let uniqueid;
+
+  while (!isUniqueIdFound) {
+    const random = Math.floor(Math.random() * 9000 + 1000);
+    uniqueid = 51540000 + random;
+
+    const allAccounts = await AccountModel.find({}, "accountNumber"); // Fetch only the 'accountNumber' field
+    const accountNumbers = allAccounts.map((account) => account.accountNumber);
+
+    if (!accountNumbers.includes(uniqueid)) {
+      isUniqueIdFound = true;
+    }
+  }
+
+  res.json({ uniqueid });
 });
 
 app.listen(PORT, () => {

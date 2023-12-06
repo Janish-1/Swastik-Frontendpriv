@@ -26,7 +26,7 @@ const Accounts = () => {
   const [filteredAccounts, setFilteredAccounts] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [membersData, setMembersData] = useState([]);
-
+  const [uniqueaccountid,setuniqueaccountid] = useState(0);
   const handleOpenModal = () => setShowModal(true);
 
   const handleCloseModal = () => {
@@ -114,8 +114,8 @@ const Accounts = () => {
     try {
       await axios.post("http://localhost:3001/createaccounts", formData);
       // alert('Data Entered Successfully');
-      handleCloseModal();
       fetchData(); // Fetch data after successful addition
+      handleCloseModal();
     } catch (error) {
       // alert('Check Data Fields for no duplicates');
       // console.error('Error:', error);
@@ -138,6 +138,10 @@ const Accounts = () => {
         setMembersData(response.data.data);
       })
       .catch((error) => console.log("Error Fetching Member Numbers"));
+    const uniqueaccountresponse = await axios.get(
+      "http://localhost:3001/randomgenAccountId"
+    );
+    setuniqueaccountid(uniqueaccountresponse.data.uniqueid);
   };
 
   useEffect(() => {
@@ -194,7 +198,7 @@ const Accounts = () => {
                 type="text"
                 placeholder="Enter account number"
                 name="accountNumber"
-                value={formData.accountNumber}
+                value={uniqueaccountid}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -341,7 +345,6 @@ const Accounts = () => {
       <Table striped bordered hover className="mt-4 rounded-lg overflow-hidden">
         <thead>
           <tr>
-            <th>Unique Table ID</th>
             <th>Account Number</th>
             <th>Member</th>
             <th>Account Type</th>
@@ -353,7 +356,6 @@ const Accounts = () => {
         <tbody>
           {filteredAccounts.map((account) => (
             <tr>
-              <td>{account._id}</td>
               <td>{account.accountNumber}</td>
               <td>{account.member}</td>
               <td>{account.accountType}</td>

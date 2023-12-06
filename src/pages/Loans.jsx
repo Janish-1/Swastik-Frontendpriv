@@ -26,6 +26,7 @@ const Loans = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [accountIds, setAccountIds] = useState([]);
   const [memberNames, setMemberNames] = useState([]);
+  const [uniqueloanid,setuniqueloanid] = useState(0);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
@@ -224,6 +225,11 @@ const Loans = () => {
       );
       const names = memberresponse.data.data.map((member) => member.name);
       setMemberNames(names);
+
+      const uniqueloanresponse = await axios.get(
+        "http://localhost:3001/randomgenLoanId"
+      );
+      setuniqueloanid(uniqueloanresponse.data.uniqueid);
     } catch (error) {
       // console.error('Error fetching data:', error);
       // Handle error or display an error message
@@ -236,19 +242,19 @@ const Loans = () => {
   }, []);
 
   useEffect(() => {
-    // console.log('Loans Data',loansData);
-    // Filter loans based on search term
-    const x = loansData.filter((loan) =>
-      Object.values(loan).some(
-        (value) =>
-          typeof value === "string" &&
-          value.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-    const filteredLoans = setFilteredLoans(x);
-    // console.log('Filtered loans:', filteredLoans);
+    // Filter loans based on search term in 'memberNo' and 'borrowerNumber' columns
+    const filteredLoans = loansData.filter((loan) => {
+      const memberNo = loan.memberNo.toString().toLowerCase(); // Convert to lowercase string
+      const borrowerNumber = loan.borrower.toString().toLowerCase(); // Convert to lowercase string
+      const searchTermLower = searchTerm.toLowerCase(); // Convert search term to lowercase
+  
+      // Check if 'memberNo' or 'borrowerNumber' includes the search term
+      return memberNo.includes(searchTermLower) || borrowerNumber.includes(searchTermLower);
+    });
+  
+    setFilteredLoans(filteredLoans);
   }, [searchTerm, loansData]);
-
+  
   return (
     <div className="body-div">
       <div className="d-flex mb-2">
@@ -281,7 +287,7 @@ const Loans = () => {
                 type="text"
                 placeholder="Enter loan ID"
                 name="loanId"
-                value={formData.loanId}
+                value={uniqueloanid}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -547,7 +553,6 @@ const Loans = () => {
       >
         <thead>
           <tr>
-            <th>Unique Table ID</th>
             <th>Loan ID</th>
             <th>Account ID</th>
             <th>Loan Product</th>
@@ -563,7 +568,6 @@ const Loans = () => {
         <tbody>
           {filteredLoans.map((loan) => (
             <tr key={loan._id}>
-              <td>{loan._id}</td>
               <td>{loan.loanId}</td>
               <td>{loan.account}</td>
               <td>{loan.loanProduct}</td>
