@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Table } from 'react-bootstrap';
-import DatePicker from 'react-datepicker';
-import axios from 'axios';
-import 'react-datepicker/dist/react-datepicker.css';
+import React, { useState, useEffect } from "react";
+import { Modal, Button, Form, Table } from "react-bootstrap";
+import DatePicker from "react-datepicker";
+import axios from "axios";
+import "react-datepicker/dist/react-datepicker.css";
 
 const Expense = () => {
   const [showModal, setShowModal] = useState(false);
@@ -15,7 +15,7 @@ const Expense = () => {
   });
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [newCategory, setNewCategory] = useState('');
+  const [newCategory, setNewCategory] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -23,30 +23,34 @@ const Expense = () => {
 
   const fetchData = async () => {
     try {
-      const categoriesResponse = await axios.get('http://localhost:3001/categories');
+      const categoriesResponse = await axios.get(
+        "http://localhost:3001/categories"
+      );
       setCategories(categoriesResponse.data); // Assuming data is an array of categories
 
-      const expensesResponse = await axios.get('http://localhost:3001/expenses');
+      const expensesResponse = await axios.get(
+        "http://localhost:3001/expenses"
+      );
       setExpenses(expensesResponse.data); // Assuming the response data contains an array of expenses
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     }
   };
 
   const handleAddCategory = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/categories', {
+      const response = await axios.post("http://localhost:3001/categories", {
         name: newCategory,
       });
 
       if (response.status === 201) {
-        setNewCategory('');
+        setNewCategory("");
         fetchData();
       } else {
-        console.error('Failed to add category');
+        console.error("Failed to add category");
       }
     } catch (error) {
-      console.error('Error adding category:', error);
+      console.error("Error adding category:", error);
     }
   };
 
@@ -71,27 +75,27 @@ const Expense = () => {
     // Reset form data when the modal is closed
     setFormData({
       date: new Date(),
-      category: '',
-      amount: '',
-      reference: '',
-      note: '',
+      category: "",
+      amount: "",
+      reference: "",
+      note: "",
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3001/expenses', formData);
+      await axios.post("http://localhost:3001/expenses", formData);
       setFormData({
         date: new Date(),
-        category: '',
-        amount: '',
-        reference: '',
-        note: '',
+        category: "",
+        amount: "",
+        reference: "",
+        note: "",
       });
       fetchData();
     } catch (error) {
-      console.error('Error creating Expense:', error);
+      console.error("Error creating Expense:", error);
     }
     handleModalClose();
   };
@@ -139,7 +143,7 @@ const Expense = () => {
                 ))}
                 <option value="newCategory">Add New Category</option>
               </Form.Control>
-              {formData.category === 'newCategory' && (
+              {formData.category === "newCategory" && (
                 <div>
                   <Form.Control
                     type="text"
@@ -149,7 +153,11 @@ const Expense = () => {
                     onChange={(e) => setNewCategory(e.target.value)}
                     className="mt-2"
                   />
-                  <Button variant="primary" onClick={handleAddCategory} className="mt-2">
+                  <Button
+                    variant="primary"
+                    onClick={handleAddCategory}
+                    className="mt-2"
+                  >
                     Add Category
                   </Button>
                 </div>
@@ -204,13 +212,13 @@ const Expense = () => {
         </thead>
         <tbody>
           {expenses.map((expense, index) => (
-          <tr key={index}>
-            <td>{new Date(expense.date).toISOString().split('T')[0]}</td>
-            <td>{expense.category}</td>
-            <td>{expense.amount}</td>
-            <td>{expense.reference}</td>
-            <td>{expense.note}</td>
-          </tr>
+            <tr key={index}>
+              <td>{new Date(expense.date).toISOString().split("T")[0]}</td>
+              <td>{expense.category}</td>
+              <td>{expense.amount}</td>
+              <td>{expense.reference}</td>
+              <td>{expense.note}</td>
+            </tr>
           ))}
         </tbody>
       </Table>

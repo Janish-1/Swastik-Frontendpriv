@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Table } from 'react-bootstrap';
-import Reports from '../Reports';
-import axios from 'axios';
+import React, { useState } from "react";
+import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
+import Reports from "../Reports";
+import axios from "axios";
 
 export default function AccountBalance() {
   const [tableData, setTableData] = useState([]);
-  const [accountNumber, setAccountNumber] = useState('');
+  const [accountNumber, setAccountNumber] = useState("");
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/account-details?accountNumber=${accountNumber}`);
+      const response = await axios.get(
+        `http://localhost:3001/account-details?accountNumber=${accountNumber}`
+      );
       // Axios response data can be accessed directly
       setTableData(response.data); // Set the fetched data to the state
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
       // Handle errors, for example, display a message to the user
       // You might want to set an empty array to tableData here to clear any previous data
       setTableData([]);
@@ -29,7 +31,7 @@ export default function AccountBalance() {
     <div>
       <Reports />
       <br />
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: "20px" }}>
         <Container>
           <Row className="mt-4">
             <Col md={6} className="d-flex">
@@ -54,7 +56,12 @@ export default function AccountBalance() {
 
           <h2>Account Balance</h2>
 
-          <Table striped bordered hover className="mt-2 rounded-lg overflow-hidden">
+          <Table
+            striped
+            bordered
+            hover
+            className="mt-2 rounded-lg overflow-hidden"
+          >
             <thead>
               <tr>
                 <th>Account No.</th>

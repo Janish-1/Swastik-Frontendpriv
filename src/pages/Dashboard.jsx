@@ -1,4 +1,4 @@
-import React,{useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsCurrencyDollar } from "react-icons/bs";
 import { GoPrimitiveDot } from "react-icons/go";
 import { IoIosMore } from "react-icons/io";
@@ -45,23 +45,32 @@ const Ecommerce = () => {
   // Fetch data for total members, deposit requests, withdraw requests, and pending loans
   const fetchData = async () => {
     try {
-      const membersResponse = await axios.get('http://localhost:3001/countMembers');
+      const membersResponse = await axios.get(
+        "http://localhost:3001/countMembers"
+      );
       setTotalMembers(membersResponse.data.count);
 
-      const depositResponse = await axios.get('http://localhost:3001/depositRequestsPending');
+      const depositResponse = await axios.get(
+        "http://localhost:3001/depositRequestsPending"
+      );
       setDepositRequests(depositResponse.data.count);
 
-      const withdrawResponse = await axios.get('http://localhost:3001/withdrawRequestsPending');
+      const withdrawResponse = await axios.get(
+        "http://localhost:3001/withdrawRequestsPending"
+      );
       setWithdrawRequests(withdrawResponse.data.count);
 
-      const loansResponse = await axios.get('http://localhost:3001/pendingLoans');
+      const loansResponse = await axios.get(
+        "http://localhost:3001/pendingLoans"
+      );
       setPendingLoans(loansResponse.data.data.length);
 
-      const transactionsResponse = await axios.get('http://localhost:3001/transactions');
+      const transactionsResponse = await axios.get(
+        "http://localhost:3001/transactions"
+      );
       setTransactions(transactionsResponse.data.data);
-
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -81,10 +90,13 @@ const Ecommerce = () => {
             </div>
           </div>
           <div className="mt-6">
-            <button onClick={() => navigate("/members")} className="bg-cyan-500
+            <button
+              onClick={() => navigate("/members")}
+              className="bg-cyan-500
              hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:shadow-outline-blue active:bg-gray-500"
-            >View</button>
-           
+            >
+              View
+            </button>
           </div>
         </div>
         {/* 1st card end */}
@@ -98,9 +110,13 @@ const Ecommerce = () => {
             </div>
           </div>
           <div className="mt-6">
-            <button onClick={() => navigate("/deposit")} className="bg-cyan-500
+            <button
+              onClick={() => navigate("/deposit")}
+              className="bg-cyan-500
              hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:shadow-outline-blue active:bg-gray-500"
-            >View</button>
+            >
+              View
+            </button>
           </div>
         </div>
         {/* 2nd card end */}
@@ -114,10 +130,13 @@ const Ecommerce = () => {
             </div>
           </div>
           <div className="mt-6">
-            <button onClick={() => navigate("/withdraw")} className="bg-cyan-500
+            <button
+              onClick={() => navigate("/withdraw")}
+              className="bg-cyan-500
              hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:shadow-outline-blue active:bg-gray-500"
-            >View</button>
-            
+            >
+              View
+            </button>
           </div>
         </div>
         {/* 3rd card end */}
@@ -175,26 +194,24 @@ const Ecommerce = () => {
               <th>Account Number</th>
               <th>Amount</th>
               <th>Debit/Credit</th>
-              <th>Type</th>
               <th>Status</th>
               {/* <th>Action</th> */}
             </tr>
           </thead>
           <tbody className="table-success">
-            {transactions.slice(0,10).map((transaction, index) => (
+            {transactions.slice(0, 10).map((transaction, index) => (
               <tr key={index}>
                 <td>{transaction.date}</td>
                 <td>{transaction.member}</td>
                 <td>{transaction.accountNumber}</td>
                 <td>{transaction.transactionAmount}</td>
                 <td>{transaction.debitOrCredit}</td>
-                <td>{transaction.type}</td>
                 <td>{transaction.status}</td>
                 {/* <td>Render action button or data</td> */}
               </tr>
             ))}
           </tbody>
-          </table>
+        </table>
       </div>
     </div>
   );

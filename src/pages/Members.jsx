@@ -1,25 +1,25 @@
-import React, { useState,useEffect } from 'react';
-import { Modal, Button, Form, Table } from 'react-bootstrap';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Modal, Button, Form, Table } from "react-bootstrap";
+import axios from "axios";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 const Members = () => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
-    memberNo: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    branchName: '',
+    memberNo: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    branchName: "",
   });
   const [updateData, setUpdateData] = useState({
-    id: '',
-    memberNo: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    branchName: '',
+    id: "",
+    memberNo: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    branchName: "",
   });
   const [membersData, setMembersData] = useState([]);
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(null);
@@ -37,13 +37,13 @@ const Members = () => {
 
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
-  
+
     // Update the state based on the input field name
     setUpdateData({
       ...updateData,
       [name]: value,
     });
-  };  
+  };
 
   const handleOpenEditModal = async (id) => {
     console.log(id);
@@ -61,14 +61,14 @@ const Members = () => {
         branchName: memberData.branchName,
         // ... Add other fields as necessary based on your form structure
       });
-  
+
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
       // console.error('Error fetching member data:', error);
       // Handle error or display an error message to the user
     }
   };
-    
+
   const handleCloseEditModal = () => {
     setShowEditModal(false);
     setSelectedMemberIndex(null);
@@ -76,15 +76,19 @@ const Members = () => {
 
   const fetchData = async () => {
     try {
-      const branchNamesResponse = await axios.get('http://localhost:3001/branches/names');
+      const branchNamesResponse = await axios.get(
+        "http://localhost:3001/branches/names"
+      );
       setBranchNames(branchNamesResponse.data.data);
-  
-      const membersResponse = await axios.get('http://localhost:3001/readmembers');
+
+      const membersResponse = await axios.get(
+        "http://localhost:3001/readmembers"
+      );
       const { data } = membersResponse.data;
-  
+
       if (Array.isArray(data)) {
         setMembersData(data);
-      } else if (typeof data === 'object') {
+      } else if (typeof data === "object") {
         const dataArray = [data];
         setMembersData(dataArray);
       } else {
@@ -94,29 +98,28 @@ const Members = () => {
       // console.error('Error fetching data:', error);
     }
   };
-  
+
   useEffect(() => {
     fetchData();
   }, []);
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        // Add new member
-        await axios.post('http://localhost:3001/createmember', formData);
-        // Close modal and reset form data and selected index
-        handleCloseModal();
-        setFormData({
-          memberNo: '',
-          firstName: '',
-          lastName: '',
-          email: '',
-          branchName: '',
-        });
-        // alert('Data Entered Successfully');
-        fetchData();
-    } 
-    catch (error) {
+      // Add new member
+      await axios.post("http://localhost:3001/createmember", formData);
+      // Close modal and reset form data and selected index
+      handleCloseModal();
+      setFormData({
+        memberNo: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        branchName: "",
+      });
+      // alert('Data Entered Successfully');
+      fetchData();
+    } catch (error) {
       // alert('Check Data Fields for no duplicates');
       // console.error('Error:', error);
       // Handle error or display an error message to the user
@@ -124,34 +127,36 @@ const Members = () => {
   };
 
   const handleUpdate = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       // Update member
       // console.log(updateData);
-      const response = await axios.put(`http://localhost:3001/updatemember/${updateData.id}`, updateData);
+      const response = await axios.put(
+        `http://localhost:3001/updatemember/${updateData.id}`,
+        updateData
+      );
       // console.log(response.data);
       // alert('Successfully Updated');
       // Close the edit modal
       handleCloseEditModal();
       fetchData();
     } catch (error) {
-      console.error('Error updating data:', error);
+      console.error("Error updating data:", error);
       // Show failure alert for update
       // alert('Update Failed');
     }
   };
 
   const handleDelete = async (id) => {
-    try{
+    try {
       const response = axios.post(`http://localhost:3001/deletemember/${id}`);
       console.log(response);
       // alert('Delete Success');
       fetchData();
-    } 
-    catch (error) {
+    } catch (error) {
       // console.log('Failed Delete');
       // alert('Delete Failed');
-    }   
+    }
   };
 
   return (
@@ -164,7 +169,6 @@ const Members = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-          
             <Form.Group controlId="formMemberNo">
               <Form.Label>Member No</Form.Label>
               <Form.Control
@@ -206,21 +210,21 @@ const Members = () => {
               />
             </Form.Group>
             <Form.Group controlId="formBranch">
-                <Form.Label>Branch</Form.Label>
-                <Form.Select
-                  name="branchName"
-                  value={formData.branchName}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Select a branch</option>
-                  {branchNames.map((branch, index) => (
-                    <option key={index} value={branch}>
-                      {branch}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-                <Button variant="primary" type="submit">
+              <Form.Label>Branch</Form.Label>
+              <Form.Select
+                name="branchName"
+                value={formData.branchName}
+                onChange={handleInputChange}
+              >
+                <option value="">Select a branch</option>
+                {branchNames.map((branch, index) => (
+                  <option key={index} value={branch}>
+                    {branch}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Button variant="primary" type="submit">
               Add
             </Button>
           </Form>
@@ -233,7 +237,7 @@ const Members = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleUpdate}>
-          <Form.Group controlId="TableId">
+            <Form.Group controlId="TableId">
               <Form.Label>ID</Form.Label>
               <Form.Control
                 type="integer"
@@ -285,28 +289,34 @@ const Members = () => {
               />
             </Form.Group>
             <Form.Group controlId="formBranch">
-                <Form.Label>Branch</Form.Label>
-                <Form.Select
-                  name="branchName"
-                  value={updateData.branchName}
-                  onChange={handleUpdateChange}
-                >
-                  <option value="">Select a branch</option>
-                  {branchNames.map((branch, index) => (
-                    <option key={index} value={branch}>
-                      {branch}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-                <Button variant="primary" type="submit">
+              <Form.Label>Branch</Form.Label>
+              <Form.Select
+                name="branchName"
+                value={updateData.branchName}
+                onChange={handleUpdateChange}
+              >
+                <option value="">Select a branch</option>
+                {branchNames.map((branch, index) => (
+                  <option key={index} value={branch}>
+                    {branch}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Button variant="primary" type="submit">
               Edit
             </Button>
           </Form>
         </Modal.Body>
       </Modal>
 
-      <Table responsive striped bordered hover className="mt-4 rounded-lg overflow-hidden ">
+      <Table
+        responsive
+        striped
+        bordered
+        hover
+        className="mt-4 rounded-lg overflow-hidden "
+      >
         <thead>
           <tr>
             <th>Unique Table Object ID</th>
@@ -328,10 +338,16 @@ const Members = () => {
               <td>{member.email}</td>
               <td>{member.branchName}</td>
               <td>
-                <Button variant="warning" onClick={() => handleOpenEditModal(member._id)}>
+                <Button
+                  variant="warning"
+                  onClick={() => handleOpenEditModal(member._id)}
+                >
                   <FaEdit />
                 </Button>{" "}
-                <Button variant="danger" onClick={() => handleDelete(member._id)}>
+                <Button
+                  variant="danger"
+                  onClick={() => handleDelete(member._id)}
+                >
                   <FaTrash />
                 </Button>
               </td>

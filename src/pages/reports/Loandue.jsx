@@ -1,14 +1,21 @@
-import React, { useRef,useEffect,useState } from 'react';
-import { Container, Row, Col, Form, Button, Table } from 'react-bootstrap';
-import Reports from '../Reports';
-import { useReactToPrint } from 'react-to-print';
-import axios from 'axios';
-import { PDFViewer, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import React, { useRef, useEffect, useState } from "react";
+import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
+import Reports from "../Reports";
+import { useReactToPrint } from "react-to-print";
+import axios from "axios";
+import {
+  PDFViewer,
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+} from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   page: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    backgroundColor: "#fff",
   },
   section: {
     margin: 10,
@@ -50,7 +57,7 @@ const MyDocument = ({ data }) => (
 export default function Loandue() {
   const componentRef = useRef();
   const [data, setData] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(''); // State for search term
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
   const [filteredData, setFilteredData] = useState([]); // State to hold filtered data
 
   useEffect(() => {
@@ -59,10 +66,10 @@ export default function Loandue() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/loandue');
+      const response = await axios.get("http://localhost:3001/loandue");
       setData(response.data);
     } catch (error) {
-      console.error('Error fetching loan report data:', error);
+      console.error("Error fetching loan report data:", error);
       // Handle error (display an error message, etc.)
     }
   };
@@ -85,10 +92,12 @@ export default function Loandue() {
   });
 
   const handleExportToPDF = () => {
-    const blob = new Blob([<MyDocument data={filteredData} />], { type: 'application/pdf' });
-    const link = document.createElement('a');
+    const blob = new Blob([<MyDocument data={filteredData} />], {
+      type: "application/pdf",
+    });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = 'LoanDueReport.pdf';
+    link.download = "LoanDueReport.pdf";
     link.click();
   };
 
@@ -100,10 +109,8 @@ export default function Loandue() {
   return (
     <div>
       <Reports />
-      <div style={{ padding: '20px' }}>
-
-    
-      <Container>
+      <div style={{ padding: "20px" }}>
+        <Container>
           <h2 className="mt-4">Loan Due Report</h2>
           <Row className="mt-4">
             <Col>
@@ -120,7 +127,11 @@ export default function Loandue() {
                     </Form.Group>
                   </Col>
                   <Col md={6} className="d-flex justify-content-between">
-                    <Button variant="primary" type="submit" onClick={handlePrint}>
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      onClick={handlePrint}
+                    >
                       Print
                     </Button>
                     <Button variant="danger" onClick={handleExportToPDF}>
@@ -155,8 +166,7 @@ export default function Loandue() {
             </Table>
           </div>
         </Container>
-
+      </div>
     </div>
-  </div>
   );
 }

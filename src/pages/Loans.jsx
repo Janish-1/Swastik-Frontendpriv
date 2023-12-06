@@ -1,28 +1,28 @@
 // Loans.jsx
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Table, FormControl } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import axios from 'axios';
+import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { parseISO } from 'date-fns';
+import { parseISO } from "date-fns";
 
 const Loans = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    loanId: '',
-    loanProduct: '',
-    borrower: '',
-    memberNo: '',
+    loanId: "",
+    loanProduct: "",
+    borrower: "",
+    memberNo: "",
     releaseDate: new Date(), // Default date
-    appliedAmount: '',
-    status: 'Pending',
+    appliedAmount: "",
+    status: "Pending",
   });
   const [loansData, setLoansData] = useState([]);
   const [selectedLoanIndex, setSelectedLoanIndex] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [filteredLoans, setFilteredLoans] = useState([]);
-  const [memberNumbers,setmemberNumbers] = useState([]);
+  const [memberNumbers, setmemberNumbers] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [accountIds, setAccountIds] = useState([]);
   const [memberNames, setMemberNames] = useState([]);
@@ -59,7 +59,7 @@ const Loans = () => {
     try {
       const response = await axios.get(`http://localhost:3001/loans/${id}`);
       const loandata = response.data.data; // Assuming response.data contains the loan data
-  
+
       // Destructure loan data
       const {
         _id,
@@ -70,12 +70,14 @@ const Loans = () => {
         memberNo,
         releaseDate,
         appliedAmount,
-        status
+        status,
       } = loandata;
-  
+
       // Adjust the format of the releaseDate
-      const formattedReleaseDate = releaseDate ? parseISO(releaseDate) : new Date();
-  
+      const formattedReleaseDate = releaseDate
+        ? parseISO(releaseDate)
+        : new Date();
+
       // Set the form data for editing
       setFormData({
         id: _id,
@@ -89,21 +91,23 @@ const Loans = () => {
         status,
         // ... Add other fields as necessary based on your form structure
       });
-  
+
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
       // Handle error or display an error message to the user
-      console.error('Error fetching loan data:', error);
+      console.error("Error fetching loan data:", error);
     }
   };
-  
+
   const handleCloseEditModal = () => {
     setShowEditModal(false);
   };
-  
+
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:3001/deleteloan/${id}`);
+      const response = await axios.delete(
+        `http://localhost:3001/deleteloan/${id}`
+      );
       // console.log(response);
       // alert('Delete Success');
       fetchData(); // Refetch data after deletion
@@ -116,15 +120,33 @@ const Loans = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { loanId, account, loanProduct, borrower, memberNo, releaseDate, appliedAmount, status } = formData;
-  
-      if (!loanId || !account || !loanProduct || !borrower || !memberNo || !releaseDate || !appliedAmount || !status) {
+      const {
+        loanId,
+        account,
+        loanProduct,
+        borrower,
+        memberNo,
+        releaseDate,
+        appliedAmount,
+        status,
+      } = formData;
+
+      if (
+        !loanId ||
+        !account ||
+        !loanProduct ||
+        !borrower ||
+        !memberNo ||
+        !releaseDate ||
+        !appliedAmount ||
+        !status
+      ) {
         // Ensure all fields are filled in before submitting
         // Alert or handle this case as required (fields shouldn't be empty)
         return;
       }
-  
-      await axios.post('http://localhost:3001/createloan', {
+
+      await axios.post("http://localhost:3001/createloan", {
         loanId,
         loanProduct,
         borrower,
@@ -136,14 +158,14 @@ const Loans = () => {
       });
       handleCloseModal();
       setFormData({
-        loanId: '',
-        account: '',
-        loanProduct: '',
-        borrower: '',
-        memberNo: '',
+        loanId: "",
+        account: "",
+        loanProduct: "",
+        borrower: "",
+        memberNo: "",
         releaseDate: new Date(),
-        appliedAmount: '',
-        status: '',
+        appliedAmount: "",
+        status: "",
       });
       fetchData(); // Refetch data after submission
     } catch (error) {
@@ -152,20 +174,23 @@ const Loans = () => {
       handleCloseModal();
     }
   };
-  
+
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:3001/updateloan/${formData.id}`, formData);
+      await axios.put(
+        `http://localhost:3001/updateloan/${formData.id}`,
+        formData
+      );
       setFormData({
-        loanId: '',
-        account: '',
-        loanProduct: '',
-        borrower: '',
-        memberNo: '',
+        loanId: "",
+        account: "",
+        loanProduct: "",
+        borrower: "",
+        memberNo: "",
         releaseDate: new Date(),
-        appliedAmount: '',
-        status: '',
+        appliedAmount: "",
+        status: "",
       });
       // alert('Data Updated Successfully');
       handleCloseEditModal();
@@ -180,21 +205,25 @@ const Loans = () => {
   // Function to fetch data
   const fetchData = async () => {
     try {
-      const loansResponse = await axios.get('http://localhost:3001/loans');
+      const loansResponse = await axios.get("http://localhost:3001/loans");
       const fetchedLoans = loansResponse.data.data;
       setLoansData(fetchedLoans);
 
-      const membersResponse = await axios.get('http://localhost:3001/loanmembers');
+      const membersResponse = await axios.get(
+        "http://localhost:3001/loanmembers"
+      );
       const memberNumbers = membersResponse.data.data;
       setmemberNumbers(memberNumbers);
 
-      const response = await axios.get('http://localhost:3001/accountids');
+      const response = await axios.get("http://localhost:3001/accountids");
       setAccountIds(response.data.data);
       // console.log(response);
 
-      const memberresponse = await axios.get('http://localhost:3001/readmembersname');
+      const memberresponse = await axios.get(
+        "http://localhost:3001/readmembersname"
+      );
       const names = memberresponse.data.data.map((member) => member.name);
-      setMemberNames(names);  
+      setMemberNames(names);
     } catch (error) {
       // console.error('Error fetching data:', error);
       // Handle error or display an error message
@@ -205,14 +234,14 @@ const Loans = () => {
     // Fetch data initially on component mount
     fetchData();
   }, []);
-  
+
   useEffect(() => {
     // console.log('Loans Data',loansData);
     // Filter loans based on search term
     const x = loansData.filter((loan) =>
       Object.values(loan).some(
         (value) =>
-          typeof value === 'string' &&
+          typeof value === "string" &&
           value.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
@@ -257,21 +286,21 @@ const Loans = () => {
               />
             </Form.Group>
             <Form.Group controlId="formAccountId">
-            <Form.Label>Account ID</Form.Label>
-            <Form.Control
-              as="select"
-              name="account"
-              value={formData.account}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Account ID</option>
-              {accountIds.map((accountId) => (
-                <option key={accountId} value={accountId}>
-                  {accountId}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
+              <Form.Label>Account ID</Form.Label>
+              <Form.Control
+                as="select"
+                name="account"
+                value={formData.account}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Account ID</option>
+                {accountIds.map((accountId) => (
+                  <option key={accountId} value={accountId}>
+                    {accountId}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formLoanProduct">
               <Form.Label>Loan Product</Form.Label>
               <Form.Control
@@ -283,37 +312,37 @@ const Loans = () => {
               />
             </Form.Group>
             <Form.Group controlId="formBorrower">
-            <Form.Label>Borrower</Form.Label>
-            <Form.Control
-              as="select"
-              name="borrower"
-              value={formData.borrower}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Borrower Name</option>
-              {memberNames.map((name, index) => (
-                <option key={index} value={name}>
-                  {name}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
+              <Form.Label>Borrower</Form.Label>
+              <Form.Control
+                as="select"
+                name="borrower"
+                value={formData.borrower}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Borrower Name</option>
+                {memberNames.map((name, index) => (
+                  <option key={index} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formMemberNo">
-            <Form.Label>Member No</Form.Label>
-            <Form.Control
-              as="select"
-              name="memberNo"
-              value={formData.memberNo}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Member No</option>
-              {memberNumbers.map((memberNo) => (
-                <option key={memberNo} value={memberNo}>
-                  {memberNo}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
+              <Form.Label>Member No</Form.Label>
+              <Form.Control
+                as="select"
+                name="memberNo"
+                value={formData.memberNo}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Member No</option>
+                {memberNumbers.map((memberNo) => (
+                  <option key={memberNo} value={memberNo}>
+                    {memberNo}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formReleaseDate">
               <Form.Label>Release Date</Form.Label>
               <Form.Control
@@ -365,7 +394,6 @@ const Loans = () => {
             <Button variant="primary" type="submit">
               Add
             </Button>
-           
           </Form>
         </Modal.Body>
       </Modal>
@@ -376,7 +404,7 @@ const Loans = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleUpdate}>
-          <Form.Group controlId="Unique Table ID">
+            <Form.Group controlId="Unique Table ID">
               <Form.Label>ID</Form.Label>
               <Form.Control
                 type="text"
@@ -398,21 +426,21 @@ const Loans = () => {
               />
             </Form.Group>
             <Form.Group controlId="formAccountId">
-          <Form.Label>Account ID</Form.Label>
-          <Form.Control
-            as="select"
-            name="accountId"
-            value={formData.accountId}
-            onChange={handleInputChange}
-          >
-            <option value="">Select Account ID</option>
-            {accountIds.map((accountId) => (
-              <option key={accountId} value={accountId}>
-                {accountId}
-              </option>
-            ))}
-          </Form.Control>
-        </Form.Group>
+              <Form.Label>Account ID</Form.Label>
+              <Form.Control
+                as="select"
+                name="accountId"
+                value={formData.accountId}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Account ID</option>
+                {accountIds.map((accountId) => (
+                  <option key={accountId} value={accountId}>
+                    {accountId}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formLoanProduct">
               <Form.Label>Loan Product</Form.Label>
               <Form.Control
@@ -424,37 +452,37 @@ const Loans = () => {
               />
             </Form.Group>
             <Form.Group controlId="formBorrower">
-            <Form.Label>Borrower</Form.Label>
-            <Form.Control
-              as="select"
-              name="borrower"
-              value={formData.borrower}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Borrower Name</option>
-              {memberNames.map((name, index) => (
-                <option key={index} value={name}>
-                  {name}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
+              <Form.Label>Borrower</Form.Label>
+              <Form.Control
+                as="select"
+                name="borrower"
+                value={formData.borrower}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Borrower Name</option>
+                {memberNames.map((name, index) => (
+                  <option key={index} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formMemberNo">
-            <Form.Label>Member No</Form.Label>
-            <Form.Control
-              as="select"
-              name="memberNo"
-              value={formData.memberNo}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Member No</option>
-              {memberNumbers.map((memberNo) => (
-                <option key={memberNo} value={memberNo}>
-                  {memberNo}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
+              <Form.Label>Member No</Form.Label>
+              <Form.Control
+                as="select"
+                name="memberNo"
+                value={formData.memberNo}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Member No</option>
+                {memberNumbers.map((memberNo) => (
+                  <option key={memberNo} value={memberNo}>
+                    {memberNo}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formReleaseDate">
               <Form.Label>Release Date</Form.Label>
               <br />
@@ -482,7 +510,7 @@ const Loans = () => {
                   type="radio"
                   label="Approved"
                   value="Approved"
-                  checked={formData.status === 'Approved'}
+                  checked={formData.status === "Approved"}
                   onChange={handleStatusChange}
                 />
                 <Form.Check
@@ -490,7 +518,7 @@ const Loans = () => {
                   type="radio"
                   label="Pending"
                   value="Pending"
-                  checked={formData.status === 'Pending'}
+                  checked={formData.status === "Pending"}
                   onChange={handleStatusChange}
                 />
                 <Form.Check
@@ -498,7 +526,7 @@ const Loans = () => {
                   type="radio"
                   label="Cancelled"
                   value="Cancelled"
-                  checked={formData.status === 'Cancelled'}
+                  checked={formData.status === "Cancelled"}
                   onChange={handleStatusChange}
                 />
               </div>
@@ -531,22 +559,25 @@ const Loans = () => {
             <th>Action</th>
           </tr>
         </thead>
-         
-          <tbody>
+
+        <tbody>
           {filteredLoans.map((loan) => (
-          <tr key={loan._id}>
-          <td>{loan._id}</td>
-          <td>{loan.loanId}</td>
-          <td>{loan.account}</td>
-          <td>{loan.loanProduct}</td>
-          <td>{loan.borrower}</td>
-          <td>{loan.memberNo}</td>
-          <td>{new Date(loan.releaseDate).toLocaleDateString()}</td>
-          <td>{loan.appliedAmount}</td>
-          <td>{loan.status}</td>
-          
+            <tr key={loan._id}>
+              <td>{loan._id}</td>
+              <td>{loan.loanId}</td>
+              <td>{loan.account}</td>
+              <td>{loan.loanProduct}</td>
+              <td>{loan.borrower}</td>
+              <td>{loan.memberNo}</td>
+              <td>{new Date(loan.releaseDate).toLocaleDateString()}</td>
+              <td>{loan.appliedAmount}</td>
+              <td>{loan.status}</td>
+
               <td>
-                <Button variant="warning" onClick={() => handleOpenEditModal(loan._id)}>
+                <Button
+                  variant="warning"
+                  onClick={() => handleOpenEditModal(loan._id)}
+                >
                   <FaEdit />
                 </Button>{" "}
                 <Button variant="danger" onClick={() => handleDelete(loan._id)}>

@@ -1,58 +1,60 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Form, Button, Table } from 'react-bootstrap';
-import Reports from '../Reports';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
+import Reports from "../Reports";
+import axios from "axios";
 
 export default function Expense() {
   const [expenses, setExpenses] = useState([]);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [expenseType, setExpenseType] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [expenseType, setExpenseType] = useState("");
   const [categories, setCategories] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  
-// Update handleInputChange to set the selected option correctly
-const handleInputChange = (e) => {
-  const { value } = e.target;
-  setExpenseType(value);
-};
+  const [searchTerm, setSearchTerm] = useState("");
 
-
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      // Fetch categories with axios.get including parameters
-      const categoriesResponse = await axios.get('http://localhost:3001/categories', {
-        params: {
-          startDate: startDate,
-          endDate: endDate,
-          expenseType: expenseType
-        }
-      });
-      setCategories(categoriesResponse.data);
-      
-      // Construct the URL for fetching expenses with parameters
-      let url = 'http://localhost:3001/reportexpenses';
-      const params = {
-        startDate,
-        endDate,
-        expenseType,
-        sortBy: 'date', // Change this based on the desired sorting field
-        sortOrder: 'desc' // Change this based on the desired sorting order ('asc' or 'desc')
-      };
-
-      const queryParams = new URLSearchParams(params).toString();
-      const fullUrl = `${url}?${queryParams}`;
-
-      const expensesResponse = await axios.get(fullUrl);
-      setExpenses(expensesResponse.data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
+  // Update handleInputChange to set the selected option correctly
+  const handleInputChange = (e) => {
+    const { value } = e.target;
+    setExpenseType(value);
   };
-  
-  fetchData();
-}, [startDate, endDate, expenseType]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch categories with axios.get including parameters
+        const categoriesResponse = await axios.get(
+          "http://localhost:3001/categories",
+          {
+            params: {
+              startDate: startDate,
+              endDate: endDate,
+              expenseType: expenseType,
+            },
+          }
+        );
+        setCategories(categoriesResponse.data);
+
+        // Construct the URL for fetching expenses with parameters
+        let url = "http://localhost:3001/reportexpenses";
+        const params = {
+          startDate,
+          endDate,
+          expenseType,
+          sortBy: "date", // Change this based on the desired sorting field
+          sortOrder: "desc", // Change this based on the desired sorting order ('asc' or 'desc')
+        };
+
+        const queryParams = new URLSearchParams(params).toString();
+        const fullUrl = `${url}?${queryParams}`;
+
+        const expensesResponse = await axios.get(fullUrl);
+        setExpenses(expensesResponse.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [startDate, endDate, expenseType]);
 
   // Function to filter expenses based on the reference field
   const filteredExpenses = expenses.filter((expense) => {
@@ -63,7 +65,7 @@ useEffect(() => {
     <div>
       <Reports />
 
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: "20px" }}>
         <Container>
           <h2 className="mt-4">Expense</h2>
 
@@ -133,7 +135,7 @@ useEffect(() => {
           {/* Search Bar and Export PDF Button */}
           <Row className="mt-4">
             <Col md={6}>
-            <Form>
+              <Form>
                 <Form.Group controlId="expenseSearch">
                   <Form.Control
                     type="text"
@@ -152,7 +154,12 @@ useEffect(() => {
           </Row>
 
           {/* Expense Table */}
-          <Table striped bordered hover className="mt-2 rounded-lg overflow-hidden">
+          <Table
+            striped
+            bordered
+            hover
+            className="mt-2 rounded-lg overflow-hidden"
+          >
             <thead>
               <tr>
                 <th>Date</th>

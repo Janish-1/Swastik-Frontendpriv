@@ -1,58 +1,64 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, Form, Button, Row, Col } from 'react-bootstrap';
-import axios from 'axios';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Card, Form, Button, Row, Col } from "react-bootstrap";
+import axios from "axios";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3001/login', {
+      const response = await axios.post("http://localhost:3001/login", {
         email: email,
-        password: password
+        password: password,
       });
 
       if (response.status === 200) {
         const token = response.data.token;
-        localStorage.setItem('token', token);
+        localStorage.setItem("token", token);
         window.location.reload();
       }
     } catch (error) {
       if (error.response) {
         setMessage(error.response.data.message);
       } else {
-        setMessage('Internal Server Error');
+        setMessage("Internal Server Error");
       }
     }
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-      <Card style={{ width: '600px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+    <div
+      className="d-flex justify-content-center align-items-center"
+      style={{ height: "100vh" }}
+    >
+      <Card
+        style={{ width: "600px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
+      >
         <Row>
           {/* Left Section */}
-          <Col md={6} style={{ padding: '0', overflow: 'hidden' }}>
+          <Col md={6} style={{ padding: "0", overflow: "hidden" }}>
             <div
               style={{
-                width: '100%',
-                height: '100%',
-                backgroundImage: 'url(https://wallpaperaccess.com/thumb/1374866.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: '2rem',
-                borderTopLeftRadius: '10px',  // Round the top left corner
-                borderBottomLeftRadius: '10px',  // Round the bottom left corner
+                width: "100%",
+                height: "100%",
+                backgroundImage:
+                  "url(https://wallpaperaccess.com/thumb/1374866.png)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontWeight: "bold",
+                fontSize: "2rem",
+                borderTopLeftRadius: "10px", // Round the top left corner
+                borderBottomLeftRadius: "10px", // Round the bottom left corner
               }}
             >
               Login

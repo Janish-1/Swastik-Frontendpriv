@@ -1,21 +1,28 @@
 // Accounts.jsx
 
-import React, { useState,useEffect } from 'react';
-import axios from 'axios';
-import { Modal, Button, Form, Table, FormControl, Dropdown } from 'react-bootstrap';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  Modal,
+  Button,
+  Form,
+  Table,
+  FormControl,
+  Dropdown,
+} from "react-bootstrap";
 
 const Accounts = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    accountNumber: '',
-    member: '',
-    accountType: '', // Change default value to an empty string
-    status: '', // Change default value to an empty string
+    accountNumber: "",
+    member: "",
+    accountType: "", // Change default value to an empty string
+    status: "", // Change default value to an empty string
     openingBalance: 0,
   });
   const [accountsData, setAccountsData] = useState([]);
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [filteredAccounts, setFilteredAccounts] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [membersData, setMembersData] = useState([]);
@@ -26,10 +33,10 @@ const Accounts = () => {
     setShowModal(false);
     setSelectedAccountIndex(null);
     setFormData({
-      accountNumber: '',
-      member: '',
-      accountType: '',
-      status: '',
+      accountNumber: "",
+      member: "",
+      accountType: "",
+      status: "",
       openingBalance: 0,
       currentBalance: openingBalance,
     });
@@ -39,7 +46,7 @@ const Accounts = () => {
     try {
       const response = await axios.get(`http://localhost:3001/accounts/${id}`);
       const accountData = response.data.data; // Assuming response.data contains the account data
-      
+
       setFormData({
         id: accountData._id,
         accountNumber: accountData.accountNumber,
@@ -50,14 +57,14 @@ const Accounts = () => {
         currentBalance: accountData.openingBalance,
         // Add other fields as necessary based on your form structure
       });
-  
+
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
       // console.error('Error fetching account data:', error);
       // Handle error or display an error message to the user
     }
   };
-  
+
   const handleCloseEditModal = () => {
     setShowEditModal(false);
   };
@@ -66,13 +73,15 @@ const Accounts = () => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: name === 'openingBalance' ? parseFloat(value) : value,
+      [name]: name === "openingBalance" ? parseFloat(value) : value,
     }));
   };
 
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:3001/deleteaccounts/${id}`);
+      const response = await axios.delete(
+        `http://localhost:3001/deleteaccounts/${id}`
+      );
       // console.log(response);
       // alert('Delete Success');
       fetchData(); // Fetch data after successful deletion
@@ -86,7 +95,10 @@ const Accounts = () => {
     e.preventDefault();
     try {
       // console.log(formData);
-      await axios.put(`http://localhost:3001/updateaccounts/${formData.id}`, formData);
+      await axios.put(
+        `http://localhost:3001/updateaccounts/${formData.id}`,
+        formData
+      );
       // alert('Data Updated Successfully');
       fetchData(); // Fetch data after successful update
       handleCloseEditModal();
@@ -100,7 +112,7 @@ const Accounts = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3001/createaccounts', formData);
+      await axios.post("http://localhost:3001/createaccounts", formData);
       // alert('Data Entered Successfully');
       handleCloseModal();
       fetchData(); // Fetch data after successful addition
@@ -113,19 +125,19 @@ const Accounts = () => {
   const fetchData = async () => {
     try {
       // Fetch accounts data
-      const response = await axios.get('http://localhost:3001/accounts');
+      const response = await axios.get("http://localhost:3001/accounts");
       setAccountsData(response.data.data); // Assuming response.data contains the account data
     } catch (error) {
-      console.error('Error fetching accounts:', error);
+      console.error("Error fetching accounts:", error);
       // Handle error or display an error message to the user
     }
-    const response = await axios.get('http://localhost:3001/readmembersname')
-    .then(response => {
-      // console.log('Member Name Status:',response);
-      setMembersData(response.data.data);
-    })
-    .catch(error => console.log('Error Fetching Member Numbers'));   
-
+    const response = await axios
+      .get("http://localhost:3001/readmembersname")
+      .then((response) => {
+        // console.log('Member Name Status:',response);
+        setMembersData(response.data.data);
+      })
+      .catch((error) => console.log("Error Fetching Member Numbers"));
   };
 
   useEffect(() => {
@@ -136,10 +148,11 @@ const Accounts = () => {
 
   useEffect(() => {
     // Filter accountsData based on searchTerm whenever searchTerm changes
-    const filtered = accountsData.filter(account =>
+    const filtered = accountsData.filter((account) =>
       Object.values(account).some(
-        value =>
-          typeof value === 'string' && value.toLowerCase().includes(searchTerm.toLowerCase())
+        (value) =>
+          typeof value === "string" &&
+          value.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
     setFilteredAccounts(filtered);
@@ -150,13 +163,19 @@ const Accounts = () => {
   };
 
   return (
-    <div className='body-div'>
+    <div className="body-div">
       <div className="d-flex mb-2">
-        <Button className="mr-2" onClick={() => { setFormData({}); handleOpenModal(); }}>
+        <Button
+          className="mr-2"
+          onClick={() => {
+            setFormData({});
+            handleOpenModal();
+          }}
+        >
           Add Account
         </Button>
         <FormControl
-          className='custom-search-bar'
+          className="custom-search-bar"
           type="text"
           placeholder="Search..."
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -180,22 +199,22 @@ const Accounts = () => {
               />
             </Form.Group>
             <Form.Group controlId="formMember">
-            <Form.Label>Member</Form.Label>
-            <Form.Control
-              as="select" // Render as a dropdown select
-              name="member"
-              value={formData.member}
-              onChange={handleInputChange}
-            >
-              <option value="">Select member</option>
-              {/* Map through the membersData array to create options */}
-              {membersData.map((member) => (
-                <option key={member.id} value={member.name}>
-                  {member.name}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
+              <Form.Label>Member</Form.Label>
+              <Form.Control
+                as="select" // Render as a dropdown select
+                name="member"
+                value={formData.member}
+                onChange={handleInputChange}
+              >
+                <option value="">Select member</option>
+                {/* Map through the membersData array to create options */}
+                {membersData.map((member) => (
+                  <option key={member.id} value={member.name}>
+                    {member.name}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formAccountType">
               <Form.Label>Account Type</Form.Label>
               <Form.Control
@@ -245,7 +264,7 @@ const Accounts = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleUpdate}>
-          <Form.Group controlId="formId">
+            <Form.Group controlId="formId">
               <Form.Label>ID</Form.Label>
               <Form.Control
                 type="text"
@@ -342,12 +361,22 @@ const Accounts = () => {
               <td>{account.openingBalance}</td>
               <td>
                 <Dropdown>
-                  <Dropdown.Toggle className='btn-secondry' variant="secondary" id="dropdown-basic">
+                  <Dropdown.Toggle
+                    className="btn-secondry"
+                    variant="secondary"
+                    id="dropdown-basic"
+                  >
                     Action
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => handleOpenEditModal(account._id)}>Edit</Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleDelete(account._id)}>Delete</Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={() => handleOpenEditModal(account._id)}
+                    >
+                      Edit
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleDelete(account._id)}>
+                      Delete
+                    </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </td>

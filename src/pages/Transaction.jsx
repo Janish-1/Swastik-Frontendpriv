@@ -1,19 +1,19 @@
 // Transaction.jsx
 
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Form, Button, Container } from 'react-bootstrap';
-import './depositform.css'
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Form, Button, Container } from "react-bootstrap";
+import "./depositform.css";
 
 const Transaction = () => {
   const [formData, setFormData] = useState({
-    date: '',
-    member: '',
-    accountNumber: '',
-    amount: '',
-    transactionType: '',
-    status: 'Completed',
-    description: '',
+    date: "",
+    member: "",
+    accountNumber: "",
+    amount: "",
+    transactionType: "",
+    status: "Completed",
+    description: "",
   });
 
   const [members, setMembers] = useState([]);
@@ -21,23 +21,27 @@ const Transaction = () => {
   // const [transactionTypes, setTransactionTypes] = useState([]);
 
   const fetchData = async () => {
-      try {
-        const memberResponse = await axios.get('http://localhost:3001/readmemberids');
-        setMembers(memberResponse.data.data);
-        // console.log('Member IDs Status:', memberResponse);
+    try {
+      const memberResponse = await axios.get(
+        "http://localhost:3001/readmemberids"
+      );
+      setMembers(memberResponse.data.data);
+      // console.log('Member IDs Status:', memberResponse);
 
-        const accountResponse = await axios.get('http://localhost:3001/readaccountnumbers');
-        setAccounts(accountResponse.data);
-        // console.log('Account Numbers Status:', accountResponse);
-      } catch (error) {
-        // console.error('Error fetching data:', error);
-      }
-    };
+      const accountResponse = await axios.get(
+        "http://localhost:3001/readaccountnumbers"
+      );
+      setAccounts(accountResponse.data);
+      // console.log('Account Numbers Status:', accountResponse);
+    } catch (error) {
+      // console.error('Error fetching data:', error);
+    }
+  };
 
-  useEffect(  () => {
+  useEffect(() => {
     fetchData();
   }, []); // Empty dependency array ensures this runs only once on component mount
- 
+
   // const fetchTransactionTypes = async () => {
   //   try {
   //     // Replace 'your-transaction-types-api-endpoint' with the actual API endpoint for transaction types
@@ -61,18 +65,21 @@ const Transaction = () => {
     e.preventDefault();
     try {
       // Send form data to your API endpoint to create a transaction
-      const response = await axios.post('http://localhost:3001/transactions', formData);
+      const response = await axios.post(
+        "http://localhost:3001/transactions",
+        formData
+      );
       // console.log(response);
-      
+
       // Reset form fields after successful submission if needed
       setFormData({
-        date: '',
-        member: '',
-        accountNumber: '',
-        transactionAmount: '',
-        debitOrCredit: '',
-        status: '',
-        description: ''
+        date: "",
+        member: "",
+        accountNumber: "",
+        transactionAmount: "",
+        debitOrCredit: "",
+        status: "",
+        description: "",
       });
       fetchData();
     } catch (error) {
@@ -82,116 +89,121 @@ const Transaction = () => {
   };
 
   return (
-    <div className='body-div'>
-
-    <Container>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="date">
-          <Form.Label  className="custom-form-label">Date *</Form.Label>
-          <Form.Control
-          className="custom-form-control"
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleInputChange}
-            required
-          />
-        </Form.Group>
-        <Form.Group controlId="member">
-          <Form.Label  className="custom-form-label">Member *</Form.Label>
-          <Form.Control
-          className="custom-form-control"
-            as="select"
-            name="member"
-            value={formData.member}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Select Member</option>
-            {members.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.id}
-              </option>
-            ))}
-          </Form.Control>
-        </Form.Group>
-        <Form.Group controlId="accountNumber">
-          <Form.Label  className="custom-form-label">Account Number *</Form.Label>
-          <Form.Control
-          className="custom-form-control"
-            as="select"
-            name="accountNumber"
-            value={formData.accountNumber}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Select Account</option>
-            {accounts.map((accountNumber) => (
-              <option key={accountNumber} value={accountNumber}>
-                {accountNumber}
-              </option>
-            ))}
-          </Form.Control>
-        </Form.Group>
-        <Form.Group controlId="transactionAmount">
-          <Form.Label  className="custom-form-label">Transaction Amount *</Form.Label>
-          <Form.Control
-          className="custom-form-control"
-            type="number"
-            name="transactionAmount"
-            value={formData.transactionAmount}
-            onChange={handleInputChange}
-            required
-          />
-        </Form.Group>
-        <Form.Group controlId="debitOrCredit">
-          <Form.Label  className="custom-form-label">Debit/Credit *</Form.Label>
-          <Form.Control
-          className="custom-form-control"
-            as="select"
-            name="debitOrCredit"
-            value={formData.debitOrCredit}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Select Transaction Type</option>
-            <option value="Debit">Debit</option>
-            <option value="Credit">Credit</option>
-          </Form.Control>
-        </Form.Group>
-        <Form.Group controlId="status">
-          <Form.Label  className="custom-form-label">Status *</Form.Label>
-          <Form.Control
-          className="custom-form-control"
-            as="select"
-            name="status"
-            value={formData.status}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Please Select an Option</option>
-            <option value="Completed">Completed</option>
-            <option value="Pending">Pending</option>
-            <option value="Cancelled">Cancelled</option>
-          </Form.Control>
-        </Form.Group>
-        <Form.Group controlId="description">
-          <Form.Label  className="custom-form-label">Description *</Form.Label>
-          <Form.Control
-          className="custom-form-control"
-            as="textarea"
-            rows={4}
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            required
-          />
-        </Form.Group>
-        <Button variant="primary" type="submit">
-          Submit
-        </Button>
-      </Form>
-    </Container>
+    <div className="body-div">
+      <Container>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group controlId="date">
+            <Form.Label className="custom-form-label">Date *</Form.Label>
+            <Form.Control
+              className="custom-form-control"
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleInputChange}
+              required
+            />
+          </Form.Group>
+          <Form.Group controlId="member">
+            <Form.Label className="custom-form-label">Member *</Form.Label>
+            <Form.Control
+              className="custom-form-control"
+              as="select"
+              name="member"
+              value={formData.member}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Select Member</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.id}
+                </option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+          <Form.Group controlId="accountNumber">
+            <Form.Label className="custom-form-label">
+              Account Number *
+            </Form.Label>
+            <Form.Control
+              className="custom-form-control"
+              as="select"
+              name="accountNumber"
+              value={formData.accountNumber}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Select Account</option>
+              {accounts.map((accountNumber) => (
+                <option key={accountNumber} value={accountNumber}>
+                  {accountNumber}
+                </option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+          <Form.Group controlId="transactionAmount">
+            <Form.Label className="custom-form-label">
+              Transaction Amount *
+            </Form.Label>
+            <Form.Control
+              className="custom-form-control"
+              type="number"
+              name="transactionAmount"
+              value={formData.transactionAmount}
+              onChange={handleInputChange}
+              required
+            />
+          </Form.Group>
+          <Form.Group controlId="debitOrCredit">
+            <Form.Label className="custom-form-label">
+              Debit/Credit *
+            </Form.Label>
+            <Form.Control
+              className="custom-form-control"
+              as="select"
+              name="debitOrCredit"
+              value={formData.debitOrCredit}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Select Transaction Type</option>
+              <option value="Debit">Debit</option>
+              <option value="Credit">Credit</option>
+            </Form.Control>
+          </Form.Group>
+          <Form.Group controlId="status">
+            <Form.Label className="custom-form-label">Status *</Form.Label>
+            <Form.Control
+              className="custom-form-control"
+              as="select"
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Please Select an Option</option>
+              <option value="Completed">Completed</option>
+              <option value="Pending">Pending</option>
+              <option value="Cancelled">Cancelled</option>
+            </Form.Control>
+          </Form.Group>
+          <Form.Group controlId="description">
+            <Form.Label className="custom-form-label">Description *</Form.Label>
+            <Form.Control
+              className="custom-form-control"
+              as="textarea"
+              rows={4}
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              required
+            />
+          </Form.Group>
+          <Button variant="primary" type="submit">
+            Submit
+          </Button>
+        </Form>
+      </Container>
     </div>
   );
 };

@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Table } from 'react-bootstrap';
-import Reports from '../Reports';
+import React, { useState } from "react";
+import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
+import Reports from "../Reports";
 
 export default function Revenue() {
-  const [year, setYear] = useState('');
-  const [month, setMonth] = useState('');
+  const [year, setYear] = useState("");
+  const [month, setMonth] = useState("");
 
   const handleSearch = () => {
     // Handle search logic here
-    console.log('Searching with Year:', year, 'Month:', month);
+    console.log("Searching with Year:", year, "Month:", month);
   };
 
   const handleExportToPDF = () => {
     // Handle export to PDF logic here
-    console.log('Exporting to PDF');
+    console.log("Exporting to PDF");
   };
 
   return (
     <div>
       <Reports />
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: "20px" }}>
         <Container>
           <h2 className="mt-4">Revenue</h2>
 
@@ -58,8 +58,16 @@ export default function Revenue() {
                   </Col>
 
                   {/* Search Button */}
-                  <Col md={3} className="mb-2" style={{ display: 'flex', alignItems: 'flex-end' }}>
-                    <Button variant="primary" type="button" onClick={handleSearch}>
+                  <Col
+                    md={3}
+                    className="mb-2"
+                    style={{ display: "flex", alignItems: "flex-end" }}
+                  >
+                    <Button
+                      variant="primary"
+                      type="button"
+                      onClick={handleSearch}
+                    >
                       Search
                     </Button>
                   </Col>
@@ -83,14 +91,23 @@ export default function Revenue() {
               </Form>
             </Col>
             <Col md={6} className="text-right">
-              <Button variant="danger" type="button" onClick={handleExportToPDF}>
+              <Button
+                variant="danger"
+                type="button"
+                onClick={handleExportToPDF}
+              >
                 Export to PDF
               </Button>
             </Col>
           </Row>
 
           {/* Revenue Table */}
-          <Table striped bordered hover className="mt-2 rounded-lg overflow-hidden">
+          <Table
+            striped
+            bordered
+            hover
+            className="mt-2 rounded-lg overflow-hidden"
+          >
             <thead>
               <tr>
                 <th>Revenue Type</th>
