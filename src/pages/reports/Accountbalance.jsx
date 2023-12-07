@@ -10,21 +10,37 @@ export default function AccountBalance() {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/account-details?accountNumber=${accountNumber}`
+        `http://localhost:3001/accountDetails/${accountNumber}`
       );
-      // Axios response data can be accessed directly
-      setTableData(response.data); // Set the fetched data to the state
+      setTableData([response.data]); // Set the fetched data to the state
     } catch (error) {
       console.error("Error fetching data:", error);
-      // Handle errors, for example, display a message to the user
-      // You might want to set an empty array to tableData here to clear any previous data
-      setTableData([]);
+      setTableData([]); // Clear any previous data
     }
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
     await fetchData(); // Call the fetchData function on form submit
+  };
+
+  const renderTableContent = () => {
+    if (tableData.length === 0) {
+      return (
+        <tr>
+          <td colSpan="4">No data available</td>
+        </tr>
+      );
+    }
+
+    return tableData.map((dataRow, index) => (
+      <tr key={index}>
+        <td>{dataRow.accountNumber}</td>
+        <td>{dataRow.availableBalance}</td>
+        <td>{dataRow.associatedLoanIds}</td>
+        <td>{dataRow.currentBalance}</td>
+      </tr>
+    ));
   };
 
   return (
@@ -71,14 +87,7 @@ export default function AccountBalance() {
               </tr>
             </thead>
             <tbody>
-              {tableData.map((dataRow, index) => (
-                <tr key={index}>
-                  <td>{dataRow.accountNumber}</td>
-                  <td>{dataRow.balance}</td>
-                  <td>{dataRow.loanAmount}</td>
-                  <td>{dataRow.currentBalance}</td>
-                </tr>
-              ))}
+            {renderTableContent()}
             </tbody>
           </Table>
         </Container>

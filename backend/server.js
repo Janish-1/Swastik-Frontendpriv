@@ -1944,6 +1944,39 @@ app.get('/randomgenAccountId', limiter, async (req, res) => {
   res.json({ uniqueid });
 });
 
+// Express route to get available balance, current balance, and associated loan ID(s) for an account
+app.get('/accountDetails/:accountNumber', async (req, res) => {
+  try {
+    const { accountNumber } = req.params;
+
+    const account = await AccountModel.findOne({ accountNumber });
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+
+    const transactions = await TransactionsModel.find({ accountNumber });
+    let currentBalance = account.openingBalance;
+    transactions.forEach((transaction) => {
+      if (transaction.debitOrCredit === 'Credit') {
+        currentBalance += transaction.transactionAmount;
+      } else {
+        currentBalance -= transaction.transactionAmount;
+      }
+    });
+
+    const associatedLoans = await repaymentModel.find({ loanId: accountNumber }).distinct('loanId');
+
+    return res.status(200).json({
+      accountNumber: account.accountNumber,
+      availableBalance: currentBalance,
+      currentBalance: account.currentBalance,
+      associatedLoanIds: associatedLoans,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

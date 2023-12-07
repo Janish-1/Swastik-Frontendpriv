@@ -7,47 +7,69 @@ const Members = () => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
-    memberNo: "",
+    memberNo: 0,
     firstName: "",
     lastName: "",
     email: "",
     branchName: "",
+    aadhar: "", // New field
+    pancard: "", // New field
+    accountType: "", // New field
   });
   const [updateData, setUpdateData] = useState({
     id: "",
-    memberNo: "",
+    memberNo: 0,
     firstName: "",
     lastName: "",
     email: "",
     branchName: "",
+    aadhar: "", // New field
+    pancard: "", // New field
+    accountType: "", // New field
   });
   const [membersData, setMembersData] = useState([]);
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(null);
-  const [uniquememberid,setuniquememberid] = useState(0);
+  const [uniquememberid, setuniquememberid] = useState(0);
   const [branchNames, setBranchNames] = useState([]);
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+
+    // Convert the member number to a number type before setting the state
+    if (name === "memberNo") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: parseInt(value, 10), // Parse the input value to an integer
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
 
-    // Update the state based on the input field name
-    setUpdateData({
-      ...updateData,
-      [name]: value,
-    });
+    // Convert the member number to a number type before setting the state
+    if (name === "memberNo") {
+      setUpdateData({
+        ...updateData,
+        [name]: parseInt(value, 10), // Parse the input value to an integer
+      });
+    } else {
+      setUpdateData({
+        ...updateData,
+        [name]: value,
+      });
+    }
   };
 
   const handleOpenEditModal = async (id) => {
-    console.log(id);
+    // console.log(id);
     try {
       const response = await axios.get(`http://localhost:3001/getmember/${id}`);
       const memberData = response.data; // Assuming response.data contains the member data
@@ -60,7 +82,9 @@ const Members = () => {
         lastName: memberData.lastName,
         email: memberData.email,
         branchName: memberData.branchName,
-        // ... Add other fields as necessary based on your form structure
+        aadhar: memberData.aadhar, // New field
+        pancard: memberData.pancard, // New field
+        accountType: memberData.accountType, // New field
       });
 
       setShowEditModal(true); // Open the edit modal
@@ -112,22 +136,29 @@ const Members = () => {
     e.preventDefault();
     try {
       // Add new member
-      await axios.post("http://localhost:3001/createmember", formData);
+      await axios.post("http://localhost:3001/createmember", {
+        ...formData,
+        memberNo: parseInt(uniquememberid, 10), // Ensure memberNo is an integer
+      });
+
       // Close modal and reset form data and selected index
       handleCloseModal();
       setFormData({
-        memberNo: "",
+        memberNo: 0, // Reset memberNo to 0 or initial value
         firstName: "",
         lastName: "",
         email: "",
         branchName: "",
+        aadhar: "", // New field
+        pancard: "", // New field
+        accountType: "", // New field
       });
-      // alert('Data Entered Successfully');
+
+      // Fetch updated data
       fetchData();
     } catch (error) {
-      // alert('Check Data Fields for no duplicates');
-      // console.error('Error:', error);
       // Handle error or display an error message to the user
+      console.error("Error:", error);
     }
   };
 
@@ -155,7 +186,7 @@ const Members = () => {
   const handleDelete = async (id) => {
     try {
       const response = axios.post(`http://localhost:3001/deletemember/${id}`);
-      console.log(response);
+      // console.log(response);
       // alert('Delete Success');
       fetchData();
     } catch (error) {
@@ -227,6 +258,38 @@ const Members = () => {
                     {branch}
                   </option>
                 ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group controlId="formAadhar">
+              <Form.Label>Aadhar</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Aadhar number"
+                name="aadhar"
+                value={formData.aadhar}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formPancard">
+              <Form.Label>Pancard</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Pancard number"
+                name="pancard"
+                value={formData.pancard}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formAccountType">
+              <Form.Label>Account Type</Form.Label>
+              <Form.Select
+                name="accountType"
+                value={formData.accountType}
+                onChange={handleInputChange}
+              >
+                <option value="">Select an account type</option>
+                <option value="Savings">Savings</option>
+                <option value="Loan">Loan</option>
               </Form.Select>
             </Form.Group>
             <Button variant="primary" type="submit">
@@ -308,6 +371,39 @@ const Members = () => {
                 ))}
               </Form.Select>
             </Form.Group>
+            <Form.Group controlId="formAadhar">
+              <Form.Label>Aadhar</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Aadhar number"
+                name="aadhar"
+                value={updateData.aadhar}
+                onChange={handleUpdateChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formPancard">
+              <Form.Label>Pancard</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Pancard number"
+                name="pancard"
+                value={updateData.pancard}
+                onChange={handleUpdateChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formAccountType">
+              <Form.Label>Account Type</Form.Label>
+              <Form.Select
+                name="accountType"
+                value={updateData.accountType}
+                onChange={handleUpdateChange}
+              >
+                <option value="">Select an account type</option>
+                <option value="Savings">Savings</option>
+                <option value="Loan">Loan</option>
+              </Form.Select>
+            </Form.Group>
+
             <Button variant="primary" type="submit">
               Edit
             </Button>
@@ -329,6 +425,9 @@ const Members = () => {
             <th>Last Name</th>
             <th>Email</th>
             <th>Branch</th>
+            <th>Aadhar Number</th>
+            <th>Pan Card</th>
+            <th>Account Type</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -340,6 +439,9 @@ const Members = () => {
               <td>{member.lastName}</td>
               <td>{member.email}</td>
               <td>{member.branchName}</td>
+              <td>{member.aadhar}</td>
+              <td>{member.pancard}</td>
+              <td>{member.accountType}</td>
               <td>
                 <Button
                   variant="warning"
