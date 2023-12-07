@@ -78,9 +78,9 @@ const memberSchema = new mongoose.Schema(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     branchName: { type: String, required: true },
-    aadhar: { type:String, required:true },
-    pancard: { type:String, required:true},
-    accountType: {type:String, required:true},
+    aadhar: { type: String, required: true },
+    pancard: { type: String, required: true },
+    accountType: { type: String, required: true },
   },
   { collection: "members" }
 );
@@ -176,6 +176,22 @@ const categorySchema = new mongoose.Schema(
   { collection: "category" }
 );
 
+const revenueSchema = new mongoose.Schema({
+  year: {
+    type: Number,
+    required: true,
+  },
+  month: {
+    type: Number,
+    required: true,
+  },
+  monthlyRevenue: {
+    type: Number,
+    required: true,
+  },
+  // Add other fields if needed
+}, { collection: 'Revenue' }); // Change 'revenues' to your preferred collection name
+
 const userModel = mongoose.model("userdata", userSchema);
 const branchesModel = mongoose.model("branches", branchesSchema);
 const memberModel = mongoose.model("members", memberSchema);
@@ -186,6 +202,7 @@ const TransactionsModel = mongoose.model("transactions", transactionSchema);
 const ExpenseModel = mongoose.model("expenses", expenseSchema);
 const intuserModel = mongoose.model("intuserdata", intuserSchema);
 const categoryModel = mongoose.model("category", categorySchema);
+const Revenue = mongoose.model("Revenue", revenueSchema); // Assuming you have a Revenue model defined
 
 // Multer configuration for handling file uploads
 const storage = multer.diskStorage({
@@ -498,12 +515,10 @@ app.get("/readbranch", limiter, async (req, res) => {
   try {
     const allBranches = await branchesModel.find();
 
-    res
-      .status(200)
-      .json({
-        message: "All branches retrieved successfully",
-        data: allBranches,
-      });
+    res.status(200).json({
+      message: "All branches retrieved successfully",
+      data: allBranches,
+    });
   } catch (error) {
     console.error("Error retrieving branches:", error);
     res.status(500).json({ message: "Error retrieving branches" });
@@ -537,12 +552,10 @@ app.get("/branches/names", limiter, async (req, res) => {
 
     const branchNames = allBranches.map((branch) => branch.branchName);
 
-    res
-      .status(200)
-      .json({
-        message: "All branch names retrieved successfully",
-        data: branchNames,
-      });
+    res.status(200).json({
+      message: "All branch names retrieved successfully",
+      data: branchNames,
+    });
   } catch (error) {
     console.error("Error retrieving branch names:", error);
     res.status(500).json({ message: "Error retrieving branch names" });
@@ -550,7 +563,16 @@ app.get("/branches/names", limiter, async (req, res) => {
 });
 
 app.post("/createmember", limiter, async (req, res) => {
-  const { memberNo, firstName, lastName, email, branchName,aadhar, pancard, accountType } = req.body;
+  const {
+    memberNo,
+    firstName,
+    lastName,
+    email,
+    branchName,
+    aadhar,
+    pancard,
+    accountType,
+  } = req.body;
 
   try {
     const newMember = new memberModel({
@@ -577,12 +599,30 @@ app.post("/createmember", limiter, async (req, res) => {
 
 app.put("/updatemember/:id", limiter, async (req, res) => {
   const memberId = req.params.id;
-  const { memberNo, firstName, lastName, email, branchName, aadhar, pancard, accountType } = req.body;
+  const {
+    memberNo,
+    firstName,
+    lastName,
+    email,
+    branchName,
+    aadhar,
+    pancard,
+    accountType,
+  } = req.body;
 
   try {
     const updatedMember = await memberModel.findByIdAndUpdate(
       memberId,
-      { memberNo, firstName, lastName, email, branchName, aadhar, pancard, accountType },
+      {
+        memberNo,
+        firstName,
+        lastName,
+        email,
+        branchName,
+        aadhar,
+        pancard,
+        accountType,
+      },
       { new: true }
     );
 
@@ -621,12 +661,10 @@ app.get("/readmembers", limiter, async (req, res) => {
   try {
     const allMembers = await memberModel.find();
 
-    res
-      .status(200)
-      .json({
-        message: "All members retrieved successfully",
-        data: allMembers,
-      });
+    res.status(200).json({
+      message: "All members retrieved successfully",
+      data: allMembers,
+    });
   } catch (error) {
     console.error("Error retrieving members:", error);
     res.status(500).json({ message: "Error retrieving members" });
@@ -641,12 +679,10 @@ app.get("/readmembersname", limiter, async (req, res) => {
       name: `${member.firstName} ${member.lastName}`, // Concatenate 'firstName' and 'lastName'
     }));
 
-    res
-      .status(200)
-      .json({
-        message: "All member names retrieved successfully",
-        data: memberNames,
-      });
+    res.status(200).json({
+      message: "All member names retrieved successfully",
+      data: memberNames,
+    });
   } catch (error) {
     console.error("Error retrieving member names:", error);
     res.status(500).json({ message: "Error retrieving member names" });
@@ -661,12 +697,10 @@ app.get("/readmemberids", limiter, async (req, res) => {
       id: member.memberNo, // Retrieve '_id' field
     }));
 
-    res
-      .status(200)
-      .json({
-        message: "All member IDs retrieved successfully",
-        data: memberIds,
-      });
+    res.status(200).json({
+      message: "All member IDs retrieved successfully",
+      data: memberIds,
+    });
   } catch (error) {
     console.error("Error retrieving member IDs:", error);
     res.status(500).json({ message: "Error retrieving member IDs" });
@@ -828,12 +862,10 @@ app.get("/loanmembers", limiter, async (req, res) => {
 
     const memberNumbers = allMembers.map((member) => member.memberNo);
 
-    res
-      .status(200)
-      .json({
-        message: "All member numbers retrieved successfully",
-        data: memberNumbers,
-      });
+    res.status(200).json({
+      message: "All member numbers retrieved successfully",
+      data: memberNumbers,
+    });
   } catch (error) {
     console.error("Error retrieving member numbers:", error); // Log the specific error
     res.status(500).json({ message: "Error retrieving member numbers" });
@@ -869,12 +901,10 @@ app.post("/repayments", async (req, res) => {
       .status(200)
       .json({ message: "Repayment record created", data: savedRepayment });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Failed to create repayment record",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Failed to create repayment record",
+      error: error.message,
+    });
   }
 });
 
@@ -882,20 +912,16 @@ app.get("/repayments", async (req, res) => {
   try {
     const allRepayments = await repaymentModel.find();
 
-    res
-      .status(200)
-      .json({
-        message: "All repayment records retrieved successfully",
-        data: allRepayments,
-      });
+    res.status(200).json({
+      message: "All repayment records retrieved successfully",
+      data: allRepayments,
+    });
   } catch (error) {
     console.error("Error retrieving repayment records:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error retrieving repayment records",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error retrieving repayment records",
+      error: error.message,
+    });
   }
 });
 
@@ -909,20 +935,16 @@ app.get("/repayments/:id", async (req, res) => {
       return res.status(404).json({ message: "Repayment record not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Repayment record retrieved successfully",
-        data: repayment,
-      });
+    res.status(200).json({
+      message: "Repayment record retrieved successfully",
+      data: repayment,
+    });
   } catch (error) {
     console.error("Error retrieving repayment record:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error retrieving repayment record",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error retrieving repayment record",
+      error: error.message,
+    });
   }
 });
 
@@ -962,12 +984,10 @@ app.put("/repayments/:id", async (req, res) => {
       .status(200)
       .json({ message: "Repayment record updated", data: updatedRepayment });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Failed to update repayment record",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Failed to update repayment record",
+      error: error.message,
+    });
   }
 });
 
@@ -982,20 +1002,16 @@ app.delete("/repayments/:id", async (req, res) => {
       return res.status(404).json({ message: "Repayment record not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Repayment record deleted successfully",
-        data: deletedRepayment,
-      });
+    res.status(200).json({
+      message: "Repayment record deleted successfully",
+      data: deletedRepayment,
+    });
   } catch (error) {
     console.error("Error deleting repayment record:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error deleting repayment record",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error deleting repayment record",
+      error: error.message,
+    });
   }
 });
 
@@ -1006,12 +1022,10 @@ app.get("/approvedLoans", async (req, res) => {
       { status: "Approved" },
       { loanId: 1, _id: 0 }
     );
-    res
-      .status(200)
-      .json({
-        message: "Approved loans retrieved successfully",
-        data: approvedLoans,
-      });
+    res.status(200).json({
+      message: "Approved loans retrieved successfully",
+      data: approvedLoans,
+    });
   } catch (error) {
     console.error("Error fetching approved loans:", error);
     res.status(500).json({ message: "Error fetching approved loans" });
@@ -1033,12 +1047,10 @@ app.get("/accounts", async (req, res) => {
   try {
     const allAccounts = await AccountModel.find();
 
-    res
-      .status(200)
-      .json({
-        message: "All accounts retrieved successfully",
-        data: allAccounts,
-      });
+    res.status(200).json({
+      message: "All accounts retrieved successfully",
+      data: allAccounts,
+    });
   } catch (error) {
     console.error("Error retrieving accounts:", error);
     res.status(500).json({ message: "Error retrieving accounts" });
@@ -1076,12 +1088,10 @@ app.get("/accountids", limiter, async (req, res) => {
     // Extract accountNumbers from the fetched data
     const numbers = accountNumbers.map((account) => account.accountNumber);
 
-    res
-      .status(200)
-      .json({
-        message: "Account numbers retrieved successfully",
-        data: numbers,
-      });
+    res.status(200).json({
+      message: "Account numbers retrieved successfully",
+      data: numbers,
+    });
   } catch (error) {
     console.error("Error retrieving account numbers:", error);
     res.status(500).json({ message: "Error retrieving account numbers" });
@@ -1212,12 +1222,10 @@ app.get("/transactions", async (req, res) => {
   try {
     const allTransactions = await TransactionsModel.find();
 
-    res
-      .status(200)
-      .json({
-        message: "All transactions retrieved successfully",
-        data: allTransactions,
-      });
+    res.status(200).json({
+      message: "All transactions retrieved successfully",
+      data: allTransactions,
+    });
   } catch (error) {
     console.error("Error retrieving transactions:", error);
     res.status(500).json({ message: "Error retrieving transactions" });
@@ -1235,12 +1243,10 @@ app.get("/transactions/:id", async (req, res) => {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Transaction retrieved successfully",
-        data: transaction,
-      });
+    res.status(200).json({
+      message: "Transaction retrieved successfully",
+      data: transaction,
+    });
   } catch (error) {
     console.error("Error retrieving transaction:", error);
     res.status(500).json({ message: "Error retrieving transaction" });
@@ -1260,12 +1266,10 @@ app.delete("/transactions/:id", async (req, res) => {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Transaction deleted successfully",
-        data: deletedTransaction,
-      });
+    res.status(200).json({
+      message: "Transaction deleted successfully",
+      data: deletedTransaction,
+    });
   } catch (error) {
     console.error("Error deleting transaction:", error);
     res.status(500).json({ message: "Error deleting transaction" });
@@ -1290,12 +1294,10 @@ app.put("/transactions/:id", async (req, res) => {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Transaction updated successfully",
-        data: updatedTransaction,
-      });
+    res.status(200).json({
+      message: "Transaction updated successfully",
+      data: updatedTransaction,
+    });
   } catch (error) {
     console.error("Error updating transaction:", error);
     res.status(500).json({ message: "Error updating transaction" });
@@ -1861,7 +1863,7 @@ app.get("/api/cleanOrphanedImages", async (req, res) => {
   }
 });
 
-app.post('/getuseremailpassword', limiter, async (req, res) => {
+app.post("/getuseremailpassword", limiter, async (req, res) => {
   const { token } = req.body;
 
   // Check if the token exists
@@ -1879,7 +1881,7 @@ app.post('/getuseremailpassword', limiter, async (req, res) => {
 
     // Note: Avoid sending sensitive data like passwords here
     // Instead, send only necessary non-sensitive data
-    res.json({ email,password });
+    res.json({ email, password });
   } catch (err) {
     // Handle token verification or decoding errors
     console.error("Token verification error:", err);
@@ -1887,7 +1889,7 @@ app.post('/getuseremailpassword', limiter, async (req, res) => {
   }
 });
 
-app.get('/randomgenMemberId', limiter, async (req, res) => {
+app.get("/randomgenMemberId", limiter, async (req, res) => {
   let isUniqueIdFound = false;
   let uniqueid;
 
@@ -1906,7 +1908,7 @@ app.get('/randomgenMemberId', limiter, async (req, res) => {
   res.json({ uniqueid });
 });
 
-app.get('/randomgenLoanId', limiter, async (req, res) => {
+app.get("/randomgenLoanId", limiter, async (req, res) => {
   let isUniqueIdFound = false;
   let uniqueid;
 
@@ -1925,7 +1927,7 @@ app.get('/randomgenLoanId', limiter, async (req, res) => {
   res.json({ uniqueid });
 });
 
-app.get('/randomgenAccountId', limiter, async (req, res) => {
+app.get("/randomgenAccountId", limiter, async (req, res) => {
   let isUniqueIdFound = false;
   let uniqueid;
 
@@ -1945,26 +1947,28 @@ app.get('/randomgenAccountId', limiter, async (req, res) => {
 });
 
 // Express route to get available balance, current balance, and associated loan ID(s) for an account
-app.get('/accountDetails/:accountNumber', async (req, res) => {
+app.get("/accountDetails/:accountNumber", async (req, res) => {
   try {
     const { accountNumber } = req.params;
 
     const account = await AccountModel.findOne({ accountNumber });
     if (!account) {
-      return res.status(404).json({ message: 'Account not found' });
+      return res.status(404).json({ message: "Account not found" });
     }
 
     const transactions = await TransactionsModel.find({ accountNumber });
     let currentBalance = account.openingBalance;
     transactions.forEach((transaction) => {
-      if (transaction.debitOrCredit === 'Credit') {
+      if (transaction.debitOrCredit === "Credit") {
         currentBalance += transaction.transactionAmount;
       } else {
         currentBalance -= transaction.transactionAmount;
       }
     });
 
-    const associatedLoans = await repaymentModel.find({ loanId: accountNumber }).distinct('loanId');
+    const associatedLoans = await repaymentModel
+      .find({ loanId: accountNumber })
+      .distinct("loanId");
 
     return res.status(200).json({
       accountNumber: account.accountNumber,
@@ -1972,6 +1976,65 @@ app.get('/accountDetails/:accountNumber', async (req, res) => {
       currentBalance: account.currentBalance,
       associatedLoanIds: associatedLoans,
     });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+app.get('/calculateRevenue', async (req, res) => {
+  try {
+    const year = req.query.year;
+    const month = req.query.month;
+    
+    // Ensure the year and month are valid numbers or strings representing numbers
+    const validYear = parseInt(year);
+    const validMonth = parseInt(month);
+    
+    if (isNaN(validYear) || isNaN(validMonth) || validMonth < 1 || validMonth > 12) {
+      return res.status(400).json({ message: 'Invalid year or month' });
+    }
+    
+    // Use the valid year and month to construct the date objects
+    const startDate = new Date(validYear, validMonth - 1, 1); // Start of the specified month
+    const endDate = new Date(validYear, validMonth, 0); // End of the specified month
+    
+    // Get approved loans for the specified year and month
+    const approvedLoans = await loansModel.find({ status: 'Approved' });
+
+    let totalRevenue = 0;
+
+    // Calculate revenue based on repayments for the specified year and month
+    for (const loan of approvedLoans) {
+      const repayments = await repaymentModel.find({
+        loanId: loan.loanId,
+        paymentDate: {
+          $gte: startDate,
+          $lt: endDate,
+        },
+      });
+      
+      for (const repayment of repayments) {
+        totalRevenue += repayment.dueAmount; // Assuming dueAmount represents the monthly payment
+      }
+    }
+
+    // Find the existing revenue for the specified month and year
+    const existingRevenue = await Revenue.findOne({ year, month });
+
+    // If existing revenue is found and matches the calculated revenue, no update needed
+    if (existingRevenue && existingRevenue.monthlyRevenue === totalRevenue) {
+      return res.status(200).json(existingRevenue);
+    }
+
+    // Update or create the revenue entry for the specified month and year
+    const updatedRevenue = await Revenue.findOneAndUpdate(
+      { year, month },
+      { year, month, monthlyRevenue: totalRevenue },
+      { upsert: true, new: true }
+    );
+
+    // Return the updated or newly created revenue entry
+    return res.status(200).json(updatedRevenue);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
