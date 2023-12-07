@@ -2040,6 +2040,13 @@ app.get("/calculate-revenue", async (req, res) => {
       }
     }
 
+    // Update or insert the calculated totalRevenue for the given month and year
+    const filter = { year, month };
+    const update = { year, month, totalRevenue };
+    const options = { upsert: true, new: true };
+
+    await Revenue.findOneAndUpdate(filter, update, options);    
+
     res.json({ totalRevenue });
 
   } catch (error) {
