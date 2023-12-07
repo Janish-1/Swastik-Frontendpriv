@@ -6,18 +6,18 @@ import Reports from "../Reports";
 export default function Revenue() {
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
-  const [revenueData, setRevenueData] = useState([]);
+  const [revenueData, setRevenueData] = useState({});
 
   const handleSearch = async () => {
     try {
       const monthNumber = getMonthNumber(month); // Convert month name to number
       const response = await axios.get(
-        `http://localhost:3001/calculateRevenue?year=${year}&month=${monthNumber}`
+        `http://localhost:3001/calculate-revenue?year=${year}&month=${monthNumber}`
       );
       setRevenueData(response.data);
     } catch (error) {
       console.error("Error fetching revenue data:", error);
-      setRevenueData([]);
+      setRevenueData({});
     }
   };
 
@@ -175,10 +175,10 @@ export default function Revenue() {
             <tbody>
               {revenueData && Object.keys(revenueData).length > 0 ? (
                 <tr>
-                  <td>{revenueData.year}</td>
-                  <td>{revenueData.month}</td>
+                  <td>{year}</td>
+                  <td>{month}</td>
                   <td>Loan</td>
-                  <td>{revenueData.monthlyRevenue}</td>
+                  <td>{revenueData.totalRevenue}</td>
                 </tr>
               ) : (
                 <tr>

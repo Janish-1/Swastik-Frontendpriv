@@ -17,6 +17,8 @@ const Loans = () => {
     releaseDate: new Date(), // Default date
     appliedAmount: "",
     status: "Pending",
+    endDate: new Date(),
+    durationMonths: 0,
   });
   const [loansData, setLoansData] = useState([]);
   const [selectedLoanIndex, setSelectedLoanIndex] = useState(null);
@@ -26,7 +28,7 @@ const Loans = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [accountIds, setAccountIds] = useState([]);
   const [memberNames, setMemberNames] = useState([]);
-  const [uniqueloanid,setuniqueloanid] = useState(0);
+  const [uniqueloanid, setuniqueloanid] = useState(0);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
@@ -72,6 +74,8 @@ const Loans = () => {
         releaseDate,
         appliedAmount,
         status,
+        endDate,
+        durationMonths,
       } = loandata;
 
       // Adjust the format of the releaseDate
@@ -90,6 +94,8 @@ const Loans = () => {
         releaseDate: formattedReleaseDate,
         appliedAmount,
         status,
+        endDate,
+        durationMonths,
         // ... Add other fields as necessary based on your form structure
       });
 
@@ -130,6 +136,8 @@ const Loans = () => {
         releaseDate,
         appliedAmount,
         status,
+        endDate,
+        durationMonths,
       } = formData;
 
       if (
@@ -140,7 +148,9 @@ const Loans = () => {
         !memberNo ||
         !releaseDate ||
         !appliedAmount ||
-        !status
+        !status ||
+        !endDate ||
+        !durationMonths
       ) {
         // Ensure all fields are filled in before submitting
         // Alert or handle this case as required (fields shouldn't be empty)
@@ -156,6 +166,8 @@ const Loans = () => {
         appliedAmount,
         status,
         account, // Include accountId in the POST request
+        endDate,
+        durationMonths,
       });
       handleCloseModal();
       setFormData({
@@ -167,6 +179,8 @@ const Loans = () => {
         releaseDate: new Date(),
         appliedAmount: "",
         status: "",
+        endDate: new Date(),
+        durationMonths: 0,
       });
       fetchData(); // Refetch data after submission
     } catch (error) {
@@ -192,6 +206,8 @@ const Loans = () => {
         releaseDate: new Date(),
         appliedAmount: "",
         status: "",
+        endDate: new Date(),
+        durationMonths: "",
       });
       // alert('Data Updated Successfully');
       handleCloseEditModal();
@@ -247,14 +263,17 @@ const Loans = () => {
       const memberNo = loan.memberNo.toString().toLowerCase(); // Convert to lowercase string
       const borrowerNumber = loan.borrower.toString().toLowerCase(); // Convert to lowercase string
       const searchTermLower = searchTerm.toLowerCase(); // Convert search term to lowercase
-  
+
       // Check if 'memberNo' or 'borrowerNumber' includes the search term
-      return memberNo.includes(searchTermLower) || borrowerNumber.includes(searchTermLower);
+      return (
+        memberNo.includes(searchTermLower) ||
+        borrowerNumber.includes(searchTermLower)
+      );
     });
-  
+
     setFilteredLoans(filteredLoans);
   }, [searchTerm, loansData]);
-  
+
   return (
     <div className="body-div">
       <div className="d-flex mb-2">
@@ -397,6 +416,25 @@ const Loans = () => {
                 />
               </div>
             </Form.Group>
+            <Form.Group controlId="formendDate">
+              <Form.Label>End Date</Form.Label>
+              <Form.Control
+                type="date"
+                name="endDate"
+                // value={formData.releaseDate.toISOString().split("T")[0]} // Format the date as YYYY-MM-DD
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formdurationMonths">
+              <Form.Label>Duration in Months</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter duration"
+                name="durationMonths"
+                value={formData.durationMonths}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
             <Button variant="primary" type="submit">
               Add
             </Button>
@@ -537,6 +575,25 @@ const Loans = () => {
                 />
               </div>
             </Form.Group>
+            <Form.Group controlId="formendDate">
+              <Form.Label>End Date</Form.Label>
+              <Form.Control
+                type="date"
+                name="endDate"
+                // value={formData.releaseDate.toISOString().split("T")[0]} // Format the date as YYYY-MM-DD
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formdurationMonths">
+              <Form.Label>Duration in Months</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter duration"
+                name="durationMonths"
+                value={formData.durationMonths}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
             <Button variant="primary" type="submit">
               Update
             </Button>
@@ -561,6 +618,8 @@ const Loans = () => {
             <th>Release Date</th>
             <th>Loan Amount</th>
             <th>Status</th>
+            <th>End Date</th>
+            <th>Duration in Months</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -576,7 +635,12 @@ const Loans = () => {
               <td>{new Date(loan.releaseDate).toLocaleDateString()}</td>
               <td>{loan.appliedAmount}</td>
               <td>{loan.status}</td>
-
+              <td>
+                {loan.endDate
+                  ? new Date(loan.endDate).toLocaleDateString()
+                  : "-"}
+              </td>
+              <td>{loan.durationMonths || "-"}</td>
               <td>
                 <Button
                   variant="warning"

@@ -95,6 +95,8 @@ const loanSchema = new mongoose.Schema(
     appliedAmount: { type: Number, required: true },
     status: { type: String, required: true },
     account: { type: String, ref: "AccountModel", required: true },
+    endDate: { type: Date }, // Optional field for the end date of the loan
+    durationMonths: { type: Number }, // Optional field for the duration of the loan in months
   },
   { collection: "loans" }
 );
@@ -176,21 +178,24 @@ const categorySchema = new mongoose.Schema(
   { collection: "category" }
 );
 
-const revenueSchema = new mongoose.Schema({
-  year: {
-    type: Number,
-    required: true,
+const revenueSchema = new mongoose.Schema(
+  {
+    year: {
+      type: Number,
+      required: true,
+    },
+    month: {
+      type: Number,
+      required: true,
+    },
+    monthlyRevenue: {
+      type: Number,
+      required: true,
+    },
+    // Add other fields if needed
   },
-  month: {
-    type: Number,
-    required: true,
-  },
-  monthlyRevenue: {
-    type: Number,
-    required: true,
-  },
-  // Add other fields if needed
-}, { collection: 'Revenue' }); // Change 'revenues' to your preferred collection name
+  { collection: "Revenue" }
+); // Change 'revenues' to your preferred collection name
 
 const userModel = mongoose.model("userdata", userSchema);
 const branchesModel = mongoose.model("branches", branchesSchema);
@@ -738,6 +743,8 @@ app.post("/createloan", limiter, async (req, res) => {
     appliedAmount,
     status,
     account,
+    endDate,
+    durationMonths,
   } = req.body;
 
   try {
@@ -750,6 +757,8 @@ app.post("/createloan", limiter, async (req, res) => {
       appliedAmount,
       status,
       account, // Convert account to ObjectId
+      endDate,
+      durationMonths,
     });
 
     await newLoan.save();
@@ -774,6 +783,8 @@ app.put("/updateloan/:id", limiter, async (req, res) => {
     appliedAmount,
     status,
     account,
+    endDate,
+    durationMonths,
   } = req.body;
 
   try {
@@ -787,6 +798,8 @@ app.put("/updateloan/:id", limiter, async (req, res) => {
         appliedAmount,
         status,
         account,
+        endDate,
+        durationMonths,
       },
       { new: true }
     );
@@ -1981,62 +1994,57 @@ app.get("/accountDetails/:accountNumber", async (req, res) => {
   }
 });
 
-app.get('/calculateRevenue', async (req, res) => {
+app.get("/calculate-revenue", async (req, res) => {
   try {
-    const year = req.query.year;
-    const month = req.query.month;
-    
-    // Ensure the year and month are valid numbers or strings representing numbers
-    const validYear = parseInt(year);
-    const validMonth = parseInt(month);
-    
-    if (isNaN(validYear) || isNaN(validMonth) || validMonth < 1 || validMonth > 12) {
-      return res.status(400).json({ message: 'Invalid year or month' });
+    const { year, month } = req.query;
+
+    // Check if both year and month are provided in the query
+    if (!year || !month) {
+      return res.status(400).json({
+        error: "Please provide year and month in the query parameters.",
+      });
     }
-    
-    // Use the valid year and month to construct the date objects
-    const startDate = new Date(validYear, validMonth - 1, 1); // Start of the specified month
-    const endDate = new Date(validYear, validMonth, 0); // End of the specified month
-    
-    // Get approved loans for the specified year and month
-    const approvedLoans = await loansModel.find({ status: 'Approved' });
+
+    const startDate = new Date(year, month - 1, 1); // Month in JavaScript Date starts from 0 (January)
+    const endDate = new Date(year, month, 0); // To get the last day of the month
+
+    // Find all active loans within the specified month and year using loansModel
+    const activeLoans = await loansModel.find({
+      $or: [
+        {
+          $and: [
+            { releaseDate: { $lte: endDate } },
+            { endDate: { $gte: startDate } },
+          ],
+        },
+        {
+          $and: [
+            { releaseDate: { $gte: startDate } },
+            { endDate: { $exists: false } },
+          ],
+        },
+      ],
+    }).select('loanId'); // Selecting only the loanId field
+
+    // Extract Loan IDs from active loans
+    const loanIds = activeLoans.map(loan => loan.loanId);
 
     let totalRevenue = 0;
 
-    // Calculate revenue based on repayments for the specified year and month
-    for (const loan of approvedLoans) {
-      const repayments = await repaymentModel.find({
-        loanId: loan.loanId,
-        paymentDate: {
-          $gte: startDate,
-          $lt: endDate,
-        },
-      });
-      
+    // Fetch repayments for each loan and calculate revenue
+    for (const loanId of loanIds) {
+      const repayments = await repaymentModel.find({ loanId });
       for (const repayment of repayments) {
-        totalRevenue += repayment.dueAmount; // Assuming dueAmount represents the monthly payment
+        const { dueAmount, interest } = repayment;
+        totalRevenue += dueAmount * ( interest / 100 );
       }
     }
 
-    // Find the existing revenue for the specified month and year
-    const existingRevenue = await Revenue.findOne({ year, month });
+    res.json({ totalRevenue });
 
-    // If existing revenue is found and matches the calculated revenue, no update needed
-    if (existingRevenue && existingRevenue.monthlyRevenue === totalRevenue) {
-      return res.status(200).json(existingRevenue);
-    }
-
-    // Update or create the revenue entry for the specified month and year
-    const updatedRevenue = await Revenue.findOneAndUpdate(
-      { year, month },
-      { year, month, monthlyRevenue: totalRevenue },
-      { upsert: true, new: true }
-    );
-
-    // Return the updated or newly created revenue entry
-    return res.status(200).json(updatedRevenue);
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    console.error("Error retrieving Loan IDs:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
