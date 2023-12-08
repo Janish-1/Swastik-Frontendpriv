@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, Form, Button, Row, Col } from "react-bootstrap";
 import axios from "axios";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,7 +15,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:3001/all-login", {
+      const response = await axios.post(`${API_BASE_URL}/all-login`, {
         email: email,
         password: password,
       });

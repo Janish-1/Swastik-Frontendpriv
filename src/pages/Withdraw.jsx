@@ -4,6 +4,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Form, Button, Container } from "react-bootstrap";
 import "./depositform.css";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
+
+
 const Withdraw = () => {
   const [formData, setFormData] = useState({
     date: "",
@@ -21,13 +25,13 @@ const Withdraw = () => {
   const fetchData = async () => {
     try {
       const memberResponse = await axios.get(
-        "http://localhost:3001/readmemberids"
+        `${API_BASE_URL}/readmemberids`
       );
       setMembers(memberResponse.data.data);
       // console.log('Member IDs Status:', memberResponse);
 
       const accountResponse = await axios.get(
-        "http://localhost:3001/readaccountnumbers"
+        `${API_BASE_URL}/readaccountnumbers`
       );
       setAccounts(accountResponse.data);
       // console.log('Account Numbers Status:', accountResponse);
@@ -52,7 +56,7 @@ const Withdraw = () => {
     e.preventDefault();
     try {
       // Send form data to your API endpoint to create a transaction
-      const response = await fetch("http://localhost:3001/transactions", {
+      const response = await fetch(`${API_BASE_URL}/transactions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

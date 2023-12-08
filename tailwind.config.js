@@ -1,3 +1,6 @@
+const path = require('path');
+const webpack = require('webpack');
+
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   darkMode: "class",

@@ -31,11 +31,14 @@ const Branches = () => {
   const [presetemail, setEmail] = useState("");
   const [presetpassword, setPassword] = useState("");
 
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
+  console.log("Api URL:", API_BASE_URL);
+
   // useEffect(async () => {
   //   const token = localStorage.getItem("token");
   //   if (token) {
   //     (response = await axios.post(
-  //       "http://localhost:3001/getuseremailpassword"
+  //       "${API_BASE_URL}/getuseremailpassword"
   //     )),
   //       {
   //         method: "POST",
@@ -71,7 +74,7 @@ const Branches = () => {
 
   const handleOpenEditModal = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:3001/getbranch/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/getbranch/${id}`);
       const selectedMemberData = response.data; // Assuming response.data contains the member data
       // console.log(selectedMemberData);
       // Set the form data to the retrieved member's data
@@ -104,7 +107,7 @@ const Branches = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3001/createbranch",
+        `${API_BASE_URL}/createbranch`,
         formData
       );
       fetchData();
@@ -112,7 +115,7 @@ const Branches = () => {
       setShowAlert(true);
     }
     // Create a manager user associated with the branch
-    const responseUser = await axios.post("http://localhost:3001/all-create", {
+    const responseUser = await axios.post(`${API_BASE_URL}/all-create`, {
       name: formData.managerName,
       email: formData.contactemail,
       password: formData.password,
@@ -143,21 +146,22 @@ const Branches = () => {
       // Update member
       // console.log(formData);
       const response = await axios.put(
-        `http://localhost:3001/updatebranch/${formData._id}`,
+        `${API_BASE_URL}/updatebranch/${formData._id}`,
         formData
       );
       // console.log(response.data);
       // Close the edit modal
       handleCloseEditModal();
 
-      const response1 = await axios.put(`http://localhost:3001/update-user/${formData.contactemail}`,
+      const response1 = await axios.put(
+        `${API_BASE_URL}/update-user/${formData.contactemail}`,
         {
           name: formData.managerName,
           email: formData.contactemail,
           password: formData.password,
           userType: "manager",
         }
-      )
+      );
 
       // Reset form data
       setFormData({
@@ -177,9 +181,7 @@ const Branches = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await axios.post(
-        `http://localhost:3001/deletebranch/${id}`
-      );
+      const response = await axios.post(`${API_BASE_URL}/deletebranch/${id}`);
       // console.log(response.data);
       // Show success alert for delete
       fetchData();
@@ -197,7 +199,7 @@ const Branches = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/readbranch");
+      const response = await axios.get(`${API_BASE_URL}/readbranch`);
       const { data } = response.data; // Extract 'data' array from the response
 
       // Filter the 'data' array based on searchTerm
@@ -207,7 +209,6 @@ const Branches = () => {
 
       // Update filteredMembers state with the filtered data
       setFilteredMembers(filteredData);
-
     } catch (error) {
       // console.error("Error while fetching data:", error);
       // Handle the error or show an error message to the user

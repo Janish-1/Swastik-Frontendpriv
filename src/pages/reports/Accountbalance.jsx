@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 export default function AccountBalance() {
   const [tableData, setTableData] = useState([]);
@@ -10,7 +12,7 @@ export default function AccountBalance() {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/accountDetails/${accountNumber}`
+        `${API_BASE_URL}/accountDetails/${accountNumber}`
       );
       setTableData([response.data]); // Set the fetched data to the state
     } catch (error) {
@@ -86,9 +88,7 @@ export default function AccountBalance() {
                 <th>Current Balance</th>
               </tr>
             </thead>
-            <tbody>
-            {renderTableContent()}
-            </tbody>
+            <tbody>{renderTableContent()}</tbody>
           </Table>
         </Container>
       </div>

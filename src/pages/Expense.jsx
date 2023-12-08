@@ -3,6 +3,8 @@ import { Modal, Button, Form, Table } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 const Expense = () => {
   const [showModal, setShowModal] = useState(false);
@@ -23,14 +25,10 @@ const Expense = () => {
 
   const fetchData = async () => {
     try {
-      const categoriesResponse = await axios.get(
-        "http://localhost:3001/categories"
-      );
+      const categoriesResponse = await axios.get(`${API_BASE_URL}/categories`);
       setCategories(categoriesResponse.data); // Assuming data is an array of categories
 
-      const expensesResponse = await axios.get(
-        "http://localhost:3001/expenses"
-      );
+      const expensesResponse = await axios.get(`${API_BASE_URL}/expenses`);
       setExpenses(expensesResponse.data); // Assuming the response data contains an array of expenses
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -39,7 +37,7 @@ const Expense = () => {
 
   const handleAddCategory = async () => {
     try {
-      const response = await axios.post("http://localhost:3001/categories", {
+      const response = await axios.post(`${API_BASE_URL}/categories`, {
         name: newCategory,
       });
 
@@ -85,7 +83,7 @@ const Expense = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:3001/expenses", formData);
+      await axios.post(`${API_BASE_URL}/expenses`, formData);
       setFormData({
         date: new Date(),
         category: "",

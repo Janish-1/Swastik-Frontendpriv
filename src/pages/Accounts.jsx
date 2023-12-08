@@ -10,6 +10,8 @@ import {
   FormControl,
   Dropdown,
 } from "react-bootstrap";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 const Accounts = () => {
   const [showModal, setShowModal] = useState(false);
@@ -61,7 +63,7 @@ const Accounts = () => {
 
   const handleOpenEditModal = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:3001/accounts/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/accounts/${id}`);
       const accountData = response.data.data; // Assuming response.data contains the account data
 
       setAccountFormData({
@@ -105,7 +107,7 @@ const Accounts = () => {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        `http://localhost:3001/deleteaccounts/${id}`
+        `${API_BASE_URL}/deleteaccounts/${id}`
       );
       // console.log(response);
       // alert('Delete Success');
@@ -121,7 +123,7 @@ const Accounts = () => {
     try {
       // console.log(formData);
       await axios.put(
-        `http://localhost:3001/updateaccounts/${accountFormData._id}`,
+        `${API_BASE_URL}/updateaccounts/${accountFormData._id}`,
         accountFormData
       );
       // alert('Data Updated Successfully');
@@ -137,7 +139,7 @@ const Accounts = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:3001/createaccounts", formData);
+      await axios.post(`${API_BASE_URL}/createaccounts`, formData);
       // alert('Data Entered Successfully');
       fetchData(); // Fetch data after successful addition
       handleCloseModal();
@@ -150,7 +152,7 @@ const Accounts = () => {
   const fetchData = async () => {
     try {
       // Fetch accounts data
-      const response = await axios.get("http://localhost:3001/accounts");
+      const response = await axios.get(`${API_BASE_URL}/accounts`);
       setAccountsData(response.data.data); // Assuming response.data contains the account data
     } catch (error) {
       console.error("Error fetching accounts:", error);
@@ -158,7 +160,7 @@ const Accounts = () => {
     }
 
     const response = await axios
-      .get("http://localhost:3001/readmembersname")
+      .get(`${API_BASE_URL}/readmembersname`)
       .then((response) => {
         // console.log('Member Name Status:',response);
         setMembersData(response.data.data);
@@ -166,12 +168,12 @@ const Accounts = () => {
       .catch((error) => console.log("Error Fetching Member Numbers"));
 
     const uniqueaccountresponse = await axios.get(
-      "http://localhost:3001/randomgenAccountId"
+      `${API_BASE_URL}/randomgenAccountId`
     );
     setuniqueaccountid(uniqueaccountresponse.data.uniqueid);
 
     const branchNamesResponse = await axios.get(
-      "http://localhost:3001/branches/names"
+      `${API_BASE_URL}/branches/names`
     );
     setBranchNames(branchNamesResponse.data.data);
   };
@@ -419,7 +421,13 @@ const Accounts = () => {
         </Modal.Body>
       </Modal>
 
-      <Table striped responsive bordered hover className="mt-4 rounded-lg overflow-hidden">
+      <Table
+        striped
+        responsive
+        bordered
+        hover
+        className="mt-4 rounded-lg overflow-hidden"
+      >
         <thead>
           <tr>
             <th>Account Number</th>

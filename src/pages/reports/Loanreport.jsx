@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import axios from "axios";
 import Reports from "../Reports";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 export default function Loanreport() {
   const [loanData, setLoanData] = useState([]);
@@ -20,10 +22,7 @@ export default function Loanreport() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:3001/loanreport",
-        formData
-      );
+      const response = await axios.post(`${API_BASE_URL}/loanreport`, formData);
       setLoanData(response.data);
       console.log(response);
     } catch (error) {

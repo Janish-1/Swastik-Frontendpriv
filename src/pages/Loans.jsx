@@ -8,6 +8,8 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { parseISO } from "date-fns";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import Objectionloan from "./Objectionloan";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 const Loans = () => {
   const [showModal, setShowModal] = useState(false);
@@ -65,7 +67,7 @@ const Loans = () => {
 
   const handleOpenEditModal = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:3001/loans/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/loans/${id}`);
       const loandata = response.data.data; // Assuming response.data contains the loan data
 
       // Destructure loan data
@@ -119,9 +121,7 @@ const Loans = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(
-        `http://localhost:3001/deleteloan/${id}`
-      );
+      const response = await axios.delete(`${API_BASE_URL}/deleteloan/${id}`);
       // console.log(response);
       // alert('Delete Success');
       fetchData(); // Refetch data after deletion
@@ -136,7 +136,7 @@ const Loans = () => {
       let response;
       if (type === "member") {
         response = await axios.get(
-          `http://localhost:3001/detailsByMemberId/${inputValue}`
+          `${API_BASE_URL}/detailsByMemberId/${inputValue}`
         );
         const memberDetails = response.data;
         const { accountNumber, memberName } = memberDetails;
@@ -148,7 +148,7 @@ const Loans = () => {
         }));
       } else if (type === "account") {
         response = await axios.get(
-          `http://localhost:3001/detailsByAccountNumber/${inputValue}`
+          `${API_BASE_URL}/detailsByAccountNumber/${inputValue}`
         );
         const accountDetails = response.data;
         const { memberNo, memberName } = accountDetails;
@@ -188,7 +188,7 @@ const Loans = () => {
         objections,
       } = formData;
 
-      await axios.post("http://localhost:3001/createloan", {
+      await axios.post(`${API_BASE_URL}/createloan`, {
         loanId,
         loanProduct,
         borrower,
@@ -224,10 +224,7 @@ const Loans = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(
-        `http://localhost:3001/updateloan/${formData.id}`,
-        formData
-      );
+      await axios.put(`${API_BASE_URL}/updateloan/${formData.id}`, formData);
       setFormData({
         loanId: "",
         account: "",
@@ -253,7 +250,7 @@ const Loans = () => {
   //   try {
   //     if (selectedLoanForApproval) {
   //       await axios.put(
-  //         `http://localhost:3001/approveLoan/${selectedLoanForApproval._id}`
+  //         `${API_BASE_URL}/approveLoan/${selectedLoanForApproval._id}`
   //       );
   //       fetchData();
   //     }
@@ -266,17 +263,13 @@ const Loans = () => {
 
   const handleApproveLoan = async (loanId) => {
     // Implement approve loan logic
-    const response = await axios.put(
-      `http://localhost:3001/approveLoan/${loanId}`
-    );
+    const response = await axios.put(`${API_BASE_URL}/approveLoan/${loanId}`);
     console.log(response);
     fetchData();
   };
 
   const handleCancelLoan = async (loanId) => {
-    const response = await axios.put(
-      `http://localhost:3001/cancelLoan/${loanId}`
-    );
+    const response = await axios.put(`${API_BASE_URL}/cancelLoan/${loanId}`);
     console.log(response);
     fetchData();
   };
@@ -292,8 +285,8 @@ const Loans = () => {
       `Objection submitted for loan ${selectedLoanId} with reason: ${reason}`
     );
     const response = await axios.put(
-      `http://localhost:3001/objection/${selectedLoanId}`,
-      {reason}
+      `${API_BASE_URL}/objection/${selectedLoanId}`,
+      { reason }
     );
     console.log(response);
     fetchData();
@@ -309,28 +302,24 @@ const Loans = () => {
   // Function to fetch data
   const fetchData = async () => {
     try {
-      const loansResponse = await axios.get("http://localhost:3001/loans");
+      const loansResponse = await axios.get(`${API_BASE_URL}/loans`);
       const fetchedLoans = loansResponse.data.data;
       setLoansData(fetchedLoans);
 
-      const membersResponse = await axios.get(
-        "http://localhost:3001/loanmembers"
-      );
+      const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
       const memberNumbers = membersResponse.data.data;
       setmemberNumbers(memberNumbers);
 
-      const response = await axios.get("http://localhost:3001/accountids");
+      const response = await axios.get(`${API_BASE_URL}/accountids`);
       setAccountIds(response.data.data);
       // console.log(response);
 
-      const memberresponse = await axios.get(
-        "http://localhost:3001/readmembersname"
-      );
+      const memberresponse = await axios.get(`${API_BASE_URL}/readmembersname`);
       const names = memberresponse.data.data.map((member) => member.name);
       setMemberNames(names);
 
       const uniqueloanresponse = await axios.get(
-        "http://localhost:3001/randomgenLoanId"
+        `${API_BASE_URL}/randomgenLoanId`
       );
       setuniqueloanid(uniqueloanresponse.data.uniqueid);
     } catch (error) {

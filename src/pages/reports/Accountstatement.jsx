@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Form, Button, Row, Col, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 const AccountStatement = () => {
   const [transactions, setTransactions] = useState([]);
@@ -11,16 +13,13 @@ const AccountStatement = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:3001/accountstatement`,
-        {
-          params: {
-            accountNumber,
-            startDate,
-            endDate,
-          },
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/accountstatement`, {
+        params: {
+          accountNumber,
+          startDate,
+          endDate,
+        },
+      });
 
       if (response.status === 200) {
         const transactionsData = response.data || [];

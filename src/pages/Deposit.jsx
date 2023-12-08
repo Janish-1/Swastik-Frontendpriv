@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Form, Button, Container, Alert } from "react-bootstrap";
 import "./depositform.css"; // Import the custom CSS file
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 const Deposit = () => {
   const [formData, setFormData] = useState({
@@ -22,19 +24,17 @@ const Deposit = () => {
 
   const fetchData = async () => {
     try {
-      const memberResponse = await axios.get(
-        "http://localhost:3001/readmemberids"
-      );
+      const memberResponse = await axios.get(`${API_BASE_URL}/readmemberids`);
       setMembers(memberResponse.data.data);
       // console.log('Member IDs Status:', memberResponse);
 
       const accountResponse = await axios.get(
-        "http://localhost:3001/readaccountnumbers"
+        `${API_BASE_URL}/readaccountnumbers`
       );
       setAccounts(accountResponse.data);
       // console.log('Account Numbers Status:', accountResponse);
       const transactionsResponse = await axios.get(
-        "http://localhost:3001/transactions"
+        `${API_BASE_URL}/transactions`
       );
       setTransactions(transactionsResponse.data.data);
     } catch (error) {
@@ -59,7 +59,7 @@ const Deposit = () => {
 
     try {
       // Send form data to your API endpoint to create a transaction
-      const response = await fetch("http://localhost:3001/transactions", {
+      const response = await fetch(`${API_BASE_URL}/transactions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

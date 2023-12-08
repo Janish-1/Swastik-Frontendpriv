@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 export default function Expense() {
   const [expenses, setExpenses] = useState([]);
@@ -22,7 +24,7 @@ export default function Expense() {
       try {
         // Fetch categories with axios.get including parameters
         const categoriesResponse = await axios.get(
-          "http://localhost:3001/categories",
+          `${API_BASE_URL}/categories`,
           {
             params: {
               startDate: startDate,
@@ -34,7 +36,7 @@ export default function Expense() {
         setCategories(categoriesResponse.data);
 
         // Construct the URL for fetching expenses with parameters
-        let url = "http://localhost:3001/reportexpenses";
+        let url = `${API_BASE_URL}/reportexpenses`;
         const params = {
           startDate,
           endDate,

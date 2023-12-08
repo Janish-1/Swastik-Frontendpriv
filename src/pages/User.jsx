@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Modal, Button, Form, Table, Badge } from "react-bootstrap";
 import { FaEdit, FaTrash } from "react-icons/fa";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 const User = () => {
   const [showModal, setShowModal] = useState(false);
@@ -21,7 +23,7 @@ const User = () => {
 
     try {
       const response = await axios.get(
-        `http://localhost:3001/usersdetails/${userId}`
+        `${API_BASE_URL}/usersdetails/${userId}`
       );
       const userData = response.data;
 
@@ -72,7 +74,7 @@ const User = () => {
       formDataForApi.append("image", formData.image);
 
       const response = await axios.put(
-        `http://localhost:3001/updateintuser/${editUserId}`,
+        `${API_BASE_URL}/updateintuser/${editUserId}`,
         formDataForApi,
         {
           headers: {
@@ -81,7 +83,7 @@ const User = () => {
         }
       );
       const responseUser = await axios.put(
-        `http://localhost:3001/update-user/${formData.email}`,
+        `${API_BASE_URL}/update-user/${formData.email}`,
         {
           name: formData.name,
           email: formData.email,
@@ -89,7 +91,7 @@ const User = () => {
           userType: formData.userType,
         }
       );
-      console.log(responseUser);  
+      console.log(responseUser);
       if (response.status === 200) {
         console.log("User updated successfully");
         setFormData({
@@ -139,20 +141,17 @@ const User = () => {
     formDataForApi.append("status", formData.status);
     formDataForApi.append("image", formData.image);
 
-    const responseUser = await axios.post(
-      "http://localhost:3001/all-create",
-      {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        userType: formData.userType,
-      }
-    );
+    const responseUser = await axios.post(`${API_BASE_URL}/all-create`, {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      userType: formData.userType,
+    });
     console.log(responseUser);
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/users",
+        `${API_BASE_URL}/users`,
         formDataForApi,
         {
           headers: {
@@ -186,7 +185,7 @@ const User = () => {
   // Function to fetch user data from the backend
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/users"); // Replace with your API endpoint
+      const response = await axios.get(`${API_BASE_URL}/api/users`); // Replace with your API endpoint
       setUsersData(response.data); // Update usersData state with the fetched data
     } catch (error) {
       // console.error('Error fetching users:', error);
@@ -202,7 +201,7 @@ const User = () => {
   const handleDelete = async (userId) => {
     try {
       const response = await axios.delete(
-        `http://localhost:3001/api/users/${userId}`
+        `${API_BASE_URL}/api/users/${userId}`
       );
       fetchData();
     } catch (error) {

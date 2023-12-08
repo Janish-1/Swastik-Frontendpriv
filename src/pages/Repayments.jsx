@@ -1,10 +1,12 @@
 // Repayments.jsx
 
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Table, FormControl } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import axios from 'axios';
+import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 const Repayments = () => {
   const [showModal, setShowModal] = useState(false);
@@ -48,13 +50,13 @@ const Repayments = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {  
-      const response = await axios.post('http://localhost:3001/repayments', formData);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/repayments`, formData);
       // console.log('Data Successfully entered in Backend Server', response.data.data);
       fetchData();
       handleCloseModal();
       setFormData({
-        loanId: '',
+        loanId: "",
         paymentDate: new Date(),
         dueDate: new Date(),
         dueAmount: 0,
@@ -62,23 +64,23 @@ const Repayments = () => {
         interest: 0,
         latePenalties: 0,
         totalAmount: 0,
-      });  
+      });
     } catch (error) {
       // console.error('Some Error in submitting the form data to backend:', error);
       handleCloseModal();
     }
   };
-  
+
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/repayments');
+      const response = await axios.get(`${API_BASE_URL}/repayments`);
       setRepaymentsData(response.data.data);
     } catch (error) {
       // console.error('Error fetching repayments:', error);
       // Handle error or display an error message to the user
     }
     try {
-      const response = await axios.get('http://localhost:3001/approvedLoans');
+      const response = await axios.get(`${API_BASE_URL}/approvedLoans`);
       const data = response.data.data;
       setApprovedLoanIds(data);
       // console.log('Approved Loan Id',data);
@@ -91,15 +93,15 @@ const Repayments = () => {
     // Fetch data initially on component mount
     fetchData();
   }, []);
-  
+
   useEffect(() => {
     const filteredRepayments = repaymentsData.filter((repayment) =>
       repayment.loanId.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  
+
     setFilteredRepayments(filteredRepayments);
   }, [searchTerm, repaymentsData]);
-    
+
   return (
     <div className="body-div">
       <div className="d-flex mb-2">
@@ -120,22 +122,22 @@ const Repayments = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formLoanId">
-            <Form.Label>Loan ID</Form.Label>
-            <Form.Control
-              as="select"
-              name="loanId"
-              value={formData.loanId}
-              onChange={handleInputChange}
-            >
-              <option value="">Select a Loan ID</option>
-              {approvedLoanIds.map((loan) => (
-                <option key={loan._id} value={loan.loanId}>
-                  {loan.loanId}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
+            <Form.Group controlId="formLoanId">
+              <Form.Label>Loan ID</Form.Label>
+              <Form.Control
+                as="select"
+                name="loanId"
+                value={formData.loanId}
+                onChange={handleInputChange}
+              >
+                <option value="">Select a Loan ID</option>
+                {approvedLoanIds.map((loan) => (
+                  <option key={loan._id} value={loan.loanId}>
+                    {loan.loanId}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formPaymentDate">
               <Form.Label>Payment Date</Form.Label>
               <Form.Control

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import axios from "axios";
 import Reports from "../Reports";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 export default function Revenue() {
   const [year, setYear] = useState("");
@@ -12,7 +14,7 @@ export default function Revenue() {
     try {
       const monthNumber = getMonthNumber(month); // Convert month name to number
       const response = await axios.get(
-        `http://localhost:3001/calculate-revenue?year=${year}&month=${monthNumber}`
+        `${API_BASE_URL}/calculate-revenue?year=${year}&month=${monthNumber}`
       );
       setRevenueData(response.data);
     } catch (error) {

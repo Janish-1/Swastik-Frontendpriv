@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 export default function Transaction() {
   const [transactions, setTransactions] = useState([]);
@@ -21,10 +23,9 @@ export default function Transaction() {
     e.preventDefault();
 
     try {
-      const response = await axios.get(
-        "http://localhost:3001/transactionreport",
-        { params: formData }
-      );
+      const response = await axios.get(`${API_BASE_URL}/transactionreport`, {
+        params: formData,
+      });
       setTransactions(response.data);
     } catch (error) {
       console.error("Error fetching transaction data:", error);

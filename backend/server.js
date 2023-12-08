@@ -7,12 +7,20 @@ const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 const fs = require("fs");
+const dotenv = require('dotenv');
+
+// Specify the absolute path to your .env file
+const envPath = path.resolve(__dirname, '../.env');
+
+// Load environment variables from the specified .env file
+dotenv.config({ path: envPath });
+
 require("dotenv").config(); // Load environment variables from .env file
+
+const uri = process.env.MONGODB_URI;
 
 const app = express();
 const PORT = 3001;
-
-const uri = process.env.MONGODB_URI;
 
 mongoose.connect(uri, {
   useNewUrlParser: true,

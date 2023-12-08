@@ -4,6 +4,9 @@ import axios from "axios";
 // import { FaEdit, FaTrash } from "react-icons/fa";
 import { Dropdown } from "react-bootstrap";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
+
 const Members = () => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -89,7 +92,7 @@ const Members = () => {
 
   const handleOpenAccountModal = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:3001/getMember/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/getMember/${id}`);
       const memberData = response.data; // Assuming response.data contains the member data
       fetchData();
       // Verify the value retrieved for openingBalance from memberData
@@ -132,7 +135,7 @@ const Members = () => {
       currentBalance: 0,
     }));
   };
-  
+
   const handleAccountInputChange = (e) => {
     const { name, value } = e.target;
     setAccountFormData((prevData) => ({
@@ -145,11 +148,11 @@ const Members = () => {
     try {
       const formDataWithCurrentBalance = {
         ...accountFormData,
-        currentBalance: accountFormData.openingBalance // Assigning openingBalance to currentBalance
+        currentBalance: accountFormData.openingBalance, // Assigning openingBalance to currentBalance
       };
 
       const response = await axios.post(
-        `http://localhost:3001/accounts-exp`,
+        `${API_BASE_URL}/accounts-exp`,
         formDataWithCurrentBalance
       );
       // Handle the response or perform any necessary actions upon successful submission
@@ -164,7 +167,7 @@ const Members = () => {
   const handleOpenEditModal = async (id) => {
     // console.log(id);
     try {
-      const response = await axios.get(`http://localhost:3001/getmember/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/getmember/${id}`);
       const memberData = response.data; // Assuming response.data contains the member data
       // console.log(memberData);
       // Assuming memberData has fields like firstName, lastName, email, etc.
@@ -194,13 +197,11 @@ const Members = () => {
   const fetchData = async () => {
     try {
       const branchNamesResponse = await axios.get(
-        "http://localhost:3001/branches/names"
+        `${API_BASE_URL}/branches/names`
       );
       setBranchNames(branchNamesResponse.data.data);
 
-      const membersResponse = await axios.get(
-        "http://localhost:3001/readmembers"
-      );
+      const membersResponse = await axios.get(`${API_BASE_URL}/readmembers`);
       const { data } = membersResponse.data;
 
       if (Array.isArray(data)) {
@@ -212,11 +213,11 @@ const Members = () => {
         // console.error('Invalid format for members data:', data);
       }
       const uniquememberresponse = await axios.get(
-        "http://localhost:3001/randomgenMemberId"
+        `${API_BASE_URL}/randomgenMemberId`
       );
       setuniquememberid(uniquememberresponse.data.uniqueid);
       const uniqueaccountresponse = await axios.get(
-        "http://localhost:3001/randomgenAccountId"
+        `${API_BASE_URL}/randomgenAccountId`
       );
       setuniqueaccountid(uniqueaccountresponse.data.uniqueid);
     } catch (error) {
@@ -232,7 +233,7 @@ const Members = () => {
     e.preventDefault();
     try {
       // Add new member
-      await axios.post("http://localhost:3001/createmember", {
+      await axios.post(`${API_BASE_URL}/createmember`, {
         ...formData,
         memberNo: parseInt(uniquememberid, 10), // Ensure memberNo is an integer
       });
@@ -263,7 +264,7 @@ const Members = () => {
       // Update member
       // console.log(updateData);
       const response = await axios.put(
-        `http://localhost:3001/updatemember/${updateData.id}`,
+        `${API_BASE_URL}/updatemember/${updateData.id}`,
         updateData
       );
       // console.log(response.data);
@@ -280,7 +281,7 @@ const Members = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = axios.post(`http://localhost:3001/deletemember/${id}`);
+      const response = axios.post(`${API_BASE_URL}/deletemember/${id}`);
       // console.log(response);
       // alert('Delete Success');
       fetchData();

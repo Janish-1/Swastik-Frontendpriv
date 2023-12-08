@@ -10,6 +10,8 @@ import { IoLogOut } from "react-icons/io5";
 import avatar from "../data/avatar.jpg";
 import { Cart, Chat, Notification, UserProfile } from ".";
 import { useStateContext } from "../contexts/ContextProvider";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 const NavButton = ({ title, customFunc, icon, color, dotColor }) => (
   <TooltipComponent content={title} position="BottomCenter">
@@ -64,7 +66,7 @@ const Navbar = () => {
     const token = localStorage.getItem("token");
 
     if (token) {
-      fetch("http://localhost:3001/usernamedata", {
+      fetch(`${API_BASE_URL}/usernamedata`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

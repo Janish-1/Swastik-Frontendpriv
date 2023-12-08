@@ -20,6 +20,16 @@ import product9 from "../data/product9.jpg";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+// const path = require('path');
+// const dotenv = require('dotenv');
+
+// const envPath = path.resolve(__dirname, '../.env');
+
+// dotenv.config({ path: envPath });
+
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
+
 const DropDown = ({ currentMode }) => (
   <div className="w-28 border-1 border-color px-2 py-1 rounded-md">
     <DropDownListComponent
@@ -42,54 +52,50 @@ const Ecommerce = () => {
   const [pendingLoans, setPendingLoans] = useState();
   const [transactions, setTransactions] = useState([]);
 
-  // // Get the token from localStorage
-  // const token = localStorage.getItem("token");
+  // Get the token from localStorage
+  const token = localStorage.getItem("token");
 
-  // if (token) {
-  //   // Split the token into its components (header, payload, signature)
-  //   const tokenParts = token.split(".");
+  if (token) {
+    // Split the token into its components (header, payload, signature)
+    const tokenParts = token.split(".");
 
-  //   // Decode the payload (which is the second part of the token)
-  //   const encodedPayload = tokenParts[1];
+    // Decode the payload (which is the second part of the token)
+    const encodedPayload = tokenParts[1];
 
-  //   // Decode the Base64 encoded payload to get the actual data
-  //   const decodedPayload = atob(encodedPayload);
+    // Decode the Base64 encoded payload to get the actual data
+    const decodedPayload = atob(encodedPayload);
 
-  //   // Parse the JSON data to get the object representation of the payload
-  //   const payload = JSON.parse(decodedPayload);
+    // Parse the JSON data to get the object representation of the payload
+    const payload = JSON.parse(decodedPayload);
 
-  //   // Log the token and its payload
-  //   console.log("Token:", token);
-  //   console.log("Payload:", payload);
-  // } else {
-  //   console.log("Token not found in localStorage");
-  // }
+    // Log the token and its payload
+    console.log("Token:", token);
+    console.log("Payload:", payload);
+  } else {
+    console.log("Token not found in localStorage");
+  }
 
   // Fetch data for total members, deposit requests, withdraw requests, and pending loans
   const fetchData = async () => {
     try {
-      const membersResponse = await axios.get(
-        "http://localhost:3001/countMembers"
-      );
+      const membersResponse = await axios.get(`${API_BASE_URL}/countMembers`);
       setTotalMembers(membersResponse.data.count);
 
       const totalLoanAmount = await axios.get(
-        "http://localhost:3001/totalLoanAmount"
+        `${API_BASE_URL}/totalLoanAmount`
       );
       setTotalLoanAmount(totalLoanAmount.data.totalLoanAmount);
 
       const totalCurrentBalance = await axios.get(
-        "http://localhost:3001/totalCurrentBalance"
+        `${API_BASE_URL}/totalCurrentBalance`
       );
       settotalCurrentBalance(totalCurrentBalance.data.totalCurrentBalance);
 
-      const loansResponse = await axios.get(
-        "http://localhost:3001/pendingLoans"
-      );
+      const loansResponse = await axios.get(`${API_BASE_URL}/pendingLoans`);
       setPendingLoans(loansResponse.data.data.length);
 
       const transactionsResponse = await axios.get(
-        "http://localhost:3001/transactions"
+        `${API_BASE_URL}/transactions`
       );
       setTransactions(transactionsResponse.data.data);
     } catch (error) {

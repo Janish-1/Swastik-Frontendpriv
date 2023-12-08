@@ -34,6 +34,8 @@ import TransactionReport from "./pages/reports/Transaction";
 import ExpenseReport from "./pages/reports/Expense";
 import RevenueReport from "./pages/reports/Revenue";
 import AccountStatement from "./pages/reports/Accountstatement";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+console.log("Api URL:", API_BASE_URL);
 
 const App = () => {
   // For Direct to Dashboard
@@ -49,7 +51,7 @@ const App = () => {
     if (token) {
       // Verify the token on the server to check its validity
       axios
-        .get("http://localhost:3001/verify-token", {
+        .get(`${API_BASE_URL}/verify-token`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
