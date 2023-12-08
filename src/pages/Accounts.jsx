@@ -26,7 +26,24 @@ const Accounts = () => {
   const [filteredAccounts, setFilteredAccounts] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [membersData, setMembersData] = useState([]);
-  const [uniqueaccountid,setuniqueaccountid] = useState(0);
+  const [uniqueaccountid, setuniqueaccountid] = useState(0);
+  const [branchNames, setBranchNames] = useState([]);
+
+  const [accountFormData, setAccountFormData] = useState({
+    _id: "",
+    accountNumber: 0,
+    member: "",
+    memberNo: 0,
+    email: "",
+    branchName: "",
+    aadhar: "",
+    pancard: "",
+    accountType: "",
+    status: "",
+    openingBalance: 0,
+    currentBalance: 0,
+  });
+
   const handleOpenModal = () => setShowModal(true);
 
   const handleCloseModal = () => {
@@ -47,21 +64,25 @@ const Accounts = () => {
       const response = await axios.get(`http://localhost:3001/accounts/${id}`);
       const accountData = response.data.data; // Assuming response.data contains the account data
 
-      setFormData({
-        id: accountData._id,
+      setAccountFormData({
+        _id: id,
         accountNumber: accountData.accountNumber,
-        member: accountData.member,
+        member: accountData.memberName,
+        memberNo: accountData.memberNo,
+        email: accountData.email,
+        branchName: accountData.branchName,
+        aadhar: accountData.aadhar,
+        pancard: accountData.pancard,
         accountType: accountData.accountType,
         status: accountData.status,
         openingBalance: accountData.openingBalance,
-        currentBalance: accountData.openingBalance,
-        // Add other fields as necessary based on your form structure
+        currentBalance: accountData.currentBalance,
       });
 
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
-      // console.error('Error fetching account data:', error);
-      // Handle error or display an error message to the user
+      console.error("Error fetching account data:", error);
+      // Handle the error condition, show an error message, or perform other actions
     }
   };
 
@@ -74,6 +95,10 @@ const Accounts = () => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: name === "openingBalance" ? parseFloat(value) : value,
+    }));
+    setAccountFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
     }));
   };
 
@@ -96,8 +121,8 @@ const Accounts = () => {
     try {
       // console.log(formData);
       await axios.put(
-        `http://localhost:3001/updateaccounts/${formData.id}`,
-        formData
+        `http://localhost:3001/updateaccounts/${accountFormData._id}`,
+        accountFormData
       );
       // alert('Data Updated Successfully');
       fetchData(); // Fetch data after successful update
@@ -131,6 +156,7 @@ const Accounts = () => {
       console.error("Error fetching accounts:", error);
       // Handle error or display an error message to the user
     }
+
     const response = await axios
       .get("http://localhost:3001/readmembersname")
       .then((response) => {
@@ -138,10 +164,16 @@ const Accounts = () => {
         setMembersData(response.data.data);
       })
       .catch((error) => console.log("Error Fetching Member Numbers"));
+
     const uniqueaccountresponse = await axios.get(
       "http://localhost:3001/randomgenAccountId"
     );
     setuniqueaccountid(uniqueaccountresponse.data.uniqueid);
+
+    const branchNamesResponse = await axios.get(
+      "http://localhost:3001/branches/names"
+    );
+    setBranchNames(branchNamesResponse.data.data);
   };
 
   useEffect(() => {
@@ -228,11 +260,11 @@ const Accounts = () => {
                 onChange={handleInputChange}
               >
                 <option value="">Select an option</option>
-                <option value="Savings Account">Savings Account</option>
-                <option value="Loan Account">Loan Account</option>
+                <option value="Savings">Savings Account</option>
+                <option value="Loan">Loan Account</option>
               </Form.Control>
             </Form.Group>
-            <Form.Group controlId="formStatus">
+            {/* <Form.Group controlId="formStatus">
               <Form.Label>Status</Form.Label>
               <Form.Control
                 as="select"
@@ -244,7 +276,7 @@ const Accounts = () => {
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </Form.Control>
-            </Form.Group>
+            </Form.Group> */}
             <Form.Group controlId="formOpeningBalance">
               <Form.Label>Opening Balance</Form.Label>
               <Form.Control
@@ -268,13 +300,14 @@ const Accounts = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleUpdate}>
+            {/* Assuming formData is your state containing account information */}
             <Form.Group controlId="formId">
               <Form.Label>ID</Form.Label>
               <Form.Control
                 type="text"
                 placeholder=""
                 name="id"
-                value={formData.id}
+                value={accountFormData._id}
                 onChange={handleInputChange}
                 readOnly
               />
@@ -283,10 +316,22 @@ const Accounts = () => {
               <Form.Label>Account Number</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter account number"
+                placeholder=""
                 name="accountNumber"
-                value={formData.accountNumber}
+                value={accountFormData.accountNumber}
                 onChange={handleInputChange}
+                readOnly
+              />
+            </Form.Group>
+            <Form.Group controlId="formMemberNumber">
+              <Form.Label>Member Number</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder=""
+                name="memberNo"
+                value={accountFormData.memberNo}
+                onChange={handleInputChange}
+                readOnly
               />
             </Form.Group>
             <Form.Group controlId="formMember">
@@ -294,8 +339,8 @@ const Accounts = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter member name"
-                name="member"
-                value={formData.member}
+                name="memberName"
+                value={accountFormData.member}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -304,25 +349,12 @@ const Accounts = () => {
               <Form.Control
                 as="select"
                 name="accountType"
-                value={formData.accountType}
+                value={accountFormData.accountType}
                 onChange={handleInputChange}
               >
                 <option value="">Select an option</option>
-                <option value="Savings Account">Savings Account</option>
-                <option value="Loan Account">Loan Account</option>
-              </Form.Control>
-            </Form.Group>
-            <Form.Group controlId="formStatus">
-              <Form.Label>Status</Form.Label>
-              <Form.Control
-                as="select"
-                name="status"
-                value={formData.status}
-                onChange={handleInputChange}
-              >
-                <option value="">Select an option</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
+                <option value="Savings">Savings Account</option>
+                <option value="Loan">Loan Account</option>
               </Form.Control>
             </Form.Group>
             <Form.Group controlId="formOpeningBalance">
@@ -331,7 +363,52 @@ const Accounts = () => {
                 type="number"
                 placeholder="Enter opening balance"
                 name="openingBalance"
-                value={formData.openingBalance}
+                value={accountFormData.openingBalance}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formAadhar">
+              <Form.Label>Aadhar</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Aadhar number"
+                name="aadhar"
+                value={accountFormData.aadhar}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formPancard">
+              <Form.Label>Pancard</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Pancard number"
+                name="pancard"
+                value={accountFormData.pancard}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formBranch">
+              <Form.Label>Branch</Form.Label>
+              <Form.Select
+                name="branchName"
+                value={accountFormData.branchName}
+                onChange={handleInputChange}
+              >
+                <option value="">Select a branch</option>
+                {branchNames.map((branch, index) => (
+                  <option key={index} value={branch}>
+                    {branch}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>{" "}
+            <Form.Group controlId="formEMAIL">
+              <Form.Label>Email </Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter email"
+                name="email"
+                value={accountFormData.email}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -346,27 +423,33 @@ const Accounts = () => {
         <thead>
           <tr>
             <th>Account Number</th>
-            <th>Member</th>
+            <th>Member Number</th>
+            <th>Member Name</th>
             <th>Account Type</th>
-            <th>Status</th>
             <th>Opening Balance</th>
+            <th>Current Balance</th>
+            <th>Branch</th>
+            <th>Email</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {filteredAccounts.map((account) => (
-            <tr>
+            <tr key={account._id}>
               <td>{account.accountNumber}</td>
-              <td>{account.member}</td>
+              <td>{account.memberNo}</td>
+              <td>{account.memberName}</td>
               <td>{account.accountType}</td>
-              <td>{account.status}</td>
               <td>{account.openingBalance}</td>
+              <td>{account.currentBalance}</td>
+              <td>{account.branchName}</td>
+              <td>{account.email}</td>
               <td>
                 <Dropdown>
                   <Dropdown.Toggle
-                    className="btn-secondry"
+                    className="btn-secondary"
                     variant="secondary"
-                    id="dropdown-basic"
+                    id={`dropdown-${account._id}`}
                   >
                     Action
                   </Dropdown.Toggle>

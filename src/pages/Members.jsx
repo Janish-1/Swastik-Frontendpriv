@@ -32,7 +32,7 @@ const Members = () => {
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(null);
   const [uniquememberid, setuniquememberid] = useState(0);
   const [branchNames, setBranchNames] = useState([]);
-  const [uniqueaccountid,setuniqueaccountid] = useState(0);
+  const [uniqueaccountid, setuniqueaccountid] = useState(0);
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
@@ -51,6 +51,11 @@ const Members = () => {
         [name]: value,
       }));
     }
+    // Update the accountFormData state
+    setAccountFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleUpdateChange = (event) => {
@@ -71,14 +76,65 @@ const Members = () => {
   };
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [accountFormData, setAccountFormData] = useState({
+    memberNo: 0,
+    firstName: "",
+    lastName: "",
+    email: "",
+    branchName: "",
+    aadhar: "", // New field
+    pancard: "", // New field
     accountNo: "",
     accountType: "",
-    openingBalance: "",
+    openingBalance: 0,
+    currentBalance: 0,
   });
 
-  const handleOpenAccountModal = () => setShowAccountModal(true);
-  const handleCloseAccountModal = () => setShowAccountModal(false);
+  const handleOpenAccountModal = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/getMember/${id}`);
+      const memberData = response.data; // Assuming response.data contains the member data
+      fetchData();
+      // Verify the value retrieved for openingBalance from memberData
+      console.log("Opening Balance Retrieved:", memberData);
+      setAccountFormData({
+        memberNo: memberData.memberNo,
+        memberName: memberData.firstName + " " + memberData.lastName,
+        email: memberData.email,
+        branchName: memberData.branchName,
+        aadhar: memberData.aadhar,
+        pancard: memberData.pancard,
+        accountNumber: uniqueaccountid, // Use the generated unique account number here
+        status: "Active",
+        accountType: "", // Initialize with an empty string or default value
+        openingBalance: 0, // Initialize with an empty string or default value
+      });
 
+      setShowAccountModal(true);
+    } catch (error) {
+      console.error("Error fetching member data:", error);
+      // Handle the error condition, show an error message, or perform other actions
+    }
+  };
+
+  const handleCloseAccountModal = () => {
+    setShowAccountModal(false);
+    // Additional logic to reset account form data
+    setAccountFormData((prevAccountFormData) => ({
+      ...prevAccountFormData,
+      memberNo: "",
+      memberName: "",
+      email: "",
+      branchName: "",
+      aadhar: "",
+      pancard: "",
+      accountNumber: "",
+      status: "",
+      accountType: "",
+      openingBalance: 0,
+      currentBalance: 0,
+    }));
+  };
+  
   const handleAccountInputChange = (e) => {
     const { name, value } = e.target;
     setAccountFormData((prevData) => ({
@@ -86,7 +142,26 @@ const Members = () => {
       [name]: value,
     }));
   };
-  const handleAccountSubmit = () => {};
+  const handleAccountSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formDataWithCurrentBalance = {
+        ...accountFormData,
+        currentBalance: accountFormData.openingBalance // Assigning openingBalance to currentBalance
+      };
+
+      const response = await axios.post(
+        `http://localhost:3001/accounts-exp`,
+        formDataWithCurrentBalance
+      );
+      // Handle the response or perform any necessary actions upon successful submission
+      console.log("Account submitted successfully:", response.data);
+      handleCloseAccountModal();
+    } catch (error) {
+      // Handle errors if the request fails
+      console.error("Error submitting account:", error);
+    }
+  };
 
   const handleOpenEditModal = async (id) => {
     // console.log(id);
@@ -146,7 +221,7 @@ const Members = () => {
       const uniqueaccountresponse = await axios.get(
         "http://localhost:3001/randomgenAccountId"
       );
-      setuniqueaccountid(uniqueaccountresponse.data.uniqueid);  
+      setuniqueaccountid(uniqueaccountresponse.data.uniqueid);
     } catch (error) {
       // console.error('Error fetching data:', error);
     }

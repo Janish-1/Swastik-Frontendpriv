@@ -118,14 +118,13 @@ const repaymentSchema = new mongoose.Schema(
 const accountSchema = new mongoose.Schema(
   {
     accountNumber: { type: Number, required: true, unique: true },
-    member: { type: String, required: true },
-    memberNo: { type: Number, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
+    memberName: { type: String, required: true },
+    memberNo: { type: Number, required: true },
+    email: { type: String, required: true },
     branchName: { type: String, required: true },
     aadhar: { type: String, required: true },
     pancard: { type: String, required: true },
     accountType: { type: String, required: true },
-    status: { type: String, required: true },
     openingBalance: { type: Number, required: true },
     currentBalance: { type: Number, required: true, default: 0 },
   },
@@ -2251,7 +2250,7 @@ app.get('/totalCurrentBalance', async (req, res) => {
 // Create a new account
 app.post('/accounts-exp', async (req, res) => {
   try {
-    const newAccount = new Account(req.body);
+    const newAccount = new AccountModel(req.body);
     const createdAccount = await newAccount.save();
     res.status(201).json(createdAccount);
   } catch (err) {
@@ -2262,7 +2261,7 @@ app.post('/accounts-exp', async (req, res) => {
 // Get all accounts-exp
 app.get('/accounts-exp', async (req, res) => {
   try {
-    const accounts = await Account.find();
+    const accounts = await AccountModel.find();
     res.json(accounts);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -2273,7 +2272,7 @@ app.get('/accounts-exp', async (req, res) => {
 app.get('/accounts-exp/:id', async (req, res) => {
   try {
     const accountId = req.params.id;
-    const account = await Account.findById(accountId);
+    const account = await AccountModel.findById(accountId);
     if (!account) {
       return res.status(404).json({ message: 'Account not found' });
     }
@@ -2287,7 +2286,7 @@ app.get('/accounts-exp/:id', async (req, res) => {
 app.put('/accounts-exp/:id', async (req, res) => {
   try {
     const accountId = req.params.id;
-    const updatedAccount = await Account.findByIdAndUpdate(accountId, req.body, {
+    const updatedAccount = await AccountModel.findByIdAndUpdate(accountId, req.body, {
       new: true,
       runValidators: true,
     });
@@ -2304,7 +2303,7 @@ app.put('/accounts-exp/:id', async (req, res) => {
 app.delete('/accounts-exp/:id', async (req, res) => {
   try {
     const accountId = req.params.id;
-    const deletedAccount = await Account.findByIdAndDelete(accountId);
+    const deletedAccount = await AccountModel.findByIdAndDelete(accountId);
     if (!deletedAccount) {
       return res.status(404).json({ message: 'Account not found' });
     }

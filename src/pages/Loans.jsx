@@ -169,7 +169,6 @@ const Loans = () => {
     } catch (error) {
       // Handle errors appropriately, such as displaying an error message
       // console.error('Error:', error);
-      handleCloseModal();
     }
   };
 
