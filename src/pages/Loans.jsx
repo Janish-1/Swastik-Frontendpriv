@@ -133,29 +133,25 @@ const Loans = () => {
     try {
       let response;
       if (type === "member") {
-        response = await axios.get(
-          `http://localhost:3001/detailsByMemberId/${inputValue}`
-        );
-        const accountDetails = response.data;
-        const { accountNumber, borrowerName } = accountDetails;
-        setFormData({
-          ...formData,
-          account: accountNumber,
-          borrower: borrowerName,
-          // Update other form fields as needed
-        });
-      } else if (type === "account") {
-        response = await axios.get(
-          `http://localhost:3001/detailsByAccountNumber/${inputValue}`
-        );
+        response = await axios.get(`http://localhost:3001/detailsByMemberId/${inputValue}`);
         const memberDetails = response.data;
-        const { memberNumber, borrowerName } = memberDetails;
-        setFormData({
-          ...formData,
-          memberNo: memberNumber,
-          borrower: borrowerName,
+        const { accountNumber, memberName } = memberDetails;
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          account: accountNumber,
+          borrower : memberName,
           // Update other form fields as needed
-        });
+        }));
+      } else if (type === "account") {
+        response = await axios.get(`http://localhost:3001/detailsByAccountNumber/${inputValue}`);
+        const accountDetails = response.data;
+        const { memberNo, memberName } = accountDetails;
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          memberNo: memberNo,
+          borrower: memberName,
+          // Update other form fields as needed
+        }));
       }
       // Handle the retrieved details accordingly
     } catch (error) {
@@ -163,7 +159,7 @@ const Loans = () => {
       console.error("Error fetching details:", error);
     }
   };
-
+  
   const handleMemberOrAccountSelect = (value, type) => {
     // Call fetchDetails function with the selected value and type
     fetchDetails(value, type);
@@ -384,7 +380,10 @@ const Loans = () => {
                 as="select"
                 name="account"
                 value={formData.account}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  handleInputChange(e);
+                  fetchDetails(e.target.value, "account");
+                }}              
               >
                 <option value="">Select Account ID</option>
                 {accountIds.map((accountId) => (
@@ -426,8 +425,11 @@ const Loans = () => {
                 as="select"
                 name="memberNo"
                 value={formData.memberNo}
-                onChange={handleInputChange}
-              >
+                onChange={(e) => {
+                  handleInputChange(e);
+                  fetchDetails(e.target.value, "member");
+                }}              
+                >
                 <option value="">Select Member No</option>
                 {memberNumbers.map((memberNo) => (
                   <option key={memberNo} value={memberNo}>

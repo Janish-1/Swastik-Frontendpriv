@@ -1108,59 +1108,19 @@ app.get("/accounts/:id", async (req, res) => {
   }
 });
 
-app.get('/detailsByAccountNumber/:accountNumber', async (req, res) => {
-  try {
-    const { accountNumber } = req.params;
-
-    // Assuming you have an 'accounts' collection in your database
-    const accountDetails = await AccountModel.findOne({ accountNo: accountNumber });
-
-    if (!accountDetails) {
-      return res.status(404).json({ message: 'Account details not found' });
-    }
-
-    // Extract necessary details like account number and borrower name
-    const { accountNo, borrower } = accountDetails;
-
-    res.status(200).json({ accountNo, borrower });
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching account details', error: error.message });
-  }
-});
-
-app.get('/detailsByMemberId/:memberId', async (req, res) => {
-  try {
-    const { memberId } = req.params;
-
-    // Assuming you have an 'accounts' collection in your database
-    const accountDetails = await AccountModel.findOne({ memberId });
-
-    if (!accountDetails) {
-      return res.status(404).json({ message: 'Account details not found' });
-    }
-
-    // Extract necessary details like account number and borrower name
-    const { accountNo, borrower } = accountDetails;
-
-    res.status(200).json({ accountNo, borrower });
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching account details', error: error.message });
-  }
-});
-
 app.get("/accountids", limiter, async (req, res) => {
   try {
-    const accountNumbers = await AccountModel.find({}, "accountNumber");
+    const accountNumbers = await AccountModel.find({ accountType: "Loan" }, "accountNumber");
 
     if (!accountNumbers || accountNumbers.length === 0) {
-      return res.status(404).json({ message: "No account numbers found" });
+      return res.status(404).json({ message: "No account numbers found with the account type as loan" });
     }
 
     // Extract accountNumbers from the fetched data
     const numbers = accountNumbers.map((account) => account.accountNumber);
 
     res.status(200).json({
-      message: "Account numbers retrieved successfully",
+      message: "Account numbers with the account type as loan retrieved successfully",
       data: numbers,
     });
   } catch (error) {
@@ -2355,6 +2315,44 @@ app.delete("/accounts-exp/:id", async (req, res) => {
     res.json({ message: "Account deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+app.get('/detailsByAccountNumber/:accountNumber', async (req, res) => {
+  try {
+    const { accountNumber } = req.params;
+
+    // Assuming you have an 'accounts' collection in your database
+    const accountDetails = await AccountModel.findOne({ accountNumber });
+
+    if (!accountDetails) {
+      return res.status(404).json({ message: 'Account details not found' });
+    }
+
+    // Extract necessary details like account number and borrower name
+    const { memberNo, memberName } = accountDetails;
+
+    res.status(200).json({ memberNo, memberName });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching account details', error: error.message });
+  }
+});
+
+app.get('/detailsByMemberId/:memberId', async (req, res) => {
+  try {
+    const { memberId } = req.params; // Corrected from { memberNo }
+
+    const accountDetails = await AccountModel.findOne({ memberNo: memberId });
+
+    if (!accountDetails) {
+      return res.status(404).json({ message: 'Account details not found' });
+    }
+
+    const { accountNumber, memberName } = accountDetails;
+
+    res.status(200).json({ accountNumber, memberName });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching account details', error: error.message });
   }
 });
 
