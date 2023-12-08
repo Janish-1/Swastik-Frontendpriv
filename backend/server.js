@@ -80,7 +80,6 @@ const memberSchema = new mongoose.Schema(
     branchName: { type: String, required: true },
     aadhar: { type: String, required: true },
     pancard: { type: String, required: true },
-    accountType: { type: String, required: true },
   },
   { collection: "members" }
 );
@@ -199,11 +198,11 @@ const revenueSchema = new mongoose.Schema(
     // Add other fields if needed
   },
   { collection: "Revenue" }
-); 
+);
 
 const userdetailsSchema = new mongoose.Schema(
   {
-    name: {type: String, required:true},
+    name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true }, // Adding password field
     userType: {
@@ -211,8 +210,9 @@ const userdetailsSchema = new mongoose.Schema(
       enum: ["user", "admin", "agent", "franchise", "manager"],
       default: "user",
     },
-  },{collection: "allusers"}
-)
+  },
+  { collection: "allusers" }
+);
 
 const userModel = mongoose.model("userdata", userSchema);
 const branchesModel = mongoose.model("branches", branchesSchema);
@@ -225,7 +225,7 @@ const ExpenseModel = mongoose.model("expenses", expenseSchema);
 const intuserModel = mongoose.model("intuserdata", intuserSchema);
 const categoryModel = mongoose.model("category", categorySchema);
 const Revenue = mongoose.model("Revenue", revenueSchema); // Assuming you have a Revenue model defined
-const allusersModel = mongoose.model("allusers",userdetailsSchema);
+const allusersModel = mongoose.model("allusers", userdetailsSchema);
 
 // Multer configuration for handling file uploads
 const storage = multer.diskStorage({
@@ -1105,6 +1105,46 @@ app.get("/accounts/:id", async (req, res) => {
   } catch (error) {
     console.error("Error retrieving account:", error);
     res.status(500).json({ message: "Error retrieving account" });
+  }
+});
+
+app.get('/detailsByAccountNumber/:accountNumber', async (req, res) => {
+  try {
+    const { accountNumber } = req.params;
+
+    // Assuming you have an 'accounts' collection in your database
+    const accountDetails = await AccountModel.findOne({ accountNo: accountNumber });
+
+    if (!accountDetails) {
+      return res.status(404).json({ message: 'Account details not found' });
+    }
+
+    // Extract necessary details like account number and borrower name
+    const { accountNo, borrower } = accountDetails;
+
+    res.status(200).json({ accountNo, borrower });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching account details', error: error.message });
+  }
+});
+
+app.get('/detailsByMemberId/:memberId', async (req, res) => {
+  try {
+    const { memberId } = req.params;
+
+    // Assuming you have an 'accounts' collection in your database
+    const accountDetails = await AccountModel.findOne({ memberId });
+
+    if (!accountDetails) {
+      return res.status(404).json({ message: 'Account details not found' });
+    }
+
+    // Extract necessary details like account number and borrower name
+    const { accountNo, borrower } = accountDetails;
+
+    res.status(200).json({ accountNo, borrower });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching account details', error: error.message });
   }
 });
 
@@ -2027,25 +2067,27 @@ app.get("/calculate-revenue", async (req, res) => {
     const endDate = new Date(year, month, 0); // To get the last day of the month
 
     // Find all active loans within the specified month and year using loansModel
-    const activeLoans = await loansModel.find({
-      $or: [
-        {
-          $and: [
-            { releaseDate: { $lte: endDate } },
-            { endDate: { $gte: startDate } },
-          ],
-        },
-        {
-          $and: [
-            { releaseDate: { $gte: startDate } },
-            { endDate: { $exists: false } },
-          ],
-        },
-      ],
-    }).select('loanId'); // Selecting only the loanId field
+    const activeLoans = await loansModel
+      .find({
+        $or: [
+          {
+            $and: [
+              { releaseDate: { $lte: endDate } },
+              { endDate: { $gte: startDate } },
+            ],
+          },
+          {
+            $and: [
+              { releaseDate: { $gte: startDate } },
+              { endDate: { $exists: false } },
+            ],
+          },
+        ],
+      })
+      .select("loanId"); // Selecting only the loanId field
 
     // Extract Loan IDs from active loans
-    const loanIds = activeLoans.map(loan => loan.loanId);
+    const loanIds = activeLoans.map((loan) => loan.loanId);
 
     let totalRevenue = 0;
 
@@ -2054,7 +2096,7 @@ app.get("/calculate-revenue", async (req, res) => {
       const repayments = await repaymentModel.find({ loanId });
       for (const repayment of repayments) {
         const { dueAmount, interest } = repayment;
-        totalRevenue += dueAmount * ( interest / 100 );
+        totalRevenue += dueAmount * (interest / 100);
       }
     }
 
@@ -2063,10 +2105,9 @@ app.get("/calculate-revenue", async (req, res) => {
     const update = { year, month, totalRevenue };
     const options = { upsert: true, new: true };
 
-    await Revenue.findOneAndUpdate(filter, update, options);    
+    await Revenue.findOneAndUpdate(filter, update, options);
 
     res.json({ totalRevenue });
-
   } catch (error) {
     console.error("Error retrieving Loan IDs:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -2107,7 +2148,7 @@ app.post("/all-login", limiter, async (req, res) => {
 });
 
 // CREATE (Inserting a Document)
-app.post('/all-create', async (req, res) => {
+app.post("/all-create", async (req, res) => {
   try {
     const { name, email, password, userType } = req.body;
 
@@ -2128,7 +2169,7 @@ app.post('/all-create', async (req, res) => {
 });
 
 // UPDATE (Updating a Document)
-app.put('/all-update/:id', async (req, res) => {
+app.put("/all-update/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { name, email, password } = req.body;
@@ -2147,7 +2188,7 @@ app.put('/all-update/:id', async (req, res) => {
 });
 
 // DELETE (Deleting a Document)
-app.delete('/all-delete/:id', async (req, res) => {
+app.delete("/all-delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -2165,7 +2206,7 @@ app.delete('/all-delete/:id', async (req, res) => {
 });
 
 // GET route to fetch all user details
-app.get('/all-users', async (req, res) => {
+app.get("/all-users", async (req, res) => {
   try {
     // Retrieve all user details from the UserDetails model/collection
     const allUsers = await allusersModel.find();
@@ -2176,7 +2217,7 @@ app.get('/all-users', async (req, res) => {
 });
 
 // Update user details by email (using PUT request)
-app.put('/update-user/:email', async (req, res) => {
+app.put("/update-user/:email", async (req, res) => {
   try {
     const { email } = req.params;
     const { name, newEmail, password, userType } = req.body;
@@ -2204,13 +2245,13 @@ app.put('/update-user/:email', async (req, res) => {
 });
 
 // Retrieve total loan amount
-app.get('/totalLoanAmount', async (req, res) => {
+app.get("/totalLoanAmount", async (req, res) => {
   try {
     const totalLoanAmount = await loansModel.aggregate([
       {
         $group: {
           _id: null,
-          totalAmount: { $sum: '$appliedAmount' },
+          totalAmount: { $sum: "$appliedAmount" },
         },
       },
     ]);
@@ -2226,13 +2267,13 @@ app.get('/totalLoanAmount', async (req, res) => {
 });
 
 // Retrieve sum of all current balances
-app.get('/totalCurrentBalance', async (req, res) => {
+app.get("/totalCurrentBalance", async (req, res) => {
   try {
     const totalCurrentBalance = await AccountModel.aggregate([
       {
         $group: {
           _id: null,
-          totalBalance: { $sum: '$currentBalance' },
+          totalBalance: { $sum: "$currentBalance" },
         },
       },
     ]);
@@ -2248,7 +2289,7 @@ app.get('/totalCurrentBalance', async (req, res) => {
 });
 
 // Create a new account
-app.post('/accounts-exp', async (req, res) => {
+app.post("/accounts-exp", async (req, res) => {
   try {
     const newAccount = new AccountModel(req.body);
     const createdAccount = await newAccount.save();
@@ -2259,7 +2300,7 @@ app.post('/accounts-exp', async (req, res) => {
 });
 
 // Get all accounts-exp
-app.get('/accounts-exp', async (req, res) => {
+app.get("/accounts-exp", async (req, res) => {
   try {
     const accounts = await AccountModel.find();
     res.json(accounts);
@@ -2269,12 +2310,12 @@ app.get('/accounts-exp', async (req, res) => {
 });
 
 // Get a specific account by ID
-app.get('/accounts-exp/:id', async (req, res) => {
+app.get("/accounts-exp/:id", async (req, res) => {
   try {
     const accountId = req.params.id;
     const account = await AccountModel.findById(accountId);
     if (!account) {
-      return res.status(404).json({ message: 'Account not found' });
+      return res.status(404).json({ message: "Account not found" });
     }
     res.json(account);
   } catch (err) {
@@ -2283,15 +2324,19 @@ app.get('/accounts-exp/:id', async (req, res) => {
 });
 
 // Update an account by ID
-app.put('/accounts-exp/:id', async (req, res) => {
+app.put("/accounts-exp/:id", async (req, res) => {
   try {
     const accountId = req.params.id;
-    const updatedAccount = await AccountModel.findByIdAndUpdate(accountId, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedAccount = await AccountModel.findByIdAndUpdate(
+      accountId,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     if (!updatedAccount) {
-      return res.status(404).json({ message: 'Account not found' });
+      return res.status(404).json({ message: "Account not found" });
     }
     res.json(updatedAccount);
   } catch (err) {
@@ -2300,14 +2345,14 @@ app.put('/accounts-exp/:id', async (req, res) => {
 });
 
 // Delete an account by ID
-app.delete('/accounts-exp/:id', async (req, res) => {
+app.delete("/accounts-exp/:id", async (req, res) => {
   try {
     const accountId = req.params.id;
     const deletedAccount = await AccountModel.findByIdAndDelete(accountId);
     if (!deletedAccount) {
-      return res.status(404).json({ message: 'Account not found' });
+      return res.status(404).json({ message: "Account not found" });
     }
-    res.json({ message: 'Account deleted successfully' });
+    res.json({ message: "Account deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

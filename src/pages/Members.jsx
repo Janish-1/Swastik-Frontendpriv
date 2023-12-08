@@ -15,7 +15,6 @@ const Members = () => {
     branchName: "",
     aadhar: "", // New field
     pancard: "", // New field
-    accountType: "", // New field
   });
   const [updateData, setUpdateData] = useState({
     id: "",
@@ -26,7 +25,6 @@ const Members = () => {
     branchName: "",
     aadhar: "", // New field
     pancard: "", // New field
-    accountType: "", // New field
   });
   const [membersData, setMembersData] = useState([]);
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(null);
@@ -179,7 +177,6 @@ const Members = () => {
         branchName: memberData.branchName,
         aadhar: memberData.aadhar, // New field
         pancard: memberData.pancard, // New field
-        accountType: memberData.accountType, // New field
       });
 
       setShowEditModal(true); // Open the edit modal
@@ -250,7 +247,6 @@ const Members = () => {
         branchName: "",
         aadhar: "", // New field
         pancard: "", // New field
-        accountType: "", // New field
       });
 
       // Fetch updated data
@@ -392,18 +388,6 @@ const Members = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group controlId="formAccountType">
-              <Form.Label>Account Type</Form.Label>
-              <Form.Select
-                name="accountType"
-                value={formData.accountType}
-                onChange={handleInputChange}
-              >
-                <option value="">Select an account type</option>
-                <option value="Savings">Savings</option>
-                <option value="Loan">Loan</option>
-              </Form.Select>
-            </Form.Group>
             <Button variant="primary" type="submit">
               Add
             </Button>
@@ -504,19 +488,6 @@ const Members = () => {
                 onChange={handleUpdateChange}
               />
             </Form.Group>
-            <Form.Group controlId="formAccountType">
-              <Form.Label>Account Type</Form.Label>
-              <Form.Select
-                name="accountType"
-                value={updateData.accountType}
-                onChange={handleUpdateChange}
-              >
-                <option value="">Select an account type</option>
-                <option value="Savings">Savings</option>
-                <option value="Loan">Loan</option>
-              </Form.Select>
-            </Form.Group>
-
             <Button variant="primary" type="submit">
               Edit
             </Button>

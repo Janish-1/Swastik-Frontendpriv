@@ -6,6 +6,8 @@ import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { parseISO } from "date-fns";
+import { Dropdown, DropdownButton } from "react-bootstrap";
+import Objectionloan from "./Objectionloan";
 
 const Loans = () => {
   const [showModal, setShowModal] = useState(false);
@@ -29,6 +31,9 @@ const Loans = () => {
   const [accountIds, setAccountIds] = useState([]);
   const [memberNames, setMemberNames] = useState([]);
   const [uniqueloanid, setuniqueloanid] = useState(0);
+  const [selectedLoanForApproval, setSelectedLoanForApproval] = useState(null);
+  const [showObjectionModal, setShowObjectionModal] = useState(false);
+  const [selectedLoanId, setSelectedLoanId] = useState(null);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
@@ -124,6 +129,46 @@ const Loans = () => {
     }
   };
 
+  const fetchDetails = async (inputValue, type) => {
+    try {
+      let response;
+      if (type === "member") {
+        response = await axios.get(
+          `http://localhost:3001/detailsByMemberId/${inputValue}`
+        );
+        const accountDetails = response.data;
+        const { accountNumber, borrowerName } = accountDetails;
+        setFormData({
+          ...formData,
+          account: accountNumber,
+          borrower: borrowerName,
+          // Update other form fields as needed
+        });
+      } else if (type === "account") {
+        response = await axios.get(
+          `http://localhost:3001/detailsByAccountNumber/${inputValue}`
+        );
+        const memberDetails = response.data;
+        const { memberNumber, borrowerName } = memberDetails;
+        setFormData({
+          ...formData,
+          memberNo: memberNumber,
+          borrower: borrowerName,
+          // Update other form fields as needed
+        });
+      }
+      // Handle the retrieved details accordingly
+    } catch (error) {
+      // Handle error or display an error message
+      console.error("Error fetching details:", error);
+    }
+  };
+
+  const handleMemberOrAccountSelect = (value, type) => {
+    // Call fetchDetails function with the selected value and type
+    fetchDetails(value, type);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -200,7 +245,48 @@ const Loans = () => {
       // handleCloseEditModal();
     }
   };
+  const handleApprove = async () => {
+    try {
+      if (selectedLoanForApproval) {
+        await axios.put(
+          `http://localhost:3001/approveLoan/${selectedLoanForApproval._id}`
+        );
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Failed to approve loan.");
+    } finally {
+      setSelectedLoanForApproval(null);
+    }
+  };
 
+  const handleApproveLoan = async (loanId) => {
+    // Implement approve loan logic
+  };
+
+  const handleCancelLoan = async (loanId) => {
+    // Implement cancel loan logic
+  };
+
+  const handleObjection = (loanId) => {
+    setSelectedLoanId(loanId);
+    setShowObjectionModal(true);
+  };
+
+  const handleObjectionSubmit = (reason) => {
+    // Implement logic to handle objection submission
+    console.log(
+      `Objection submitted for loan ${selectedLoanId} with reason: ${reason}`
+    );
+    // Reset state or perform other actions as needed
+    setShowObjectionModal(false);
+    setSelectedLoanId(null);
+  };
+
+  const handleCloseObjectionModal = () => {
+    setShowObjectionModal(false);
+    setSelectedLoanId(null);
+  };
   // Function to fetch data
   const fetchData = async () => {
     try {
@@ -457,7 +543,7 @@ const Loans = () => {
                 as="select"
                 name="accountId"
                 value={formData.accountId}
-                onChange={handleInputChange}
+                onChange={handleMemberOrAccountSelect}
               >
                 <option value="">Select Account ID</option>
                 {accountIds.map((accountId) => (
@@ -499,7 +585,7 @@ const Loans = () => {
                 as="select"
                 name="memberNo"
                 value={formData.memberNo}
-                onChange={handleInputChange}
+                onChange={handleMemberOrAccountSelect}
               >
                 <option value="">Select Member No</option>
                 {memberNumbers.map((memberNo) => (
@@ -582,6 +668,11 @@ const Loans = () => {
           </Form>
         </Modal.Body>
       </Modal>
+      {selectedLoanForApproval && (
+        <Button variant="success" onClick={handleApprove}>
+          Approve Loan
+        </Button>
+      )}
 
       <Table
         responsive
@@ -624,18 +715,39 @@ const Loans = () => {
               </td>
               <td>{loan.durationMonths || "-"}</td>
               <td>
-                <Button
-                  variant="warning"
-                  onClick={() => handleOpenEditModal(loan._id)}
-                >
-                  <FaEdit />
-                </Button>{" "}
-                <Button variant="danger" onClick={() => handleDelete(loan._id)}>
-                  <FaTrash />
-                </Button>
+                <Dropdown>
+                  <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
+                    Actions
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu style={{ zIndex: 9999 }}>
+                    <Dropdown.Item
+                      onClick={() => handleOpenEditModal(loan._id)}
+                    >
+                      Edit
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleDelete(loan._id)}>
+                      Delete
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleApproveLoan(loan._id)}>
+                      Approve
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleCancelLoan(loan._id)}>
+                      Cancel
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleObjection(loan._id)}>
+                      Objection
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
               </td>
             </tr>
           ))}
+          {/* Objection Modal */}
+          <Objectionloan
+            show={showObjectionModal}
+            handleClose={handleCloseObjectionModal}
+            handleObjectionSubmit={handleObjectionSubmit}
+          />
         </tbody>
       </Table>
     </div>
