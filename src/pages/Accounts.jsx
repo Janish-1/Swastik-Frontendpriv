@@ -419,7 +419,7 @@ const Accounts = () => {
         </Modal.Body>
       </Modal>
 
-      <Table striped bordered hover className="mt-4 rounded-lg overflow-hidden">
+      <Table striped responsive bordered hover className="mt-4 rounded-lg overflow-hidden">
         <thead>
           <tr>
             <th>Account Number</th>
@@ -448,7 +448,7 @@ const Accounts = () => {
                 <Dropdown>
                   <Dropdown.Toggle
                     className="btn-secondary"
-                    variant="secondary"
+                    variant="primary"
                     id={`dropdown-${account._id}`}
                   >
                     Action

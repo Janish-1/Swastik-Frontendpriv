@@ -81,6 +81,7 @@ const Loans = () => {
         status,
         endDate,
         durationMonths,
+        objections,
       } = loandata;
 
       // Adjust the format of the releaseDate
@@ -101,6 +102,7 @@ const Loans = () => {
         status,
         endDate,
         durationMonths,
+        objections,
         // ... Add other fields as necessary based on your form structure
       });
 
@@ -133,20 +135,24 @@ const Loans = () => {
     try {
       let response;
       if (type === "member") {
-        response = await axios.get(`http://localhost:3001/detailsByMemberId/${inputValue}`);
+        response = await axios.get(
+          `http://localhost:3001/detailsByMemberId/${inputValue}`
+        );
         const memberDetails = response.data;
         const { accountNumber, memberName } = memberDetails;
-        setFormData(prevFormData => ({
+        setFormData((prevFormData) => ({
           ...prevFormData,
           account: accountNumber,
-          borrower : memberName,
+          borrower: memberName,
           // Update other form fields as needed
         }));
       } else if (type === "account") {
-        response = await axios.get(`http://localhost:3001/detailsByAccountNumber/${inputValue}`);
+        response = await axios.get(
+          `http://localhost:3001/detailsByAccountNumber/${inputValue}`
+        );
         const accountDetails = response.data;
         const { memberNo, memberName } = accountDetails;
-        setFormData(prevFormData => ({
+        setFormData((prevFormData) => ({
           ...prevFormData,
           memberNo: memberNo,
           borrower: memberName,
@@ -159,7 +165,7 @@ const Loans = () => {
       console.error("Error fetching details:", error);
     }
   };
-  
+
   const handleMemberOrAccountSelect = (value, type) => {
     // Call fetchDetails function with the selected value and type
     fetchDetails(value, type);
@@ -179,6 +185,7 @@ const Loans = () => {
         status,
         endDate,
         durationMonths,
+        objections,
       } = formData;
 
       await axios.post("http://localhost:3001/createloan", {
@@ -192,6 +199,7 @@ const Loans = () => {
         account, // Include accountId in the POST request
         endDate,
         durationMonths,
+        objections,
       });
       handleCloseModal();
       setFormData({
@@ -241,27 +249,36 @@ const Loans = () => {
       // handleCloseEditModal();
     }
   };
-  const handleApprove = async () => {
-    try {
-      if (selectedLoanForApproval) {
-        await axios.put(
-          `http://localhost:3001/approveLoan/${selectedLoanForApproval._id}`
-        );
-        fetchData();
-      }
-    } catch (error) {
-      console.error("Failed to approve loan.");
-    } finally {
-      setSelectedLoanForApproval(null);
-    }
-  };
+  // const handleApprove = async () => {
+  //   try {
+  //     if (selectedLoanForApproval) {
+  //       await axios.put(
+  //         `http://localhost:3001/approveLoan/${selectedLoanForApproval._id}`
+  //       );
+  //       fetchData();
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to approve loan.");
+  //   } finally {
+  //     setSelectedLoanForApproval(null);
+  //   }
+  // };
 
   const handleApproveLoan = async (loanId) => {
     // Implement approve loan logic
+    const response = await axios.put(
+      `http://localhost:3001/approveLoan/${loanId}`
+    );
+    console.log(response);
+    fetchData();
   };
 
   const handleCancelLoan = async (loanId) => {
-    // Implement cancel loan logic
+    const response = await axios.put(
+      `http://localhost:3001/cancelLoan/${loanId}`
+    );
+    console.log(response);
+    fetchData();
   };
 
   const handleObjection = (loanId) => {
@@ -269,11 +286,17 @@ const Loans = () => {
     setShowObjectionModal(true);
   };
 
-  const handleObjectionSubmit = (reason) => {
+  const handleObjectionSubmit = async (reason) => {
     // Implement logic to handle objection submission
     console.log(
       `Objection submitted for loan ${selectedLoanId} with reason: ${reason}`
     );
+    const response = await axios.put(
+      `http://localhost:3001/objection/${selectedLoanId}`,
+      {reason}
+    );
+    console.log(response);
+    fetchData();
     // Reset state or perform other actions as needed
     setShowObjectionModal(false);
     setSelectedLoanId(null);
@@ -383,7 +406,7 @@ const Loans = () => {
                 onChange={(e) => {
                   handleInputChange(e);
                   fetchDetails(e.target.value, "account");
-                }}              
+                }}
               >
                 <option value="">Select Account ID</option>
                 {accountIds.map((accountId) => (
@@ -428,8 +451,8 @@ const Loans = () => {
                 onChange={(e) => {
                   handleInputChange(e);
                   fetchDetails(e.target.value, "member");
-                }}              
-                >
+                }}
+              >
                 <option value="">Select Member No</option>
                 {memberNumbers.map((memberNo) => (
                   <option key={memberNo} value={memberNo}>
@@ -695,6 +718,7 @@ const Loans = () => {
             <th>Status</th>
             <th>End Date</th>
             <th>Duration in Months</th>
+            <th>Objections</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -716,6 +740,7 @@ const Loans = () => {
                   : "-"}
               </td>
               <td>{loan.durationMonths || "-"}</td>
+              <td>{loan.objections}</td>
               <td>
                 <Dropdown>
                   <Dropdown.Toggle variant="primary" id="loanActionsDropdown">

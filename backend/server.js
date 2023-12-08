@@ -96,6 +96,7 @@ const loanSchema = new mongoose.Schema(
     account: { type: String, ref: "AccountModel", required: true },
     endDate: { type: Date }, // Optional field for the end date of the loan
     durationMonths: { type: Number }, // Optional field for the duration of the loan in months
+    objections: {type: String},
   },
   { collection: "loans" }
 );
@@ -1110,17 +1111,23 @@ app.get("/accounts/:id", async (req, res) => {
 
 app.get("/accountids", limiter, async (req, res) => {
   try {
-    const accountNumbers = await AccountModel.find({ accountType: "Loan" }, "accountNumber");
+    const accountNumbers = await AccountModel.find(
+      { accountType: "Loan" },
+      "accountNumber"
+    );
 
     if (!accountNumbers || accountNumbers.length === 0) {
-      return res.status(404).json({ message: "No account numbers found with the account type as loan" });
+      return res.status(404).json({
+        message: "No account numbers found with the account type as loan",
+      });
     }
 
     // Extract accountNumbers from the fetched data
     const numbers = accountNumbers.map((account) => account.accountNumber);
 
     res.status(200).json({
-      message: "Account numbers with the account type as loan retrieved successfully",
+      message:
+        "Account numbers with the account type as loan retrieved successfully",
       data: numbers,
     });
   } catch (error) {
@@ -2318,7 +2325,7 @@ app.delete("/accounts-exp/:id", async (req, res) => {
   }
 });
 
-app.get('/detailsByAccountNumber/:accountNumber', async (req, res) => {
+app.get("/detailsByAccountNumber/:accountNumber", async (req, res) => {
   try {
     const { accountNumber } = req.params;
 
@@ -2326,7 +2333,7 @@ app.get('/detailsByAccountNumber/:accountNumber', async (req, res) => {
     const accountDetails = await AccountModel.findOne({ accountNumber });
 
     if (!accountDetails) {
-      return res.status(404).json({ message: 'Account details not found' });
+      return res.status(404).json({ message: "Account details not found" });
     }
 
     // Extract necessary details like account number and borrower name
@@ -2334,25 +2341,85 @@ app.get('/detailsByAccountNumber/:accountNumber', async (req, res) => {
 
     res.status(200).json({ memberNo, memberName });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching account details', error: error.message });
+    res.status(500).json({
+      message: "Error fetching account details",
+      error: error.message,
+    });
   }
 });
 
-app.get('/detailsByMemberId/:memberId', async (req, res) => {
+app.get("/detailsByMemberId/:memberId", async (req, res) => {
   try {
     const { memberId } = req.params; // Corrected from { memberNo }
 
     const accountDetails = await AccountModel.findOne({ memberNo: memberId });
 
     if (!accountDetails) {
-      return res.status(404).json({ message: 'Account details not found' });
+      return res.status(404).json({ message: "Account details not found" });
     }
 
     const { accountNumber, memberName } = accountDetails;
 
     res.status(200).json({ accountNumber, memberName });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching account details', error: error.message });
+    res.status(500).json({
+      message: "Error fetching account details",
+      error: error.message,
+    });
+  }
+});
+
+// Endpoint to update loan status to Approved
+app.put('/approveLoan/:loanId', async (req, res) => {
+  const { loanId } = req.params;
+
+  try {
+    // Assuming you have a LoanModel or a similar model/schema
+    const loan = await loansModel.findByIdAndUpdate(loanId, { status: 'Approved' }, { new: true });
+
+    if (!loan) {
+      return res.status(404).json({ message: 'Loan not found' });
+    }
+
+    res.status(200).json({ message: 'Loan status updated to Approved', loan });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating loan status to Approved', error: error.message });
+  }
+});
+
+// Endpoint to update loan status to Cancelled
+app.put('/cancelLoan/:loanId', async (req, res) => {
+  const { loanId } = req.params;
+
+  try {
+    // Assuming you have a LoanModel or a similar model/schema
+    const loan = await loansModel.findByIdAndUpdate(loanId, { status: 'Cancelled' }, { new: true });
+
+    if (!loan) {
+      return res.status(404).json({ message: 'Loan not found' });
+    }
+
+    res.status(200).json({ message: 'Loan status updated to Cancelled', loan });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating loan status to Cancelled', error: error.message });
+  }
+});
+
+app.put('/objection/:loanId', async (req, res) => {
+  const { loanId } = req.params;
+  const { reason } = req.body;
+
+  try {
+    // Assuming you have a LoansModel or a similar model/schema
+    const loan = await loansModel.findByIdAndUpdate(loanId, { objections: reason }, { new: true });
+
+    if (!loan) {
+      return res.status(404).json({ message: 'Loan not found' });
+    }
+
+    res.status(200).json({ message: 'Objection column updated successfully', loan });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating objection column', error: error.message });
   }
 });
 
