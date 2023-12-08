@@ -80,7 +80,16 @@ const User = () => {
           },
         }
       );
-
+      const responseUser = await axios.put(
+        `http://localhost:3001/update-user/${formData.email}`,
+        {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          userType: formData.userType,
+        }
+      );
+      console.log(responseUser);  
       if (response.status === 200) {
         console.log("User updated successfully");
         setFormData({
@@ -129,6 +138,17 @@ const User = () => {
     formDataForApi.append("userType", formData.userType);
     formDataForApi.append("status", formData.status);
     formDataForApi.append("image", formData.image);
+
+    const responseUser = await axios.post(
+      "http://localhost:3001/all-create",
+      {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        userType: formData.userType,
+      }
+    );
+    console.log(responseUser);
 
     try {
       const response = await axios.post(
@@ -330,8 +350,6 @@ const User = () => {
                 required
               >
                 <option value="">Select User Type</option>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
                 <option value="franchise">Franchise</option>
                 <option value="agent">Agent</option>
               </Form.Control>

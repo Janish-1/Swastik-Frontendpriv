@@ -37,10 +37,33 @@ const DropDown = ({ currentMode }) => (
 const Ecommerce = () => {
   const { currentColor, currentMode } = useStateContext();
   const [totalMembers, setTotalMembers] = useState();
-  const [depositRequests, setDepositRequests] = useState();
-  const [withdrawRequests, setWithdrawRequests] = useState();
+  const [TotalLoanAmount, setTotalLoanAmount] = useState();
+  const [totalCurrentBalance, settotalCurrentBalance] = useState();
   const [pendingLoans, setPendingLoans] = useState();
   const [transactions, setTransactions] = useState([]);
+
+  // // Get the token from localStorage
+  // const token = localStorage.getItem("token");
+
+  // if (token) {
+  //   // Split the token into its components (header, payload, signature)
+  //   const tokenParts = token.split(".");
+
+  //   // Decode the payload (which is the second part of the token)
+  //   const encodedPayload = tokenParts[1];
+
+  //   // Decode the Base64 encoded payload to get the actual data
+  //   const decodedPayload = atob(encodedPayload);
+
+  //   // Parse the JSON data to get the object representation of the payload
+  //   const payload = JSON.parse(decodedPayload);
+
+  //   // Log the token and its payload
+  //   console.log("Token:", token);
+  //   console.log("Payload:", payload);
+  // } else {
+  //   console.log("Token not found in localStorage");
+  // }
 
   // Fetch data for total members, deposit requests, withdraw requests, and pending loans
   const fetchData = async () => {
@@ -50,15 +73,15 @@ const Ecommerce = () => {
       );
       setTotalMembers(membersResponse.data.count);
 
-      const depositResponse = await axios.get(
-        "http://localhost:3001/depositRequestsPending"
+      const totalLoanAmount = await axios.get(
+        "http://localhost:3001/totalLoanAmount"
       );
-      setDepositRequests(depositResponse.data.count);
+      setTotalLoanAmount(totalLoanAmount.data.totalLoanAmount);
 
-      const withdrawResponse = await axios.get(
-        "http://localhost:3001/withdrawRequestsPending"
+      const totalCurrentBalance = await axios.get(
+        "http://localhost:3001/totalCurrentBalance"
       );
-      setWithdrawRequests(withdrawResponse.data.count);
+      settotalCurrentBalance(totalCurrentBalance.data.totalCurrentBalance);
 
       const loansResponse = await axios.get(
         "http://localhost:3001/pendingLoans"
@@ -79,7 +102,7 @@ const Ecommerce = () => {
     fetchData();
   }, []);
 
-const navigate=useNavigate()
+  const navigate = useNavigate();
 
   return (
     <div className="mt-18">
@@ -107,8 +130,8 @@ const navigate=useNavigate()
         <div class="relative bg-white dark:text-gray-200 dark:bg-secondary-dark-bg h-44 rounded-xl w-full lg:w-44 p-8 pt-9 m-3 bg-hero-pattern bg-no-repeat bg-cover bg-center shadow-lg transform transition duration-300 hover:translate-y-[-8px]">
           <div className="flex justify-between items-center">
             <div>
-              <p className="font-bold text-gray-400">Deposit Request</p>
-              <p className="text-2xl">{depositRequests}</p>
+              <p className="font-bold text-gray-400">Total Loan Amount</p>
+              <p className="text-2xl">{TotalLoanAmount}</p>
             </div>
           </div>
           <div className="mt-2 ml-4">
@@ -127,8 +150,8 @@ const navigate=useNavigate()
         <div class="relative bg-white dark:text-gray-200 dark:bg-secondary-dark-bg h-44 rounded-xl w-full lg:w-44 p-8 pt-9 m-3 bg-hero-pattern bg-no-repeat bg-cover bg-center shadow-lg transform transition duration-300 hover:translate-y-[-8px]">
           <div className="flex justify-between items-center">
             <div>
-              <p className="font-bold text-gray-400">Withdraw Request</p>
-              <p className="text-2xl">{withdrawRequests}</p>
+              <p className="font-bold text-gray-400">Account Balance</p>
+              <p className="text-2xl">{totalCurrentBalance}</p>
             </div>
           </div>
           <div className="mt-2 ml-4">
@@ -188,7 +211,9 @@ const navigate=useNavigate()
       </div>
 
       <div className="mx-6 ">
-        <h1 className="text-3xl m-2 text-cyan-500 font-medium">Recent Transaction</h1>
+        <h1 className="text-3xl m-2 text-cyan-500 font-medium">
+          Recent Transaction
+        </h1>
         <table className="table text-center bg-info text-white rounded-lg overflow-hidden ">
           <thead>
             <tr class="table-secondary">
@@ -201,7 +226,7 @@ const navigate=useNavigate()
               {/* <th>Action</th> */}
             </tr>
           </thead>
-          <tbody className="table-success">
+          <tbody>
             {transactions.slice(0, 10).map((transaction, index) => (
               <tr key={index}>
                 <td>{new Date(transaction.date).toLocaleString()}</td>

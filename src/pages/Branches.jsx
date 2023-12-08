@@ -28,32 +28,36 @@ const Branches = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(null);
   const [filteredMembers, setFilteredMembers] = useState([]); // State to hold filtered members
-  const [presetemail,setEmail] = useState("");
-  const [presetpassword,setPassword] = useState("");
+  const [presetemail, setEmail] = useState("");
+  const [presetpassword, setPassword] = useState("");
 
-  useEffect( async () => {
-    const token = localStorage.getItem('token');
-    if (token){
-      response = await axios.post('http://localhost:3001/getuseremailpassword'),{
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token
-        }),
-    }.then(response => response.json())
-    .then(data => {
-      console.log('Username:', data.username);
-      setEmail(data.email);
-      setPassword(data.password);
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // Handle errors that occurred during the request
-    });
-  }
-  },[]);
+  // useEffect(async () => {
+  //   const token = localStorage.getItem("token");
+  //   if (token) {
+  //     (response = await axios.post(
+  //       "http://localhost:3001/getuseremailpassword"
+  //     )),
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           token,
+  //         }),
+  //       }
+  //         .then((response) => response.json())
+  //         .then((data) => {
+  //           console.log("Username:", data.username);
+  //           setEmail(data.email);
+  //           setPassword(data.password);
+  //         })
+  //         .catch((error) => {
+  //           console.error("Error:", error);
+  //           // Handle errors that occurred during the request
+  //         });
+  //   }
+  // }, []);
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -98,37 +102,25 @@ const Branches = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Check if it's an update or add operation
-    if (selectedMemberIndex !== null) {
-      // Update existing member
-      const updatedMembers = [...membersData];
-      updatedMembers[selectedMemberIndex] = formData;
-      setMembersData(updatedMembers);
-
-      // Show success alert for update
-      setAlertVariant("success");
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/createbranch",
+        formData
+      );
+      fetchData();
+    } catch (error) {
       setShowAlert(true);
-    } else {
-      // Add new member
-      setMembersData((prevData) => [...prevData, formData]);
-      // Axios Create request here for posting data (Posting Correctly)
-      // console.log(formData);
-      try {
-        const response = await axios.post(
-          "http://localhost:3001/createbranch",
-          formData
-        );
-        // console.log('Data Successfully entered in Backend Server',formData);
-        // alert('success!');
-        fetchData();
-      } catch (error) {
-        console.log("Some Error in submitting the form data to backend");
-        // alert('failed');
-        setShowAlert(true);
-      }
     }
-    // Reset form data
+    // Create a manager user associated with the branch
+    const responseUser = await axios.post("http://localhost:3001/all-create", {
+      name: formData.managerName,
+      email: formData.contactemail,
+      password: formData.password,
+      userType: "manager",
+    });
+
+    // Handle success of user creation
+    console.log("Manager User Created:", responseUser.data);
     setFormData({
       branchName: "",
       managerName: "",
@@ -157,6 +149,16 @@ const Branches = () => {
       // console.log(response.data);
       // Close the edit modal
       handleCloseEditModal();
+
+      const response1 = await axios.put(`http://localhost:3001/update-user/${formData.contactemail}`,
+        {
+          name: formData.managerName,
+          email: formData.contactemail,
+          password: formData.password,
+          userType: "manager",
+        }
+      )
+
       // Reset form data
       setFormData({
         branchName: "",
@@ -206,25 +208,7 @@ const Branches = () => {
       // Update filteredMembers state with the filtered data
       setFilteredMembers(filteredData);
 
-      const token = localStorage.getItem("token");
-      if (token) {
-        axios.post('http://localhost:3001/getuseremailpassword', { token }, {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        })
-        .then(response => {
-          // console.log('data: ', response.data);
-          const { email, password } = response.data;
-          setEmail(email);
-          setPassword(password);
-        })
-        .catch(error => {
-          // console.error('Error fetching user data:', error);
-          // Handle errors
-        });
-      }
-        } catch (error) {
+    } catch (error) {
       // console.error("Error while fetching data:", error);
       // Handle the error or show an error message to the user
     }
@@ -298,7 +282,7 @@ const Branches = () => {
                 type="email"
                 placeholder="Enter email"
                 name="contactemail"
-                value={presetemail}
+                value={formData.contactemail}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -308,7 +292,7 @@ const Branches = () => {
                 type="password"
                 placeholder="Enter Password"
                 name="password"
-                value={presetpassword}
+                value={formData.password}
                 onChange={handleInputChange}
               />
             </Form.Group>

@@ -1,95 +1,78 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Table } from "react-bootstrap";
 import axios from "axios";
-// import { FaEdit, FaTrash } from "react-icons/fa";
-import { Dropdown } from "react-bootstrap";
+// import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+
+import { Dropdown } from 'react-bootstrap'
 
 const Members = () => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
-    memberNo: 0,
+    memberNo: "",
     firstName: "",
     lastName: "",
     email: "",
     branchName: "",
-    aadhar: "", // New field
-    pancard: "", // New field
-    accountType: "", // New field
   });
   const [updateData, setUpdateData] = useState({
     id: "",
-    memberNo: 0,
+    memberNo: "",
     firstName: "",
     lastName: "",
     email: "",
     branchName: "",
-    aadhar: "", // New field
-    pancard: "", // New field
-    accountType: "", // New field
   });
   const [membersData, setMembersData] = useState([]);
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(null);
-  const [uniquememberid, setuniquememberid] = useState(0);
   const [branchNames, setBranchNames] = useState([]);
-  const [uniqueaccountid,setuniqueaccountid] = useState(0);
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    // Convert the member number to a number type before setting the state
-    if (name === "memberNo") {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: parseInt(value, 10), // Parse the input value to an integer
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
 
-    // Convert the member number to a number type before setting the state
-    if (name === "memberNo") {
-      setUpdateData({
-        ...updateData,
-        [name]: parseInt(value, 10), // Parse the input value to an integer
-      });
-    } else {
-      setUpdateData({
-        ...updateData,
-        [name]: value,
-      });
-    }
-  };
-  const [showAccountModal, setShowAccountModal] = useState(false);
-  const [accountFormData, setAccountFormData] = useState({
-    accountNo: "",
-    accountType: "",
-    openingBalance: "",
-  });
-
-  const handleOpenAccountModal = () => setShowAccountModal(true);
-  const handleCloseAccountModal = () => setShowAccountModal(false);
-
-  const handleAccountInputChange = (e) => {
-    const { name, value } = e.target;
-    setAccountFormData((prevData) => ({
-      ...prevData,
+    // Update the state based on the input field name
+    setUpdateData({
+      ...updateData,
       [name]: value,
-    }));
+    });
   };
-  const handleAccountSubmit = () => {};
+
+
+
+    const [showAccountModal, setShowAccountModal] = useState(false);
+    const [accountFormData, setAccountFormData] = useState({
+      accountNo: "",
+      accountType: "",
+      openingBalance: "",
+    });
+  
+    const handleOpenAccountModal = () => setShowAccountModal(true);
+    const handleCloseAccountModal = () => setShowAccountModal(false);
+  
+    const handleAccountInputChange = (e) => {
+      const { name, value } = e.target;
+      setAccountFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    };
+const handleAccountSubmit=()=> {
+
+}
+
 
   const handleOpenEditModal = async (id) => {
-    // console.log(id);
+    console.log(id);
     try {
       const response = await axios.get(`http://localhost:3001/getmember/${id}`);
       const memberData = response.data; // Assuming response.data contains the member data
@@ -102,9 +85,7 @@ const Members = () => {
         lastName: memberData.lastName,
         email: memberData.email,
         branchName: memberData.branchName,
-        aadhar: memberData.aadhar, // New field
-        pancard: memberData.pancard, // New field
-        accountType: memberData.accountType, // New field
+        // ... Add other fields as necessary based on your form structure
       });
 
       setShowEditModal(true); // Open the edit modal
@@ -139,14 +120,6 @@ const Members = () => {
       } else {
         // console.error('Invalid format for members data:', data);
       }
-      const uniquememberresponse = await axios.get(
-        "http://localhost:3001/randomgenMemberId"
-      );
-      setuniquememberid(uniquememberresponse.data.uniqueid);
-      const uniqueaccountresponse = await axios.get(
-        "http://localhost:3001/randomgenAccountId"
-      );
-      setuniqueaccountid(uniqueaccountresponse.data.uniqueid);  
     } catch (error) {
       // console.error('Error fetching data:', error);
     }
@@ -160,29 +133,22 @@ const Members = () => {
     e.preventDefault();
     try {
       // Add new member
-      await axios.post("http://localhost:3001/createmember", {
-        ...formData,
-        memberNo: parseInt(uniquememberid, 10), // Ensure memberNo is an integer
-      });
-
+      await axios.post("http://localhost:3001/createmember", formData);
       // Close modal and reset form data and selected index
       handleCloseModal();
       setFormData({
-        memberNo: 0, // Reset memberNo to 0 or initial value
+        memberNo: "",
         firstName: "",
         lastName: "",
         email: "",
         branchName: "",
-        aadhar: "", // New field
-        pancard: "", // New field
-        accountType: "", // New field
       });
-
-      // Fetch updated data
+      // alert('Data Entered Successfully');
       fetchData();
     } catch (error) {
+      // alert('Check Data Fields for no duplicates');
+      // console.error('Error:', error);
       // Handle error or display an error message to the user
-      console.error("Error:", error);
     }
   };
 
@@ -210,7 +176,7 @@ const Members = () => {
   const handleDelete = async (id) => {
     try {
       const response = axios.post(`http://localhost:3001/deletemember/${id}`);
-      // console.log(response);
+      console.log(response);
       // alert('Delete Success');
       fetchData();
     } catch (error) {
@@ -218,6 +184,7 @@ const Members = () => {
       // alert('Delete Failed');
     }
   };
+
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewMemberData, setViewMemberData] = useState(null);
 
@@ -248,7 +215,7 @@ const Members = () => {
                 type="text"
                 placeholder="Enter member number"
                 name="memberNo"
-                value={uniquememberid}
+                value={formData.memberNo}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -297,38 +264,6 @@ const Members = () => {
                 ))}
               </Form.Select>
             </Form.Group>
-            <Form.Group controlId="formAadhar">
-              <Form.Label>Aadhar</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Aadhar number"
-                name="aadhar"
-                value={formData.aadhar}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formPancard">
-              <Form.Label>Pancard</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Pancard number"
-                name="pancard"
-                value={formData.pancard}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formAccountType">
-              <Form.Label>Account Type</Form.Label>
-              <Form.Select
-                name="accountType"
-                value={formData.accountType}
-                onChange={handleInputChange}
-              >
-                <option value="">Select an account type</option>
-                <option value="Savings">Savings</option>
-                <option value="Loan">Loan</option>
-              </Form.Select>
-            </Form.Group>
             <Button variant="primary" type="submit">
               Add
             </Button>
@@ -343,7 +278,7 @@ const Members = () => {
         <Modal.Body>
           <Form onSubmit={handleUpdate}>
             <Form.Group controlId="TableId">
-              {/* <Form.Label>ID</Form.Label> */}
+              {/* <Form.Label></Form.Label> */}
               <Form.Control
                 type="integer"
                 placeholder=""
@@ -351,7 +286,8 @@ const Members = () => {
                 value={updateData.id}
                 onChange={handleUpdateChange}
                 readOnly
-                style={{ display: "none" }}
+                style={{display:'none'}}
+
               />
             </Form.Group>
             <Form.Group controlId="formMemberNo">
@@ -409,45 +345,14 @@ const Members = () => {
                 ))}
               </Form.Select>
             </Form.Group>
-            <Form.Group controlId="formAadhar">
-              <Form.Label>Aadhar</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Aadhar number"
-                name="aadhar"
-                value={updateData.aadhar}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formPancard">
-              <Form.Label>Pancard</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Pancard number"
-                name="pancard"
-                value={updateData.pancard}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formAccountType">
-              <Form.Label>Account Type</Form.Label>
-              <Form.Select
-                name="accountType"
-                value={updateData.accountType}
-                onChange={handleUpdateChange}
-              >
-                <option value="">Select an account type</option>
-                <option value="Savings">Savings</option>
-                <option value="Loan">Loan</option>
-              </Form.Select>
-            </Form.Group>
-
             <Button variant="primary" type="submit">
               Edit
             </Button>
           </Form>
         </Modal.Body>
       </Modal>
+
+
       <Modal show={showViewModal} onHide={handleCloseViewModal} centered>
         <Modal.Header closeButton className="bg-cyan-800 text-white">
           <Modal.Title className="text-xl font-semibold">
@@ -472,23 +377,22 @@ const Members = () => {
               <p className="text-gray-800">
                 <strong>Branch:</strong> {viewMemberData.branchName}
               </p>
-              <p className="text-gray-800">
-                <strong>Aadhar:</strong> {viewMemberData.aadhar}
-              </p>
-              <p className="text-gray-800">
-                <strong>PAN:</strong> {viewMemberData.pancard}
-              </p>
             </div>
           )}
         </Modal.Body>
       </Modal>
+
+
+
+
+
 
       <Modal show={showAccountModal} onHide={handleCloseAccountModal}>
         <Modal.Header closeButton>
           <Modal.Title>Create Account</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleAccountSubmit}>
+          <Form onSubmit={handleAccountSubmit }>
             {/* Account No Dropdown */}
             <Form.Group controlId="formAccountNo">
               <Form.Label>Account No</Form.Label>
@@ -496,7 +400,7 @@ const Members = () => {
                 type="text"
                 placeholder="Enter account number"
                 name="accountNo"
-                value={uniqueaccountid}
+                value={accountFormData.accountNo}
                 onChange={handleAccountInputChange}
               />
             </Form.Group>
@@ -534,69 +438,56 @@ const Members = () => {
         </Modal.Body>
       </Modal>
 
-      <Table
-        responsive
-        striped
-        bordered
-        hover
-        className="mt-4 rounded-lg overflow-hidden "
-      >
-        <thead>
-          <tr>
-            <th>Member No</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Branch</th>
-            <th>Aadhar Number</th>
-            <th>Pan Card</th>
-            {/* <th>Account Type</th> */}
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {membersData.map((member) => (
-            <tr key={member._id}>
-              <td>{member.memberNo}</td>
-              <td>{member.firstName}</td>
-              <td>{member.lastName}</td>
-              <td>{member.email}</td>
-              <td>{member.branchName}</td>
-              <td>{member.aadhar}</td>
-              <td>{member.pancard}</td>
-              {/* <td>{member.accountType}</td> */}
-              <td>
-                <Dropdown>
-                  <Dropdown.Toggle variant="info" id="dropdown-basic">
-                    Actions
-                  </Dropdown.Toggle>
 
-                  <Dropdown.Menu>
-                    <Dropdown.Item
-                      onClick={() => handleOpenEditModal(member._id)}
-                    >
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleDelete(member._id)}>
-                      Delete
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleOpenViewModal(member._id)}
-                    >
-                      View
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleOpenAccountModal(member._id)}
-                    >
-                      Create Account
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+
+
+
+
+      <Table responsive striped bordered hover className="mt-4 rounded-lg overflow-hidden ">
+  <thead>
+    <tr>
+      <th>Member No</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Email</th>
+      <th>Branch</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {membersData.map((member) => (
+      <tr key={member._id}>
+        <td>{member.memberNo}</td>
+        <td>{member.firstName}</td>
+        <td>{member.lastName}</td>
+        <td>{member.email}</td>
+        <td>{member.branchName}</td>
+        <td>
+          <Dropdown>
+            <Dropdown.Toggle variant="info" id="dropdown-basic">
+              Actions
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => handleOpenEditModal(member._id)}>
+                Edit
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleDelete(member._id)}>
+                Delete
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleOpenViewModal(member._id)}>
+                View
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleOpenAccountModal(member._id)}>
+                Create Account
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</Table>
     </div>
   );
 };

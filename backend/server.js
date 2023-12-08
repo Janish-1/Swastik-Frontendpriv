@@ -119,6 +119,11 @@ const accountSchema = new mongoose.Schema(
   {
     accountNumber: { type: Number, required: true, unique: true },
     member: { type: String, required: true },
+    memberNo: { type: Number, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    branchName: { type: String, required: true },
+    aadhar: { type: String, required: true },
+    pancard: { type: String, required: true },
     accountType: { type: String, required: true },
     status: { type: String, required: true },
     openingBalance: { type: Number, required: true },
@@ -195,7 +200,20 @@ const revenueSchema = new mongoose.Schema(
     // Add other fields if needed
   },
   { collection: "Revenue" }
-); // Change 'revenues' to your preferred collection name
+); 
+
+const userdetailsSchema = new mongoose.Schema(
+  {
+    name: {type: String, required:true},
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true }, // Adding password field
+    userType: {
+      type: String,
+      enum: ["user", "admin", "agent", "franchise", "manager"],
+      default: "user",
+    },
+  },{collection: "allusers"}
+)
 
 const userModel = mongoose.model("userdata", userSchema);
 const branchesModel = mongoose.model("branches", branchesSchema);
@@ -208,6 +226,7 @@ const ExpenseModel = mongoose.model("expenses", expenseSchema);
 const intuserModel = mongoose.model("intuserdata", intuserSchema);
 const categoryModel = mongoose.model("category", categorySchema);
 const Revenue = mongoose.model("Revenue", revenueSchema); // Assuming you have a Revenue model defined
+const allusersModel = mongoose.model("allusers",userdetailsSchema);
 
 // Multer configuration for handling file uploads
 const storage = multer.diskStorage({
@@ -2052,6 +2071,246 @@ app.get("/calculate-revenue", async (req, res) => {
   } catch (error) {
     console.error("Error retrieving Loan IDs:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/all-login", limiter, async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await allusersModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Admin Franchise agent User
+    // This is not secure - comparing passwords in plaintext
+    if (user.password !== password) {
+      return res.status(401).json({ message: "Invalid Password" });
+    }
+
+    // If the passwords match, create a JWT
+    const payload = {
+      userId: user._id,
+      email: user.email,
+      username: user.firstName,
+      password: user.password,
+      role: user.userType,
+      // Add other necessary user information to the payload
+    };
+
+    const token = jwt.sign(payload, "yourSecretKey", { expiresIn: "1h" }); // Set your own secret key and expiration time
+
+    res.json({ message: "Login Success!", token });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// CREATE (Inserting a Document)
+app.post('/all-create', async (req, res) => {
+  try {
+    const { name, email, password, userType } = req.body;
+
+    // Create a new user document
+    const newUser = new allusersModel({
+      name,
+      email,
+      password, // Ensure this password is hashed for security
+      userType,
+    });
+
+    // Save the new user document to the database
+    const savedUser = await newUser.save();
+    res.json(savedUser);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// UPDATE (Updating a Document)
+app.put('/all-update/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, password } = req.body;
+
+    // Find the user by their _id and update their information
+    const updatedUser = await allusersModel.findByIdAndUpdate(
+      id,
+      { name, email, password },
+      { new: true }
+    );
+
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// DELETE (Deleting a Document)
+app.delete('/all-delete/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the user by their _id and delete the document
+    const deletedUser = await allusersModel.findByIdAndDelete(id);
+
+    if (deletedUser) {
+      res.json(deletedUser);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET route to fetch all user details
+app.get('/all-users', async (req, res) => {
+  try {
+    // Retrieve all user details from the UserDetails model/collection
+    const allUsers = await allusersModel.find();
+    res.status(200).json(allUsers);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update user details by email (using PUT request)
+app.put('/update-user/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const { name, newEmail, password, userType } = req.body;
+
+    // Find the user by their email
+    const user = await allusersModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the user's information
+    user.name = name || user.name; // Update name if provided, otherwise keep the existing name
+    user.email = newEmail || user.email; // Update email if provided, otherwise keep the existing email
+    user.password = password || user.password; // Update password if provided, otherwise keep the existing password
+    user.userType = userType;
+
+    // Save the updated user document
+    const updatedUser = await user.save();
+
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Retrieve total loan amount
+app.get('/totalLoanAmount', async (req, res) => {
+  try {
+    const totalLoanAmount = await loansModel.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: '$appliedAmount' },
+        },
+      },
+    ]);
+
+    if (totalLoanAmount.length > 0) {
+      res.json({ totalLoanAmount: totalLoanAmount[0].totalAmount });
+    } else {
+      res.json({ totalLoanAmount: 0 });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Retrieve sum of all current balances
+app.get('/totalCurrentBalance', async (req, res) => {
+  try {
+    const totalCurrentBalance = await AccountModel.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalBalance: { $sum: '$currentBalance' },
+        },
+      },
+    ]);
+
+    if (totalCurrentBalance.length > 0) {
+      res.json({ totalCurrentBalance: totalCurrentBalance[0].totalBalance });
+    } else {
+      res.json({ totalCurrentBalance: 0 });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Create a new account
+app.post('/accounts-exp', async (req, res) => {
+  try {
+    const newAccount = new Account(req.body);
+    const createdAccount = await newAccount.save();
+    res.status(201).json(createdAccount);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Get all accounts-exp
+app.get('/accounts-exp', async (req, res) => {
+  try {
+    const accounts = await Account.find();
+    res.json(accounts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get a specific account by ID
+app.get('/accounts-exp/:id', async (req, res) => {
+  try {
+    const accountId = req.params.id;
+    const account = await Account.findById(accountId);
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+    res.json(account);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update an account by ID
+app.put('/accounts-exp/:id', async (req, res) => {
+  try {
+    const accountId = req.params.id;
+    const updatedAccount = await Account.findByIdAndUpdate(accountId, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!updatedAccount) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+    res.json(updatedAccount);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Delete an account by ID
+app.delete('/accounts-exp/:id', async (req, res) => {
+  try {
+    const accountId = req.params.id;
+    const deletedAccount = await Account.findByIdAndDelete(accountId);
+    if (!deletedAccount) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+    res.json({ message: 'Account deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 

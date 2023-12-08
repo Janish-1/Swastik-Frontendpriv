@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Form, Button, Container } from "react-bootstrap";
+import { Form, Button, Container, Alert } from "react-bootstrap";
 import "./depositform.css"; // Import the custom CSS file
 
 const Deposit = () => {
@@ -16,6 +16,9 @@ const Deposit = () => {
 
   const [members, setMembers] = useState([]);
   const [accounts, setAccounts] = useState([]);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [transactions, setTransactions] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -30,6 +33,10 @@ const Deposit = () => {
       );
       setAccounts(accountResponse.data);
       // console.log('Account Numbers Status:', accountResponse);
+      const transactionsResponse = await axios.get(
+        "http://localhost:3001/transactions"
+      );
+      setTransactions(transactionsResponse.data.data);
     } catch (error) {
       // console.error('Error fetching data:', error);
     }
@@ -61,6 +68,9 @@ const Deposit = () => {
       });
 
       const data = await response.json();
+      setSuccessMessage("Transaction created successfully");
+      setErrorMessage("");
+
       // console.log('Transaction created:', data); // Log the response from the server
 
       // Reset form fields after successful submission if needed
@@ -75,13 +85,16 @@ const Deposit = () => {
       });
       fetchData();
     } catch (error) {
-      // console.error('Error creating transaction:', error);
+      setErrorMessage("Error creating transaction");
+      setSuccessMessage("");
     }
   };
 
   return (
     <div className="body-div">
       <Container>
+        {successMessage && <Alert variant="success">{successMessage}</Alert>}
+        {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="date">
             <Form.Label className="custom-form-label">Date *</Form.Label>
@@ -176,6 +189,40 @@ const Deposit = () => {
           </Button>
         </Form>
       </Container>
+      <div className="mx-6 ">
+        <h1 className="text-3xl m-2 text-cyan-500 font-medium ">
+          Recent Deposits
+        </h1>
+        <table className="table text-center text-white rounded-lg overflow-hidden ">
+          <thead>
+            <tr class="table-secondry">
+              <th>Date</th>
+              <th>Member</th>
+              <th>Account Number</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions
+              .filter((transaction) => transaction.debitOrCredit === "Credit") // Filter transactions where debitOrCredit is 'credit'
+              .slice(0, 10) // Take the first 10 transactions after filtering
+              .map((transaction, index) => (
+                <tr key={index}>
+                  <td>{new Date(transaction.date).toLocaleString()}</td>
+                  <td>{transaction.member}</td>
+                  <td>{transaction.accountNumber}</td>
+                  <td>{transaction.transactionAmount}</td>
+                  <td>{transaction.status}</td>
+                  <td>{transaction.debitOrCredit}</td>
+                  <td>{transaction.description}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -140,23 +140,6 @@ const Loans = () => {
         durationMonths,
       } = formData;
 
-      if (
-        !loanId ||
-        !account ||
-        !loanProduct ||
-        !borrower ||
-        !memberNo ||
-        !releaseDate ||
-        !appliedAmount ||
-        !status ||
-        !endDate ||
-        !durationMonths
-      ) {
-        // Ensure all fields are filled in before submitting
-        // Alert or handle this case as required (fields shouldn't be empty)
-        return;
-      }
-
       await axios.post("http://localhost:3001/createloan", {
         loanId,
         loanProduct,
