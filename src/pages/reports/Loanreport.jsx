@@ -6,6 +6,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 console.log("Api URL:", API_BASE_URL);
 
 export default function Loanreport() {
+  const [memberNumbers, setmemberNumbers] = useState([]);
   const [loanData, setLoanData] = useState([]);
   const [formData, setFormData] = useState({
     startDate: "",
@@ -13,6 +14,23 @@ export default function Loanreport() {
     loanType: "", // Default value for loanType
     memberNo: "",
   });
+
+  // Function to fetch data
+  const fetchData = async () => {
+    try {
+      const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
+      const memberNumbers = membersResponse.data.data;
+      setmemberNumbers(memberNumbers);
+    } catch (error) {
+      // console.error('Error fetching data:', error);
+      // Handle error or display an error message
+    }
+  };
+
+  useEffect(() => {
+    // Fetch data initially on component mount
+    fetchData();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -84,10 +102,17 @@ export default function Loanreport() {
                     <Form.Group controlId="memberNo">
                       <Form.Label>Member No.</Form.Label>
                       <Form.Control
-                        type="text"
+                        as="select"
                         value={formData.memberNo}
                         onChange={handleChange}
-                      />
+                      >
+                        <option value="">Select Member No</option>
+                        {memberNumbers.map((memberNo) => (
+                          <option key={memberNo} value={memberNo}>
+                            {memberNo}
+                          </option>
+                        ))}
+                      </Form.Control>
                     </Form.Group>
                   </Col>
                 </Row>

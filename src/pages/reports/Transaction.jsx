@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
@@ -7,6 +7,7 @@ console.log("Api URL:", API_BASE_URL);
 
 export default function Transaction() {
   const [transactions, setTransactions] = useState([]);
+  const [accounts, setAccounts] = useState([]);
   const [formData, setFormData] = useState({
     startDate: "",
     endDate: "",
@@ -14,6 +15,17 @@ export default function Transaction() {
     transactionStatus: "",
     accountNumber: "",
   });
+
+  const fetchData = async () => {
+    const accountResponse = await axios.get(
+      `${API_BASE_URL}/readaccountnumbers`
+    );
+    setAccounts(accountResponse.data);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -104,11 +116,17 @@ export default function Transaction() {
                     <Form.Group controlId="accountNumber">
                       <Form.Label>Account Number</Form.Label>
                       <Form.Control
-                        type="text"
-                        placeholder="Enter Acc No."
+                        as="select"
                         value={formData.accountNumber}
                         onChange={handleChange}
-                      />
+                      >
+                        <option value="">Choose</option>
+                        {accounts.map((accountNumber) => (
+                          <option key={accountNumber} value={accountNumber}>
+                            {accountNumber}
+                          </option>
+                        ))}
+                      </Form.Control>
                     </Form.Group>
                   </Col>
                 </Row>

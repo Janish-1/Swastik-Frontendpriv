@@ -203,7 +203,7 @@ const Accounts = () => {
   return (
     <div className="body-div">
       <div className="d-flex mb-2">
-        <Button
+        {/* <Button
           className="mr-2"
           onClick={() => {
             setFormData({});
@@ -211,7 +211,7 @@ const Accounts = () => {
           }}
         >
           Add Account
-        </Button>
+        </Button> */}
         <FormControl
           className="custom-search-bar"
           type="text"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Button, Row, Col, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
@@ -10,8 +10,13 @@ const AccountStatement = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
+  const [accounts, setAccounts] = useState([]);
 
   const fetchData = async () => {
+    const accountResponse = await axios.get(
+      `${API_BASE_URL}/readaccountnumbers`
+    );
+    setAccounts(accountResponse.data);
     try {
       const response = await axios.get(`${API_BASE_URL}/accountstatement`, {
         params: {
@@ -31,6 +36,10 @@ const AccountStatement = () => {
       console.error("Error fetching data:", error);
     }
   };
+
+  useEffect(() =>{
+    fetchData();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -72,13 +81,18 @@ const AccountStatement = () => {
                   />
                 </Col>
                 <Col>
-                  <Form.Label>Account No.:</Form.Label>
-                  <Form.Control
-                    type="text"
+                  <Form.Label>Select Account:</Form.Label>
+                  <Form.Select
                     value={accountNumber}
                     onChange={(e) => setAccountNumber(e.target.value)}
-                    placeholder="Enter Account No."
-                  />
+                  >
+                    <option value="">Choose</option>
+                    {accounts.map((accountNumber) => (
+                      <option key={accountNumber} value={accountNumber}>
+                        {accountNumber}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Col>
                 <Col>
                   <Button variant="primary" type="submit" className="mt-8">
@@ -110,7 +124,7 @@ const AccountStatement = () => {
             {transactions.length > 0 ? (
               transactions.map((transaction, index) => (
                 <tr key={index}>
-                  <td>{transaction.Date}</td>
+                  <td>{new Date(transaction.date).toLocaleString()}</td>
                   <td>{transaction.Description}</td>
                   <td>{transaction.Debit}</td>
                   <td>{transaction.Credit}</td>

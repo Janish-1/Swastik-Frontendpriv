@@ -2431,6 +2431,43 @@ app.put('/objection/:loanId', async (req, res) => {
   }
 });
 
+app.post('/makePayment', async (req, res) => {
+  try {
+    const { userId, paymentDate, amountPaid } = req.body;
+
+    const newPayment = new Payment({
+      userId,
+      paymentDate,
+      amountPaid,
+    });
+
+    await newPayment.save();
+
+    res.status(201).json({ message: 'Payment recorded successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/checkPaymentStatus', async (req, res) => {
+  try {
+    const userId = req.query.userId; // Get userId from query parameter
+    const currentMonth = new Date().getMonth() + 1; // Get current month (1-12)
+
+    // Check if the user has paid for the current month
+    const paymentsForCurrentMonth = await Payment.find({
+      userId,
+      paymentDate: { $gte: new Date(new Date().getFullYear(), currentMonth - 1, 1) },
+    });
+
+    const isPaid = paymentsForCurrentMonth.length > 0;
+
+    res.status(200).json({ isPaid });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

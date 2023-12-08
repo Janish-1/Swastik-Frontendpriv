@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
@@ -8,8 +8,13 @@ console.log("Api URL:", API_BASE_URL);
 export default function AccountBalance() {
   const [tableData, setTableData] = useState([]);
   const [accountNumber, setAccountNumber] = useState("");
+  const [accounts, setAccounts] = useState([]);
 
   const fetchData = async () => {
+    const accountResponse = await axios.get(
+      `${API_BASE_URL}/readaccountnumbers`
+    );
+    setAccounts(accountResponse.data);
     try {
       const response = await axios.get(
         `${API_BASE_URL}/accountDetails/${accountNumber}`
@@ -20,6 +25,11 @@ export default function AccountBalance() {
       setTableData([]); // Clear any previous data
     }
   };
+
+  useEffect(() =>{
+    fetchData();
+  }, []);
+
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -55,13 +65,18 @@ export default function AccountBalance() {
             <Col md={6} className="d-flex">
               <Form onSubmit={handleSearch} className="mr-2 flex-grow-1">
                 <Form.Group controlId="accountNumber">
-                  <Form.Label>Account No.</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter Account no."
+                  <Form.Label>Select Account:</Form.Label>
+                  <Form.Select
                     value={accountNumber}
                     onChange={(e) => setAccountNumber(e.target.value)}
-                  />
+                  >
+                    <option value="">Choose</option>
+                    {accounts.map((accountNumber) => (
+                      <option key={accountNumber} value={accountNumber}>
+                        {accountNumber}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
                 <Button variant="primary" type="submit" className="mt-8">
                   Search

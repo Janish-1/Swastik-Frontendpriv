@@ -103,12 +103,12 @@ const Login = () => {
                 </Button>
               </Form>
               {message && <p>{message}</p>}
-              <div>
+              {/* <div>
                 <Link to="/register">Register</Link>
               </div>
               <div>
                 <Link to="/forgot-password">Forgot Password?</Link>
-              </div>
+              </div> */}
             </Card.Body>
           </Col>
         </Row>

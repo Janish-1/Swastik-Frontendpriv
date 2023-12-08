@@ -24,6 +24,7 @@ const Repayments = () => {
   const [repaymentsData, setRepaymentsData] = useState([]);
   const [filteredRepayments, setFilteredRepayments] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isPaid, setIsPaid] = useState(false);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
@@ -70,6 +71,15 @@ const Repayments = () => {
       handleCloseModal();
     }
   };
+  // Function to check if the user has paid for the current month
+  const checkPaymentStatus = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/checkPaymentStatus?userId=YOUR_USER_ID_HERE`);
+      setIsPaid(response.data.isPaid);
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -92,7 +102,16 @@ const Repayments = () => {
   useEffect(() => {
     // Fetch data initially on component mount
     fetchData();
+    checkPaymentStatus(); // Check payment status on component mount
   }, []);
+
+  const handlePayment = async () => {
+    // Logic to handle the payment process (make API call to record payment)
+    // ...
+
+    // After payment, update payment status
+    setIsPaid(true);
+  };
 
   useEffect(() => {
     const filteredRepayments = repaymentsData.filter((repayment) =>
@@ -237,6 +256,7 @@ const Repayments = () => {
             <th>Interest</th>
             <th>Late Penalties</th>
             <th>Total Amount</th>
+            <th>Payment Status</th>
           </tr>
         </thead>
         <tbody>
@@ -250,6 +270,14 @@ const Repayments = () => {
               <td>{repayment.interest}</td>
               <td>{repayment.latePenalties}</td>
               <td>{repayment.totalAmount}</td>
+              <td>
+                {" "}
+                {isPaid ? (
+                  <p>Paid</p>
+                ) : (
+                  <Button onClick={handlePayment}>Pay Now</Button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
