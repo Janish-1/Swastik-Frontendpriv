@@ -977,31 +977,6 @@ app.get("/repayments", async (req, res) => {
   }
 });
 
-app.get("/repayments/:id/loanId", async (req, res) => {
-  const repaymentId = req.params.id;
-
-  try {
-    const repayment = await repaymentModel.findById(repaymentId);
-
-    if (!repayment) {
-      return res.status(404).json({ message: "Repayment record not found" });
-    }
-
-    const loanId = repayment.loanId; // Assuming loanId is a field in the repayment model
-
-    res.status(200).json({
-      message: "Loan ID retrieved successfully",
-      data: { repaymentId, loanId },
-    });
-  } catch (error) {
-    console.error("Error retrieving loan ID from repayment record:", error);
-    res.status(500).json({
-      message: "Error retrieving loan ID from repayment record",
-      error: error.message,
-    });
-  }
-});
-
 app.get("/repayments/:id", async (req, res) => {
   const repaymentId = req.params.id;
 
@@ -2578,6 +2553,32 @@ app.get('/api/checkRepaymentExists/:loanId', async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 });
+
+app.get("/repayments/:id/loanId", async (req, res) => {
+  const repaymentId = req.params.id;
+
+  try {
+    const repayment = await repaymentModel.findById(repaymentId);
+
+    if (!repayment) {
+      return res.status(404).json({ message: "Repayment record not found" });
+    }
+
+    const loanId = repayment.loanId; // Assuming loanId is a field in the repayment model
+
+    res.status(200).json({
+      message: "Loan ID retrieved successfully",
+      data: { repaymentId, loanId },
+    });
+  } catch (error) {
+    console.error("Error retrieving loan ID from repayment record:", error);
+    res.status(500).json({
+      message: "Error retrieving loan ID from repayment record",
+      error: error.message,
+    });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

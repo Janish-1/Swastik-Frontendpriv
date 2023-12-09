@@ -98,11 +98,12 @@ const Repayments = () => {
     });
   }, []);
   
-  const checkRepaymentExists = async (repaymentId) => {
+  const checkRepaymentExists = async (loanId) => {
     try {
+      console.log('loan Id:',loanId); // String Output
       // Fetch the repayment details using the repaymentId
-      const responsea = await axios.get(`${API_BASE_URL}/repayments/${repaymentId}/loanId`);
-      const loanId = responsea.data.data.loanId;
+      // const responsea = await axios.get(`${API_BASE_URL}/repayments/${repaymentId}/loanId`);
+      // const loanId = responsea.data.data.loanId;
       
       const response = await axios.get(
         `${API_BASE_URL}/api/checkRepaymentExists/${loanId}`
@@ -113,6 +114,7 @@ const Repayments = () => {
       return false;
     }
   };
+
   // Function to check if repayments are paid
   const checkIfRepaymentsPaid = async () => {
     try {
