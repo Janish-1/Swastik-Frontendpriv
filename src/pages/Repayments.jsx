@@ -93,14 +93,19 @@ const Repayments = () => {
 
   useEffect(() => {
     // Fetch data initially on component mount
-    fetchData();
-    checkIfRepaymentsPaid(); // Check if any repayments are already paid
+    fetchData().then(() => {
+      checkIfRepaymentsPaid(); // Check if any repayments are already paid
+    });
   }, []);
-
+  
   const checkRepaymentExists = async (repaymentId) => {
     try {
+      // Fetch the repayment details using the repaymentId
+      const responsea = await axios.get(`${API_BASE_URL}/repayments/${repaymentId}/loanId`);
+      const loanId = responsea.data.data.loanId;
+      
       const response = await axios.get(
-        `${API_BASE_URL}/api/checkRepaymentExists/${repaymentId}`
+        `${API_BASE_URL}/api/checkRepaymentExists/${loanId}`
       );
       return response.data.exists;
     } catch (error) {
@@ -113,6 +118,7 @@ const Repayments = () => {
     try {
       for (const repayment of repaymentsData) {
         const repaymentExists = await checkRepaymentExists(repayment._id);
+        console.log(repaymentExists);
         if (repaymentExists) {
           setRepaymentsData((prevRepaymentsData) =>
             prevRepaymentsData.map((repaymentItem) =>

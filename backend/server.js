@@ -182,9 +182,9 @@ const intuserSchema = new mongoose.Schema(
 
 const repaymentDetailsSchema = new mongoose.Schema(
   {
-    repaymentId: { type: String, ref: "Repayment" },
-    loanId: { type: String, ref: "Loan" },
-    accountId: { type: String, ref: "Account" },
+    repaymentId: { type: String, ref: "repaymentModel" },
+    loanId: { type: String, ref: "loansModel" },
+    accountId: { type: String, ref: "AccountModel" },
     paymentDate: { type: Date, default: Date.now },
     dueAmountPaid: { type: Number },
   },
