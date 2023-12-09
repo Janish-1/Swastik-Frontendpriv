@@ -25,6 +25,7 @@ const Repayments = () => {
   const [filteredRepayments, setFilteredRepayments] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isPaid, setIsPaid] = useState(false);
+  const [repaymentExists, setRepaymentExists] = useState(false);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
@@ -71,15 +72,6 @@ const Repayments = () => {
       handleCloseModal();
     }
   };
-  // Function to check if the user has paid for the current month
-  const checkPaymentStatus = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/checkPaymentStatus?userId=YOUR_USER_ID_HERE`);
-      setIsPaid(response.data.isPaid);
-    } catch (error) {
-      console.error('Error checking payment status:', error);
-    }
-  };
 
   const fetchData = async () => {
     try {
@@ -102,17 +94,86 @@ const Repayments = () => {
   useEffect(() => {
     // Fetch data initially on component mount
     fetchData();
-    checkPaymentStatus(); // Check payment status on component mount
+    checkIfRepaymentsPaid(); // Check if any repayments are already paid
   }, []);
 
-  const handlePayment = async () => {
-    // Logic to handle the payment process (make API call to record payment)
-    // ...
-
-    // After payment, update payment status
-    setIsPaid(true);
+  const checkRepaymentExists = async (repaymentId) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/checkRepaymentExists/${repaymentId}`
+      );
+      return response.data.exists;
+    } catch (error) {
+      console.error("Error checking repayment:", error);
+      return false;
+    }
+  };
+  // Function to check if repayments are paid
+  const checkIfRepaymentsPaid = async () => {
+    try {
+      for (const repayment of repaymentsData) {
+        const repaymentExists = await checkRepaymentExists(repayment._id);
+        if (repaymentExists) {
+          setRepaymentsData((prevRepaymentsData) =>
+            prevRepaymentsData.map((repaymentItem) =>
+              repaymentItem._id === repayment._id
+                ? { ...repaymentItem, isPaid: true }
+                : repaymentItem
+            )
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error checking repayments:", error);
+      // Handle errors or display a message to the user
+    }
   };
 
+  const handlePayment = async (repaymentId) => {
+    try {
+      // Fetch the repayment details using the repaymentId
+      const response = await axios.get(`${API_BASE_URL}/repayments/${repaymentId}/loanId`);
+      const loanId = response.data.data.loanId;
+      
+      const repaymentExists = await checkRepaymentExists(loanId);
+  
+      if (repaymentExists) {
+        setRepaymentsData((prevRepaymentsData) =>
+          prevRepaymentsData.map((repayment) =>
+            repayment._id === repaymentId
+              ? { ...repayment, isPaid: true }
+              : repayment
+          )
+        );
+        console.log("Repayment data exists for the current month.");
+      } else {
+        const createResponse = await axios.post(
+          `${API_BASE_URL}/api/updatePaymentAndCreateDetails/${repaymentId}`
+        );
+  
+        if (createResponse.status === 200) {
+          setRepaymentsData((prevRepaymentsData) =>
+            prevRepaymentsData.map((repayment) =>
+              repayment._id === repaymentId
+                ? { ...repayment, isPaid: true }
+                : repayment
+            )
+          );
+          console.log(
+            "Repayment data created for the current month:",
+            createResponse.data.repaymentData
+          );
+        } else {
+          console.log("Failed to create repayment data for the current month.");
+          // Handle failure to create repayment data
+        }
+      }
+    } catch (error) {
+      console.error("Error handling payment:", error);
+      // Handle errors or display a message to the user
+    }
+  };
+  
   useEffect(() => {
     const filteredRepayments = repaymentsData.filter((repayment) =>
       repayment.loanId.toLowerCase().includes(searchTerm.toLowerCase())
@@ -271,12 +332,12 @@ const Repayments = () => {
               <td>{repayment.latePenalties}</td>
               <td>{repayment.totalAmount}</td>
               <td>
-                {" "}
-                {isPaid ? (
-                  <p>Paid</p>
-                ) : (
-                  <Button onClick={handlePayment}>Pay Now</Button>
-                )}
+                <Button
+                  onClick={() => handlePayment(repayment._id)}
+                  disabled={repayment.isPaid}
+                >
+                  {repayment.isPaid ? "Paid" : "Pay Now"}
+                </Button>{" "}
               </td>
             </tr>
           ))}

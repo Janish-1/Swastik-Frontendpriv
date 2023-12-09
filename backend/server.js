@@ -7,10 +7,10 @@ const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 const fs = require("fs");
-const dotenv = require('dotenv');
-
+const dotenv = require("dotenv");
+const moment = require('moment');
 // Specify the absolute path to your .env file
-const envPath = path.resolve(__dirname, '../.env');
+const envPath = path.resolve(__dirname, "../.env");
 
 // Load environment variables from the specified .env file
 dotenv.config({ path: envPath });
@@ -104,7 +104,7 @@ const loanSchema = new mongoose.Schema(
     account: { type: String, ref: "AccountModel", required: true },
     endDate: { type: Date }, // Optional field for the end date of the loan
     durationMonths: { type: Number }, // Optional field for the duration of the loan in months
-    objections: {type: String},
+    objections: { type: String },
   },
   { collection: "loans" }
 );
@@ -180,6 +180,17 @@ const intuserSchema = new mongoose.Schema(
   { collection: "intuserdata" }
 );
 
+const repaymentDetailsSchema = new mongoose.Schema(
+  {
+    repaymentId: { type: String, ref: "Repayment" },
+    loanId: { type: String, ref: "Loan" },
+    accountId: { type: String, ref: "Account" },
+    paymentDate: { type: Date, default: Date.now },
+    dueAmountPaid: { type: Number },
+  },
+  { collection: "RepaymentDetails" }
+);
+
 const categorySchema = new mongoose.Schema(
   {
     name: {
@@ -235,6 +246,7 @@ const intuserModel = mongoose.model("intuserdata", intuserSchema);
 const categoryModel = mongoose.model("category", categorySchema);
 const Revenue = mongoose.model("Revenue", revenueSchema); // Assuming you have a Revenue model defined
 const allusersModel = mongoose.model("allusers", userdetailsSchema);
+const RepaymentDetails = mongoose.model("RepaymentDetails",repaymentDetailsSchema);
 
 // Multer configuration for handling file uploads
 const storage = multer.diskStorage({
@@ -960,6 +972,31 @@ app.get("/repayments", async (req, res) => {
     console.error("Error retrieving repayment records:", error);
     res.status(500).json({
       message: "Error retrieving repayment records",
+      error: error.message,
+    });
+  }
+});
+
+app.get("/repayments/:id/loanId", async (req, res) => {
+  const repaymentId = req.params.id;
+
+  try {
+    const repayment = await repaymentModel.findById(repaymentId);
+
+    if (!repayment) {
+      return res.status(404).json({ message: "Repayment record not found" });
+    }
+
+    const loanId = repayment.loanId; // Assuming loanId is a field in the repayment model
+
+    res.status(200).json({
+      message: "Loan ID retrieved successfully",
+      data: { repaymentId, loanId },
+    });
+  } catch (error) {
+    console.error("Error retrieving loan ID from repayment record:", error);
+    res.status(500).json({
+      message: "Error retrieving loan ID from repayment record",
       error: error.message,
     });
   }
@@ -2378,93 +2415,167 @@ app.get("/detailsByMemberId/:memberId", async (req, res) => {
 });
 
 // Endpoint to update loan status to Approved
-app.put('/approveLoan/:loanId', async (req, res) => {
+app.put("/approveLoan/:loanId", async (req, res) => {
   const { loanId } = req.params;
 
   try {
     // Assuming you have a LoanModel or a similar model/schema
-    const loan = await loansModel.findByIdAndUpdate(loanId, { status: 'Approved' }, { new: true });
+    const loan = await loansModel.findByIdAndUpdate(
+      loanId,
+      { status: "Approved" },
+      { new: true }
+    );
 
     if (!loan) {
-      return res.status(404).json({ message: 'Loan not found' });
+      return res.status(404).json({ message: "Loan not found" });
     }
 
-    res.status(200).json({ message: 'Loan status updated to Approved', loan });
+    res.status(200).json({ message: "Loan status updated to Approved", loan });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating loan status to Approved', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error updating loan status to Approved",
+        error: error.message,
+      });
   }
 });
 
 // Endpoint to update loan status to Cancelled
-app.put('/cancelLoan/:loanId', async (req, res) => {
+app.put("/cancelLoan/:loanId", async (req, res) => {
   const { loanId } = req.params;
 
   try {
     // Assuming you have a LoanModel or a similar model/schema
-    const loan = await loansModel.findByIdAndUpdate(loanId, { status: 'Cancelled' }, { new: true });
+    const loan = await loansModel.findByIdAndUpdate(
+      loanId,
+      { status: "Cancelled" },
+      { new: true }
+    );
 
     if (!loan) {
-      return res.status(404).json({ message: 'Loan not found' });
+      return res.status(404).json({ message: "Loan not found" });
     }
 
-    res.status(200).json({ message: 'Loan status updated to Cancelled', loan });
+    res.status(200).json({ message: "Loan status updated to Cancelled", loan });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating loan status to Cancelled', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error updating loan status to Cancelled",
+        error: error.message,
+      });
   }
 });
 
-app.put('/objection/:loanId', async (req, res) => {
+app.put("/objection/:loanId", async (req, res) => {
   const { loanId } = req.params;
   const { reason } = req.body;
 
   try {
     // Assuming you have a LoansModel or a similar model/schema
-    const loan = await loansModel.findByIdAndUpdate(loanId, { objections: reason }, { new: true });
+    const loan = await loansModel.findByIdAndUpdate(
+      loanId,
+      { objections: reason },
+      { new: true }
+    );
 
     if (!loan) {
-      return res.status(404).json({ message: 'Loan not found' });
+      return res.status(404).json({ message: "Loan not found" });
     }
 
-    res.status(200).json({ message: 'Objection column updated successfully', loan });
+    res
+      .status(200)
+      .json({ message: "Objection column updated successfully", loan });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating objection column', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error updating objection column",
+        error: error.message,
+      });
   }
 });
 
-app.post('/makePayment', async (req, res) => {
-  try {
-    const { userId, paymentDate, amountPaid } = req.body;
+// API endpoint to update payment data and create RepaymentDetails document
+app.post(
+  "/api/updatePaymentAndCreateDetails/:repaymentId",
+  async (req, res) => {
+    try {
+      const repaymentId = req.params.repaymentId;
 
-    const newPayment = new Payment({
-      userId,
-      paymentDate,
-      amountPaid,
-    });
+      // Fetch repayment details using repayment ID
+      const repayment = await repaymentModel.findOne({ _id: repaymentId });
+      if (!repayment) {
+        return res.status(404).json({ message: "Repayment not found" });
+      }
 
-    await newPayment.save();
+      // Fetch associated loan using loanId from repayment
+      const loan = await loansModel.findOne({ loanId: repayment.loanId });
+      if (!loan) {
+        return res.status(404).json({ message: "Loan not found" });
+      }
 
-    res.status(201).json({ message: 'Payment recorded successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+      // Fetch associated account using memberNo from loan
+      const account = await AccountModel.findOne({ memberNo: loan.memberNo });
+      if (!account) {
+        return res.status(404).json({ message: "Account not found" });
+      }
+      // Deduct dueAmount from currentBalance, update payment data, and deduct from totalAmount
+      account.currentBalance -= repayment.dueAmount;
+      repayment.totalAmount -= repayment.dueAmount;
+      repayment.paymentDate = new Date(); // Set payment date to current date or the date of payment
+
+      // Create RepaymentDetails document
+      const repaymentDetails = new RepaymentDetails({
+        repaymentId: repayment.repaymentId,
+        loanId: repayment.loanId,
+        accountId: account.accountNumber,
+        paymentDate: repayment.paymentDate,
+        dueAmountPaid: repayment.dueAmount,
+      });
+
+      // Save changes and create RepaymentDetails document
+      await account.save();
+      await repayment.save();
+      await repaymentDetails.save();
+
+      res.json({
+        message:
+          "Payment data updated and RepaymentDetails created successfully",
+      });
+    } catch (error) {
+      console.error(
+        "Error updating payment data and creating RepaymentDetails:",
+        error
+      );
+      res.status(500).json({ message: "Server Error" });
+    }
   }
-});
+);
 
-app.get('/checkPaymentStatus', async (req, res) => {
+// Endpoint to check if repayment data exists for a loan ID in the current month
+app.get('/api/checkRepaymentExists/:loanId', async (req, res) => {
   try {
-    const userId = req.query.userId; // Get userId from query parameter
-    const currentMonth = new Date().getMonth() + 1; // Get current month (1-12)
+    const { loanId } = req.params;
 
-    // Check if the user has paid for the current month
-    const paymentsForCurrentMonth = await Payment.find({
-      userId,
-      paymentDate: { $gte: new Date(new Date().getFullYear(), currentMonth - 1, 1) },
+    // Get the current month in 'YYYY-MM' format
+    const currentMonth = moment().format('YYYY-MM');
+
+    // Find a repayment for the specified loanId within the current month
+    const repayment = await RepaymentDetails.findOne({
+      loanId,
+      paymentDate: {
+        $gte: new Date(`${currentMonth}-01`), // Start of the current month
+        $lte: new Date(moment(`${currentMonth}-01`).endOf('month').toDate()), // End of the current month
+      },
     });
 
-    const isPaid = paymentsForCurrentMonth.length > 0;
-
-    res.status(200).json({ isPaid });
+    const repaymentExistsForCurrentMonth = !!repayment;
+    res.json({ exists: repaymentExistsForCurrentMonth });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error checking repayment data:', error);
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
