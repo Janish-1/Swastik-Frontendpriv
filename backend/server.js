@@ -112,7 +112,7 @@ const loanSchema = new mongoose.Schema(
 const repaymentSchema = new mongoose.Schema(
   {
     loanId: { type: String, ref: "loansModel", required: true },
-    paymentDate: { type: Date, required: true },
+    paymentDate: { type: Date },
     dueDate: { type: Date, required: true },
     dueAmount: { type: Number, required: true },
     principalAmount: { type: Number, required: true },

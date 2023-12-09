@@ -91,20 +91,13 @@ const Repayments = () => {
     }
   };
 
-  useEffect(() => {
-    // Fetch data initially on component mount
-    fetchData().then(() => {
-      checkIfRepaymentsPaid(); // Check if any repayments are already paid
-    });
-  }, []);
-  
   const checkRepaymentExists = async (loanId) => {
     try {
-      console.log('loan Id:',loanId); // String Output
+      console.log("loan Id:", loanId); // String Output
       // Fetch the repayment details using the repaymentId
       // const responsea = await axios.get(`${API_BASE_URL}/repayments/${repaymentId}/loanId`);
       // const loanId = responsea.data.data.loanId;
-      
+
       const response = await axios.get(
         `${API_BASE_URL}/api/checkRepaymentExists/${loanId}`
       );
@@ -115,36 +108,44 @@ const Repayments = () => {
     }
   };
 
-  // Function to check if repayments are paid
   const checkIfRepaymentsPaid = async () => {
     try {
+      const updatedRepayments = [];
       for (const repayment of repaymentsData) {
-        const repaymentExists = await checkRepaymentExists(repayment._id);
-        console.log(repaymentExists);
-        if (repaymentExists) {
-          setRepaymentsData((prevRepaymentsData) =>
-            prevRepaymentsData.map((repaymentItem) =>
-              repaymentItem._id === repayment._id
-                ? { ...repaymentItem, isPaid: true }
-                : repaymentItem
-            )
-          );
-        }
+        const response = await axios.get(
+          `${API_BASE_URL}/api/checkRepaymentExists/${repayment.loanId}`
+        );
+        const repaymentExists = response.data.exists;
+  
+        const updatedRepayment = {
+          ...repayment,
+          isPaid: repaymentExists,
+        };
+  
+        updatedRepayments.push(updatedRepayment);
       }
+  
+      setRepaymentsData(updatedRepayments);
     } catch (error) {
       console.error("Error checking repayments:", error);
       // Handle errors or display a message to the user
     }
   };
 
+  useEffect(() => {
+    checkIfRepaymentsPaid();
+  }, []); // Run once on component mount
+        
   const handlePayment = async (repaymentId) => {
     try {
       // Fetch the repayment details using the repaymentId
-      const response = await axios.get(`${API_BASE_URL}/repayments/${repaymentId}/loanId`);
+      const response = await axios.get(
+        `${API_BASE_URL}/repayments/${repaymentId}/loanId`
+      );
       const loanId = response.data.data.loanId;
-      
+
       const repaymentExists = await checkRepaymentExists(loanId);
-  
+
       if (repaymentExists) {
         setRepaymentsData((prevRepaymentsData) =>
           prevRepaymentsData.map((repayment) =>
@@ -158,7 +159,7 @@ const Repayments = () => {
         const createResponse = await axios.post(
           `${API_BASE_URL}/api/updatePaymentAndCreateDetails/${repaymentId}`
         );
-  
+
         if (createResponse.status === 200) {
           setRepaymentsData((prevRepaymentsData) =>
             prevRepaymentsData.map((repayment) =>
@@ -181,7 +182,11 @@ const Repayments = () => {
       // Handle errors or display a message to the user
     }
   };
-  
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   useEffect(() => {
     const filteredRepayments = repaymentsData.filter((repayment) =>
       repayment.loanId.toLowerCase().includes(searchTerm.toLowerCase())
@@ -226,7 +231,7 @@ const Repayments = () => {
                 ))}
               </Form.Control>
             </Form.Group>
-            <Form.Group controlId="formPaymentDate">
+            {/* <Form.Group controlId="formPaymentDate">
               <Form.Label>Payment Date</Form.Label>
               <Form.Control
                 type="date"
@@ -240,7 +245,7 @@ const Repayments = () => {
                   }));
                 }}
               />
-            </Form.Group>
+            </Form.Group> */}
 
             <Form.Group controlId="formDueDate">
               <Form.Label>Due Date</Form.Label>
