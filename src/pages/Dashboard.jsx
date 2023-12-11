@@ -28,7 +28,7 @@ import axios from "axios";
 // dotenv.config({ path: envPath });
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const DropDown = ({ currentMode }) => (
   <div className="w-28 border-1 border-color px-2 py-1 rounded-md">
@@ -69,10 +69,11 @@ const Ecommerce = () => {
     const payload = JSON.parse(decodedPayload);
 
     // Log the token and its payload
-    console.log("Token:", token);
-    console.log("Payload:", payload);
+    // console.log("Token:", token);
+    // console.log("Payload:", payload);
+    // console.log("Role: ", payload.role);
   } else {
-    console.log("Token not found in localStorage");
+    // console.log("Token not found in localStorage");
   }
 
   // Fetch data for total members, deposit requests, withdraw requests, and pending loans
@@ -99,7 +100,7 @@ const Ecommerce = () => {
       );
       setTransactions(transactionsResponse.data.data);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      // console.error("Error fetching data:", error);
     }
   };
 

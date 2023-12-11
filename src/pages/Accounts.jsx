@@ -11,7 +11,7 @@ import {
   Dropdown,
 } from "react-bootstrap";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const Accounts = () => {
   const [showModal, setShowModal] = useState(false);
@@ -83,7 +83,7 @@ const Accounts = () => {
 
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
-      console.error("Error fetching account data:", error);
+      // console.error("Error fetching account data:", error);
       // Handle the error condition, show an error message, or perform other actions
     }
   };
@@ -155,7 +155,7 @@ const Accounts = () => {
       const response = await axios.get(`${API_BASE_URL}/accounts`);
       setAccountsData(response.data.data); // Assuming response.data contains the account data
     } catch (error) {
-      console.error("Error fetching accounts:", error);
+      // console.error("Error fetching accounts:", error);
       // Handle error or display an error message to the user
     }
 
@@ -164,8 +164,8 @@ const Accounts = () => {
       .then((response) => {
         // console.log('Member Name Status:',response);
         setMembersData(response.data.data);
-      })
-      .catch((error) => console.log("Error Fetching Member Numbers"));
+      });
+      // .catch((error) => console.log("Error Fetching Member Numbers"));
 
     const uniqueaccountresponse = await axios.get(
       `${API_BASE_URL}/randomgenAccountId`

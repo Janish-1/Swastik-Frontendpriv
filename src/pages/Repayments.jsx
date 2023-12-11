@@ -6,7 +6,7 @@ import DatePicker from "react-datepicker";
 import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const Repayments = () => {
   const [showModal, setShowModal] = useState(false);
@@ -93,7 +93,7 @@ const Repayments = () => {
 
   const checkRepaymentExists = async (loanId) => {
     try {
-      console.log("loan Id:", loanId); // String Output
+      // console.log("loan Id:", loanId); // String Output
       // Fetch the repayment details using the repaymentId
       // const responsea = await axios.get(`${API_BASE_URL}/repayments/${repaymentId}/loanId`);
       // const loanId = responsea.data.data.loanId;
@@ -103,39 +103,43 @@ const Repayments = () => {
       );
       return response.data.exists;
     } catch (error) {
-      console.error("Error checking repayment:", error);
+      // console.error("Error checking repayment:", error);
       return false;
     }
   };
 
   const checkIfRepaymentsPaid = async () => {
     try {
-      const updatedRepayments = [];
       for (const repayment of repaymentsData) {
-        const response = await axios.get(
-          `${API_BASE_URL}/api/checkRepaymentExists/${repayment.loanId}`
-        );
-        const repaymentExists = response.data.exists;
-  
-        const updatedRepayment = {
-          ...repayment,
-          isPaid: repaymentExists,
-        };
-  
-        updatedRepayments.push(updatedRepayment);
+        const repaymentExists = await checkRepaymentExists(repayment._id);
+        console.log("Repayment:",repaymentExists);
+        if (repaymentExists) {
+          setRepaymentsData((prevRepaymentsData) =>
+            prevRepaymentsData.map((repaymentItem) =>
+              repaymentItem._id === repayment._id
+                ? { ...repaymentItem, isPaid: true }
+                : repaymentItem
+            )
+          );
+        }
       }
-  
-      setRepaymentsData(updatedRepayments);
     } catch (error) {
-      console.error("Error checking repayments:", error);
+      // console.error("Error checking repayments:", error);
       // Handle errors or display a message to the user
     }
   };
 
   useEffect(() => {
-    checkIfRepaymentsPaid();
-  }, []); // Run once on component mount
-        
+    const intervalId = setInterval(() => {
+      checkIfRepaymentsPaid();
+    }, 5000); // 5 seconds in milliseconds
+    console.log('interval');
+    // Clear interval on component unmount
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   const handlePayment = async (repaymentId) => {
     try {
       // Fetch the repayment details using the repaymentId
@@ -154,7 +158,7 @@ const Repayments = () => {
               : repayment
           )
         );
-        console.log("Repayment data exists for the current month.");
+        // console.log("Repayment data exists for the current month.");
       } else {
         const createResponse = await axios.post(
           `${API_BASE_URL}/api/updatePaymentAndCreateDetails/${repaymentId}`
@@ -168,17 +172,17 @@ const Repayments = () => {
                 : repayment
             )
           );
-          console.log(
-            "Repayment data created for the current month:",
-            createResponse.data.repaymentData
-          );
+          // console.log(
+          //   "Repayment data created for the current month:",
+          //   createResponse.data.repaymentData
+          // );
         } else {
-          console.log("Failed to create repayment data for the current month.");
+          // console.log("Failed to create repayment data for the current month.");
           // Handle failure to create repayment data
         }
       }
     } catch (error) {
-      console.error("Error handling payment:", error);
+      // console.error("Error handling payment:", error);
       // Handle errors or display a message to the user
     }
   };

@@ -3,7 +3,7 @@ import axios from "axios";
 import { Modal, Button, Form, Table, Badge } from "react-bootstrap";
 import { FaEdit, FaTrash } from "react-icons/fa";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const User = () => {
   const [showModal, setShowModal] = useState(false);
@@ -91,9 +91,9 @@ const User = () => {
           userType: formData.userType,
         }
       );
-      console.log(responseUser);
+      // console.log(responseUser);
       if (response.status === 200) {
-        console.log("User updated successfully");
+        // console.log("User updated successfully");
         setFormData({
           name: "",
           email: "",
@@ -105,11 +105,11 @@ const User = () => {
         setShowEditModal(false);
         fetchData(); // Fetch updated data
       } else {
-        console.error("Failed to update user");
+        // console.error("Failed to update user");
         // Handle failure - display an error message or perform necessary actions
       }
     } catch (error) {
-      console.error("Error updating user:", error);
+      // console.error("Error updating user:", error);
       // Handle error - display an error message or perform necessary actions
     }
   };
@@ -147,7 +147,7 @@ const User = () => {
       password: formData.password,
       userType: formData.userType,
     });
-    console.log(responseUser);
+    // console.log(responseUser);
 
     try {
       const response = await axios.post(
@@ -205,7 +205,7 @@ const User = () => {
       );
       fetchData();
     } catch (error) {
-      console.error("Error:", error);
+      // console.error("Error:", error);
       // Handle error or display an error message to the user
     }
   };

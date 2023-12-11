@@ -32,7 +32,7 @@ const Branches = () => {
   const [presetpassword, setPassword] = useState("");
 
   const API_BASE_URL = process.env.REACT_APP_API_URL;
-  console.log("Api URL:", API_BASE_URL);
+  // console.log("Api URL:", API_BASE_URL);
 
   // useEffect(async () => {
   //   const token = localStorage.getItem("token");
@@ -85,7 +85,7 @@ const Branches = () => {
       });
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
-      console.error("Error fetching member data:", error);
+      // console.error("Error fetching member data:", error);
       // Handle error or display an error message to the user
     }
   };
@@ -123,7 +123,7 @@ const Branches = () => {
     });
 
     // Handle success of user creation
-    console.log("Manager User Created:", responseUser.data);
+    // console.log("Manager User Created:", responseUser.data);
     setFormData({
       branchName: "",
       managerName: "",
@@ -141,7 +141,7 @@ const Branches = () => {
 
   const handleUpdate = async (e, id) => {
     e.preventDefault();
-    console.log(id);
+    // console.log(id);
     try {
       // Update member
       // console.log(formData);
@@ -174,7 +174,7 @@ const Branches = () => {
       });
       fetchData();
     } catch (error) {
-      console.error("Error updating data:", error);
+      // console.error("Error updating data:", error);
       // Show failure alert for update
     }
   };
@@ -186,7 +186,7 @@ const Branches = () => {
       // Show success alert for delete
       fetchData();
     } catch (error) {
-      console.error("Error in deleting data:", error);
+      // console.error("Error in deleting data:", error);
 
       // Show error alert for delete
       alert("failed");

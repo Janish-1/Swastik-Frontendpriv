@@ -12,7 +12,7 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const styles = StyleSheet.create({
   page: {
@@ -71,7 +71,7 @@ export default function Loandue() {
       const response = await axios.get(`${API_BASE_URL}/loandue`);
       setData(response.data);
     } catch (error) {
-      console.error("Error fetching loan report data:", error);
+      // console.error("Error fetching loan report data:", error);
       // Handle error (display an error message, etc.)
     }
   };

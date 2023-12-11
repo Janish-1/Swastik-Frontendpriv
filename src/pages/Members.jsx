@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form, Table } from "react-bootstrap";
+import { Modal, Button, Form, Table,Nav,Tab } from "react-bootstrap";
 import axios from "axios";
 // import { FaEdit, FaTrash } from "react-icons/fa";
 import { Dropdown } from "react-bootstrap";
+import NewMember from "./NewMember";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const Members = () => {
   const [showModal, setShowModal] = useState(false);
@@ -96,7 +97,7 @@ const Members = () => {
       const memberData = response.data; // Assuming response.data contains the member data
       fetchData();
       // Verify the value retrieved for openingBalance from memberData
-      console.log("Opening Balance Retrieved:", memberData);
+      // console.log("Opening Balance Retrieved:", memberData);
       setAccountFormData({
         memberNo: memberData.memberNo,
         memberName: memberData.firstName + " " + memberData.lastName,
@@ -112,7 +113,7 @@ const Members = () => {
 
       setShowAccountModal(true);
     } catch (error) {
-      console.error("Error fetching member data:", error);
+      // console.error("Error fetching member data:", error);
       // Handle the error condition, show an error message, or perform other actions
     }
   };
@@ -156,11 +157,11 @@ const Members = () => {
         formDataWithCurrentBalance
       );
       // Handle the response or perform any necessary actions upon successful submission
-      console.log("Account submitted successfully:", response.data);
+      // console.log("Account submitted successfully:", response.data);
       handleCloseAccountModal();
     } catch (error) {
       // Handle errors if the request fails
-      console.error("Error submitting account:", error);
+      // console.error("Error submitting account:", error);
     }
   };
 
@@ -254,7 +255,7 @@ const Members = () => {
       fetchData();
     } catch (error) {
       // Handle error or display an error message to the user
-      console.error("Error:", error);
+      // console.error("Error:", error);
     }
   };
 
@@ -273,7 +274,7 @@ const Members = () => {
       handleCloseEditModal();
       fetchData();
     } catch (error) {
-      console.error("Error updating data:", error);
+      // console.error("Error updating data:", error);
       // Show failure alert for update
       // alert('Update Failed');
     }
@@ -307,6 +308,7 @@ const Members = () => {
   return (
     <div className="body-div">
       <Button onClick={handleOpenModal}>Add Member</Button>
+      <NewMember/>
 
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
@@ -502,31 +504,39 @@ const Members = () => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {viewMemberData && (
-            <div className="space-y-2">
-              <p className="text-gray-800">
-                <strong>Member No:</strong> {viewMemberData.memberNo}
-              </p>
-              <p className="text-gray-800">
-                <strong>First Name:</strong> {viewMemberData.firstName}
-              </p>
-              <p className="text-gray-800 ">
-                <strong>Last Name:</strong> {viewMemberData.lastName}
-              </p>
-              <p className="text-gray-800">
-                <strong>Email:</strong> {viewMemberData.email}
-              </p>
-              <p className="text-gray-800">
-                <strong>Branch:</strong> {viewMemberData.branchName}
-              </p>
-              <p className="text-gray-800">
-                <strong>Aadhar:</strong> {viewMemberData.aadhar}
-              </p>
-              <p className="text-gray-800">
-                <strong>PAN:</strong> {viewMemberData.pancard}
-              </p>
-            </div>
-          )}
+        <Tab.Container defaultActiveKey="details">
+          <Nav variant="tabs" className="mb-3">
+            <Nav.Item>
+              <Nav.Link eventKey="details">Member Details</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="overview">Account Overview</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="transactions">Transactions</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="loans">Loans</Nav.Link>
+            </Nav.Item>
+            {/* Add more Nav.Item components as needed */}
+          </Nav>
+
+          <Tab.Content>
+            <Tab.Pane eventKey="details">
+              {/* Member details component or JSX */}
+            </Tab.Pane>
+            <Tab.Pane eventKey="overview">
+              {/* Account overview component or JSX */}
+            </Tab.Pane>
+            <Tab.Pane eventKey="transactions">
+              {/* Transactions component or JSX */}
+            </Tab.Pane>
+            <Tab.Pane eventKey="loans">
+              {/* Loans component or JSX */}
+            </Tab.Pane>
+            {/* Add more Tab.Pane components as needed */}
+          </Tab.Content>
+        </Tab.Container>
         </Modal.Body>
       </Modal>
 

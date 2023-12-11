@@ -3,7 +3,7 @@ import { Form, Button, Row, Col, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const AccountStatement = () => {
   const [transactions, setTransactions] = useState([]);
@@ -30,10 +30,10 @@ const AccountStatement = () => {
         const transactionsData = response.data || [];
         setTransactions(transactionsData);
       } else {
-        console.error("Failed to fetch data");
+        // console.error("Failed to fetch data");
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      // console.error("Error fetching data:", error);
     }
   };
 

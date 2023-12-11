@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const Expense = () => {
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +31,7 @@ const Expense = () => {
       const expensesResponse = await axios.get(`${API_BASE_URL}/expenses`);
       setExpenses(expensesResponse.data); // Assuming the response data contains an array of expenses
     } catch (error) {
-      console.error("Error fetching data:", error);
+      // console.error("Error fetching data:", error);
     }
   };
 
@@ -45,10 +45,10 @@ const Expense = () => {
         setNewCategory("");
         fetchData();
       } else {
-        console.error("Failed to add category");
+        // console.error("Failed to add category");
       }
     } catch (error) {
-      console.error("Error adding category:", error);
+      // console.error("Error adding category:", error);
     }
   };
 
@@ -93,7 +93,7 @@ const Expense = () => {
       });
       fetchData();
     } catch (error) {
-      console.error("Error creating Expense:", error);
+      // console.error("Error creating Expense:", error);
     }
     handleModalClose();
   };

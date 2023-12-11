@@ -3,7 +3,7 @@ import axios from "axios";
 import { Form, Button, Container, Alert } from "react-bootstrap";
 import "./depositform.css"; // Import the custom CSS file
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const Deposit = () => {
   const [formData, setFormData] = useState({

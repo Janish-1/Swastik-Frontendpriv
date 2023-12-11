@@ -5,7 +5,7 @@ import axios from "axios";
 import { Form, Button, Container } from "react-bootstrap";
 import "./depositform.css";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const Transaction = () => {
   const [formData, setFormData] = useState({

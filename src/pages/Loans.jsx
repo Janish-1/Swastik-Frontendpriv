@@ -9,7 +9,7 @@ import { parseISO } from "date-fns";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import Objectionloan from "./Objectionloan";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const Loans = () => {
   const [showModal, setShowModal] = useState(false);
@@ -111,7 +111,7 @@ const Loans = () => {
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
       // Handle error or display an error message to the user
-      console.error("Error fetching loan data:", error);
+      // console.error("Error fetching loan data:", error);
     }
   };
 
@@ -162,7 +162,7 @@ const Loans = () => {
       // Handle the retrieved details accordingly
     } catch (error) {
       // Handle error or display an error message
-      console.error("Error fetching details:", error);
+      // console.error("Error fetching details:", error);
     }
   };
 
@@ -264,13 +264,13 @@ const Loans = () => {
   const handleApproveLoan = async (loanId) => {
     // Implement approve loan logic
     const response = await axios.put(`${API_BASE_URL}/approveLoan/${loanId}`);
-    console.log(response);
+    // console.log(response);
     fetchData();
   };
 
   const handleCancelLoan = async (loanId) => {
     const response = await axios.put(`${API_BASE_URL}/cancelLoan/${loanId}`);
-    console.log(response);
+    // console.log(response);
     fetchData();
   };
 
@@ -281,14 +281,14 @@ const Loans = () => {
 
   const handleObjectionSubmit = async (reason) => {
     // Implement logic to handle objection submission
-    console.log(
-      `Objection submitted for loan ${selectedLoanId} with reason: ${reason}`
-    );
+    // console.log(
+    //   `Objection submitted for loan ${selectedLoanId} with reason: ${reason}`
+    // );
     const response = await axios.put(
       `${API_BASE_URL}/objection/${selectedLoanId}`,
       { reason }
     );
-    console.log(response);
+    // console.log(response);
     fetchData();
     // Reset state or perform other actions as needed
     setShowObjectionModal(false);

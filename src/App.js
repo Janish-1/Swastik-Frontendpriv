@@ -72,7 +72,7 @@ const App = () => {
     </BrowserRouter>
   );
 };
-const AuthenticatedRoutes = () => {
+const AuthenticatedRoutes = ({isAgent}) => {
   const {
     setCurrentColor,
     setCurrentMode,

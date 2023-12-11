@@ -3,7 +3,7 @@ import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import axios from "axios";
 import Reports from "../Reports";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 export default function Revenue() {
   const [year, setYear] = useState("");
@@ -18,7 +18,7 @@ export default function Revenue() {
       );
       setRevenueData(response.data);
     } catch (error) {
-      console.error("Error fetching revenue data:", error);
+      // console.error("Error fetching revenue data:", error);
       setRevenueData({});
     }
   };
@@ -72,7 +72,7 @@ export default function Revenue() {
   };
 
   const handleExportToPDF = () => {
-    console.log("Exporting to PDF");
+    // console.log("Exporting to PDF");
     // Implement PDF export logic here
   };
 
