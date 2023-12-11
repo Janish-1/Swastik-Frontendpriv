@@ -78,7 +78,6 @@ const Repayments = () => {
       const response = await axios.get(`${API_BASE_URL}/repayments`);
       setRepaymentsData(response.data.data);
     } catch (error) {
-      // console.error('Error fetching repayments:', error);
       // Handle error or display an error message to the user
     }
     try {
@@ -107,38 +106,6 @@ const Repayments = () => {
       return false;
     }
   };
-
-  const checkIfRepaymentsPaid = async () => {
-    try {
-      for (const repayment of repaymentsData) {
-        const repaymentExists = await checkRepaymentExists(repayment._id);
-        console.log("Repayment:",repaymentExists);
-        if (repaymentExists) {
-          setRepaymentsData((prevRepaymentsData) =>
-            prevRepaymentsData.map((repaymentItem) =>
-              repaymentItem._id === repayment._id
-                ? { ...repaymentItem, isPaid: true }
-                : repaymentItem
-            )
-          );
-        }
-      }
-    } catch (error) {
-      // console.error("Error checking repayments:", error);
-      // Handle errors or display a message to the user
-    }
-  };
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      checkIfRepaymentsPaid();
-    }, 5000); // 5 seconds in milliseconds
-    console.log('interval');
-    // Clear interval on component unmount
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
 
   const handlePayment = async (repaymentId) => {
     try {
@@ -351,10 +318,14 @@ const Repayments = () => {
               <td>
                 <Button
                   onClick={() => handlePayment(repayment._id)}
-                  disabled={repayment.isPaid}
+                  disabled={
+                    repayment.isPaid || repayment.monthstatus === "paid"
+                  }
                 >
-                  {repayment.isPaid ? "Paid" : "Pay Now"}
-                </Button>{" "}
+                  {repayment.isPaid || repayment.monthstatus === "paid"
+                    ? "Paid"
+                    : "Pay Now"}
+                </Button>
               </td>
             </tr>
           ))}

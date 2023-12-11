@@ -379,7 +379,7 @@ const Loans = () => {
             <Form.Group controlId="formLoanId">
               <Form.Label>Loan ID</Form.Label>
               <Form.Control
-                type="text"
+                type="number"
                 placeholder="Enter loan ID"
                 name="loanId"
                 value={uniqueloanid}

@@ -82,17 +82,17 @@ const User = () => {
           },
         }
       );
-      const responseUser = await axios.put(
-        `${API_BASE_URL}/update-user/${formData.email}`,
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          userType: formData.userType,
-        }
-      );
       // console.log(responseUser);
       if (response.status === 200) {
+        const responseUser = await axios.put(
+          `${API_BASE_URL}/update-user/${formData.email}`,
+          {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            userType: formData.userType,
+          }
+        );
         // console.log("User updated successfully");
         setFormData({
           name: "",
@@ -141,31 +141,37 @@ const User = () => {
     formDataForApi.append("status", formData.status);
     formDataForApi.append("image", formData.image);
 
-    const responseUser = await axios.post(`${API_BASE_URL}/all-create`, {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      userType: formData.userType,
-    });
-    // console.log(responseUser);
-
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/users`,
+      const responseUpload = await axios.post(
+        `${API_BASE_URL}/upload`,
         formDataForApi,
         {
           headers: {
-            "Content-Type": "multipart/form-data", // Set proper headers for FormData
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      // console.log('User created:', response.data);
-      // Clear the formDataForApi after successful submission
-      formDataForApi.forEach((value, key) => {
-        formDataForApi.delete(key);
+      const imageUrl = responseUpload.data.url;
+
+      const responseCreateUser = await axios.post(`${API_BASE_URL}/users`, {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        userType: formData.userType,
+        status: formData.status,
+        imageUrl: imageUrl, // Send the received image URL to the backend
       });
 
+      console.log("User created:", responseCreateUser.data);
+      const responseUser = await axios.post(`${API_BASE_URL}/all-create`, {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        userType: formData.userType,
+      });
+
+      // Clear form data and perform necessary actions after successful submission
       setFormData({
         name: "",
         email: "",
@@ -177,8 +183,8 @@ const User = () => {
       handleCloseModal();
       fetchData();
     } catch (error) {
-      // console.error('Error creating user:', error);
       // Handle error or display an error message to the user
+      console.error("Error:", error);
     }
   };
 
@@ -289,7 +295,7 @@ const User = () => {
               <Form.Control
                 type="file"
                 accept="image/*"
-                name="image"
+                name="file"
                 onChange={handleImageChange}
               />
             </Form.Group>
@@ -373,7 +379,7 @@ const User = () => {
               <Form.Control
                 type="file"
                 accept="image/*"
-                name="image"
+                name="file"
                 onChange={handleImageChange}
               />
             </Form.Group>
@@ -401,7 +407,7 @@ const User = () => {
               <td>
                 {user.image ? (
                   <img
-                    src={`file:///${__dirname}/backend/${user.image}`} // Use forward slashes in the path
+                    src= {user.image}
                     alt="Profile"
                     width="40"
                     height="40"
