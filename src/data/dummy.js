@@ -219,10 +219,10 @@ export const filterLinksByRole = (userRole) => {
               name: "Dashboard",
               icon: <MdDashboard />,
             },
-            {
-              name: "Branches",
-              icon: <AiOutlineBranches />,
-            },
+            // {
+            //   name: "Branches",
+            //   icon: <AiOutlineBranches />,
+            // },
           ],
         },
 

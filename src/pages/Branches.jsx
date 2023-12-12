@@ -16,8 +16,8 @@ const Branches = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
     branchName: "",
-    managerName: "",
-    contactemail: "",
+    name: "",
+    email: "",
     password: "",
     contactphone: "",
     branchaddress: "",
@@ -116,8 +116,8 @@ const Branches = () => {
     }
     // Create a manager user associated with the branch
     const responseUser = await axios.post(`${API_BASE_URL}/all-create`, {
-      name: formData.managerName,
-      email: formData.contactemail,
+      name: formData.name,
+      email: formData.email,
       password: formData.password,
       userType: "manager",
     });
@@ -126,8 +126,8 @@ const Branches = () => {
     // console.log("Manager User Created:", responseUser.data);
     setFormData({
       branchName: "",
-      managerName: "",
-      contactemail: "",
+      name: "",
+      email: "",
       password: "",
       contactphone: "",
       branchaddress: "",
@@ -154,10 +154,10 @@ const Branches = () => {
       handleCloseEditModal();
 
       const response1 = await axios.put(
-        `${API_BASE_URL}/update-user/${formData.contactemail}`,
+        `${API_BASE_URL}/update-user/${formData.email}`,
         {
-          name: formData.managerName,
-          email: formData.contactemail,
+          name: formData.name,
+          email: formData.email,
           password: formData.password,
           userType: "manager",
         }
@@ -166,8 +166,8 @@ const Branches = () => {
       // Reset form data
       setFormData({
         branchName: "",
-        managerName: "",
-        contactemail: "",
+        name: "",
+        email: "",
         password: "",
         contactphone: "",
         branchaddress: "",
@@ -272,8 +272,8 @@ const Branches = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter Manager Name"
-                name="managerName"
-                value={formData.managerName}
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -282,8 +282,8 @@ const Branches = () => {
               <Form.Control
                 type="email"
                 placeholder="Enter email"
-                name="contactemail"
-                value={formData.contactemail}
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -357,8 +357,8 @@ const Branches = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter Manager Name"
-                name="managerName"
-                value={formData.managerName}
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -367,8 +367,8 @@ const Branches = () => {
               <Form.Control
                 type="email"
                 placeholder="Enter email"
-                name="contactemail"
-                value={formData.contactemail}
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -441,8 +441,8 @@ const Branches = () => {
           {filteredMembers.map((member) => (
             <tr>
               <td>{member.branchName}</td>
-              <td>{member.managerName}</td>
-              <td>{member.contactemail}</td>
+              <td>{member.name}</td>
+              <td>{member.email}</td>
               <td>{member.contactphone}</td>
               <td>{member.branchaddress}</td>
               <td>
