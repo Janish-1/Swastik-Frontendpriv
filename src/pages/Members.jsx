@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form, Table,Nav,Tab } from "react-bootstrap";
+import {
+  Modal,
+  Button,
+  Form,
+  Table,
+  Nav,
+  Tab,
+  Row,
+  Col,
+} from "react-bootstrap";
 import axios from "axios";
 // import { FaEdit, FaTrash } from "react-icons/fa";
 import { Dropdown } from "react-bootstrap";
@@ -13,23 +22,44 @@ const Members = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
     memberNo: 0,
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     branchName: "",
-    aadhar: "", // New field
-    pancard: "", // New field
+    photo: null,
+    fatherName: "",
+    gender: "",
+    maritalStatus: "",
+    dateOfBirth: "",
+    currentAddress: "",
+    permanentAddress: "",
+    whatsAppNo: "",
+    idProof: null,
+    nomineeName: "",
+    relationship: "",
+    nomineeMobileNo: "",
+    nomineeDateOfBirth: "",
   });
   const [updateData, setUpdateData] = useState({
     id: "",
     memberNo: 0,
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     branchName: "",
-    aadhar: "", // New field
-    pancard: "", // New field
+    photo: null,
+    fatherName: "",
+    gender: "",
+    maritalStatus: "",
+    dateOfBirth: "",
+    currentAddress: "",
+    permanentAddress: "",
+    whatsAppNo: "",
+    idProof: null,
+    nomineeName: "",
+    relationship: "",
+    nomineeMobileNo: "",
+    nomineeDateOfBirth: "",
   });
+
   const [membersData, setMembersData] = useState([]);
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(null);
   const [uniquememberid, setuniquememberid] = useState(0);
@@ -37,15 +67,21 @@ const Members = () => {
   const [uniqueaccountid, setuniqueaccountid] = useState(0);
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+  const handleModalShow = () => setShowModal(true);
+  const handleModalClose = () => setShowModal(false);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, files } = e.target;
 
-    // Convert the member number to a number type before setting the state
-    if (name === "memberNo") {
+    if (name === "photo" || name === "idProof") {
       setFormData((prevData) => ({
         ...prevData,
-        [name]: parseInt(value, 10), // Parse the input value to an integer
+        [name]: files[0], // Assign the selected file to the respective key in formData
+      }));
+      // Update the accountFormData state
+      setAccountFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
       }));
     } else {
       setFormData((prevData) => ({
@@ -53,11 +89,6 @@ const Members = () => {
         [name]: value,
       }));
     }
-    // Update the accountFormData state
-    setAccountFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
   };
 
   const handleUpdateChange = (event) => {
@@ -165,6 +196,22 @@ const Members = () => {
     }
   };
 
+  const handleImageChange = (e) => {
+    const imageFile = e.target.files[0];
+    setFormData((prevData) => ({
+      ...prevData,
+      image: imageFile,
+    }));
+  };
+
+  const handleFileChange = (event) => {
+    const { name, files } = event.target;
+    setFormData({
+      ...formData,
+      [name]: files[0],
+    });
+  };
+
   const handleOpenEditModal = async (id) => {
     // console.log(id);
     try {
@@ -233,50 +280,72 @@ const Members = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Add new member
+      const formDataWithImages = new FormData();
+      formDataWithImages.append('images', formData.photo);
+      formDataWithImages.append('images', formData.idProof);
+      console.log(formDataWithImages);
+
+      const responseUpload = await axios.post(
+        `${API_BASE_URL}/uploadmultiple`,
+        formDataWithImages,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      const imageUrls = {
+        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
+        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+      };
+
       await axios.post(`${API_BASE_URL}/createmember`, {
         ...formData,
-        memberNo: parseInt(uniquememberid, 10), // Ensure memberNo is an integer
+        memberNo: parseInt(formData.memberNo, 10),
+        photo: imageUrls.imageUrl1,
+        idProof: imageUrls.imageUrl2,
       });
 
-      // Close modal and reset form data and selected index
-      handleCloseModal();
       setFormData({
-        memberNo: 0, // Reset memberNo to 0 or initial value
-        firstName: "",
-        lastName: "",
-        email: "",
-        branchName: "",
-        aadhar: "", // New field
-        pancard: "", // New field
+        memberNo: 0,
+        fullName: '',
+        email: '',
+        branchName: '',
+        photo: null,
+        fatherName: '',
+        gender: '',
+        maritalStatus: '',
+        dateOfBirth: '',
+        currentAddress: '',
+        permanentAddress: '',
+        whatsAppNo: '',
+        idProof: null,
+        nomineeName: '',
+        relationship: '',
+        nomineeMobileNo: '',
+        nomineeDateOfBirth: '',
       });
 
-      // Fetch updated data
+      handleCloseModal();
       fetchData();
     } catch (error) {
-      // Handle error or display an error message to the user
-      // console.error("Error:", error);
+      console.error('Error:', error);
     }
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      // Update member
-      // console.log(updateData);
       const response = await axios.put(
         `${API_BASE_URL}/updatemember/${updateData.id}`,
         updateData
       );
-      // console.log(response.data);
-      // alert('Successfully Updated');
-      // Close the edit modal
+
       handleCloseEditModal();
       fetchData();
     } catch (error) {
-      // console.error("Error updating data:", error);
-      // Show failure alert for update
-      // alert('Update Failed');
+      // Handle error
     }
   };
 
@@ -307,92 +376,291 @@ const Members = () => {
 
   return (
     <div className="body-div">
-      <Button onClick={handleOpenModal}>Add Member</Button>
-      <NewMember/>
+      <Button onClick={handleModalShow}>Add New Member</Button>
 
-      <Modal show={showModal} onHide={handleCloseModal}>
+      <Modal show={showModal} onHide={handleModalClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Add Member</Modal.Title>
+          <Modal.Title>New Member Form</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="formMemberNo">
-              <Form.Label>Member No</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter member number"
-                name="memberNo"
-                value={uniquememberid}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formFirstName">
-              <Form.Label>First Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter first name"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formLastName">
-              <Form.Label>Last Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter last name"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formEmail">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formBranch">
-              <Form.Label>Branch</Form.Label>
-              <Form.Select
-                name="branchName"
-                value={formData.branchName}
-                onChange={handleInputChange}
-              >
-                <option value="">Select a branch</option>
-                {branchNames.map((branch, index) => (
-                  <option key={index} value={branch}>
-                    {branch}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            <Form.Group controlId="formAadhar">
-              <Form.Label>Aadhar</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Aadhar number"
-                name="aadhar"
-                value={formData.aadhar}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formPancard">
-              <Form.Label>Pancard</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Pancard number"
-                name="pancard"
-                value={formData.pancard}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formMemberNo">
+                  <Form.Label>Member Number</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="memberNo"
+                    value={uniquememberid}
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formFatherName">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    placeholder="Enter email"
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Personal Information */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formBranch">
+                  <Form.Label>Branch</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="branchName"
+                    value={formData.branchName}
+                    onChange={handleInputChange}
+                    as="select"
+                  >
+                    <option value="">Select Branch</option>
+                    {branchNames.map((branch, index) => (
+                      <option key={index} value={branch}>
+                        {branch}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>{" "}
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formPhoto">
+                  <Form.Label>Photo (Browse file)</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    name="photo"
+                    onChange={handleFileChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Full Name and Father Name */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formfullName">
+                  <Form.Label>Full Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    placeholder="Enter full name"
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formFatherName">
+                  <Form.Label>Father Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="fatherName"
+                    value={formData.fatherName}
+                    placeholder="Enter father's name"
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Gender and Marital Status */}
+            <Row className="mb-3">
+              <Form.Group as={Row} controlId="formGender">
+                <Col md={9}>
+                  <div className="d-flex md:space-x-10">
+                    <Form.Check
+                      type="radio"
+                      label="Male"
+                      name="gender"
+                      id="genderMale"
+                      value="Male"
+                      checked={formData.gender === "Male"}
+                      onChange={handleInputChange}
+                    />
+                    <Form.Check
+                      type="radio"
+                      label="Female"
+                      name="gender"
+                      id="genderFemale"
+                      value="Female"
+                      checked={formData.gender === "Female"}
+                      onChange={handleInputChange}
+                    />
+                    <Form.Check
+                      type="radio"
+                      label="Others"
+                      name="gender"
+                      id="genderOthers"
+                      value="Others"
+                      checked={formData.gender === "Others"}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </Col>
+              </Form.Group>
+            </Row>
+
+            {/* Marital Status and Date of Birth */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formMaritalStatus">
+                  <Form.Label>Marital Status</Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="maritalStatus"
+                    value={formData.maritalStatus}
+                    onChange={handleInputChange}
+                  >
+                    <option>Select Marital Status</option>
+                    <option>Single</option>
+                    <option>Married</option>
+                    <option>Divorced</option>
+                    <option>Widowed</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formDOB">
+                  <Form.Label>Date of Birth</Form.Label>
+                  <Form.Control
+                    type="date"
+                    name="dateOfBirth"
+                    value={formData.dateOfBirth}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Current Address and Permanent Address */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formAddress">
+                  <Form.Label>Current Address</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="currentAddress"
+                    value={formData.currentAddress}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formPermanentAddress">
+                  <Form.Label>Permanent Address</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="permanentAddress"
+                    value={formData.permanentAddress}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* WhatsApp Number and ID Proof */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formWhatsappNo">
+                  <Form.Label>WhatsApp No.</Form.Label>
+                  <Form.Control
+                    type="number"
+                    placeholder="Enter WhatsApp number"
+                    name="whatsAppNo"
+                    value={formData.whatsAppNo}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formIdProof">
+                  <Form.Label>
+                    ID Proof (Aadhar, Passport, Electricity Bill)
+                  </Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    name="idProof"
+                    onChange={handleFileChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* HR Section */}
+            <hr />
+
+            {/* Nominee Details */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formNomineeName">
+                  <Form.Label>Nominee Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter nominee name"
+                    name="nomineeName"
+                    value={formData.nomineeName}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formRelationship">
+                  <Form.Label>Relationship</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter relationship"
+                    name="relationship"
+                    value={formData.relationship}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formNomineeMobile">
+                  <Form.Label>Nominee Mobile No.</Form.Label>
+                  <Form.Control
+                    type="tel"
+                    placeholder="Enter nominee mobile number"
+                    name="nomineeMobileNo"
+                    value={formData.nomineeMobileNo}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formNomineeDOB">
+                  <Form.Label>Nominee Date of Birth</Form.Label>
+                  <Form.Control
+                    type="date"
+                    name="nomineeDateOfBirth"
+                    value={formData.nomineeDateOfBirth}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <br />
             <Button variant="primary" type="submit">
-              Add
+              Submit
             </Button>
           </Form>
         </Modal.Body>
@@ -504,39 +772,39 @@ const Members = () => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <Tab.Container defaultActiveKey="details">
-          <Nav variant="tabs" className="mb-3">
-            <Nav.Item>
-              <Nav.Link eventKey="details">Member Details</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="overview">Account Overview</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="transactions">Transactions</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="loans">Loans</Nav.Link>
-            </Nav.Item>
-            {/* Add more Nav.Item components as needed */}
-          </Nav>
+          <Tab.Container defaultActiveKey="details">
+            <Nav variant="tabs" className="mb-3">
+              <Nav.Item>
+                <Nav.Link eventKey="details">Member Details</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="overview">Account Overview</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="transactions">Transactions</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="loans">Loans</Nav.Link>
+              </Nav.Item>
+              {/* Add more Nav.Item components as needed */}
+            </Nav>
 
-          <Tab.Content>
-            <Tab.Pane eventKey="details">
-              {/* Member details component or JSX */}
-            </Tab.Pane>
-            <Tab.Pane eventKey="overview">
-              {/* Account overview component or JSX */}
-            </Tab.Pane>
-            <Tab.Pane eventKey="transactions">
-              {/* Transactions component or JSX */}
-            </Tab.Pane>
-            <Tab.Pane eventKey="loans">
-              {/* Loans component or JSX */}
-            </Tab.Pane>
-            {/* Add more Tab.Pane components as needed */}
-          </Tab.Content>
-        </Tab.Container>
+            <Tab.Content>
+              <Tab.Pane eventKey="details">
+                {/* Member details component or JSX */}
+              </Tab.Pane>
+              <Tab.Pane eventKey="overview">
+                {/* Account overview component or JSX */}
+              </Tab.Pane>
+              <Tab.Pane eventKey="transactions">
+                {/* Transactions component or JSX */}
+              </Tab.Pane>
+              <Tab.Pane eventKey="loans">
+                {/* Loans component or JSX */}
+              </Tab.Pane>
+              {/* Add more Tab.Pane components as needed */}
+            </Tab.Content>
+          </Tab.Container>
         </Modal.Body>
       </Modal>
 
