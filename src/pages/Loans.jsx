@@ -16,7 +16,7 @@ const Loans = () => {
   const [formData, setFormData] = useState({
     loanId: "",
     loanProduct: "",
-    borrower: "",
+    memberName: "",
     memberNo: "",
     releaseDate: new Date(), // Default date
     appliedAmount: "",
@@ -76,7 +76,7 @@ const Loans = () => {
         loanId,
         account,
         loanProduct,
-        borrower,
+        memberName,
         memberNo,
         releaseDate,
         appliedAmount,
@@ -97,7 +97,7 @@ const Loans = () => {
         loanId,
         account,
         loanProduct,
-        borrower,
+        memberName,
         memberNo,
         releaseDate: formattedReleaseDate,
         appliedAmount,
@@ -143,7 +143,7 @@ const Loans = () => {
         setFormData((prevFormData) => ({
           ...prevFormData,
           account: accountNumber,
-          borrower: memberName,
+          memberName: memberName,
           // Update other form fields as needed
         }));
       } else if (type === "account") {
@@ -155,7 +155,7 @@ const Loans = () => {
         setFormData((prevFormData) => ({
           ...prevFormData,
           memberNo: memberNo,
-          borrower: memberName,
+          memberName: memberName,
           // Update other form fields as needed
         }));
       }
@@ -178,7 +178,7 @@ const Loans = () => {
         loanId,
         account,
         loanProduct,
-        borrower,
+        memberName,
         memberNo,
         releaseDate,
         appliedAmount,
@@ -191,7 +191,7 @@ const Loans = () => {
       await axios.post(`${API_BASE_URL}/createloan`, {
         loanId,
         loanProduct,
-        borrower,
+        memberName,
         memberNo,
         releaseDate,
         appliedAmount,
@@ -206,7 +206,7 @@ const Loans = () => {
         loanId: "",
         account: "",
         loanProduct: "",
-        borrower: "",
+        memberName: "",
         memberNo: "",
         releaseDate: new Date(),
         appliedAmount: "",
@@ -229,7 +229,7 @@ const Loans = () => {
         loanId: "",
         account: "",
         loanProduct: "",
-        borrower: "",
+        memberName: "",
         memberNo: "",
         releaseDate: new Date(),
         appliedAmount: "",
@@ -310,12 +310,16 @@ const Loans = () => {
       const memberNumbers = membersResponse.data.data;
       setmemberNumbers(memberNumbers);
 
-      const response = await axios.get(`${API_BASE_URL}/accountids`);
-      setAccountIds(response.data.data);
-      // console.log(response);
-
+      try {
+        const response = await axios.get(`${API_BASE_URL}/accountids`);
+        setAccountIds(response.data.data);
+        // console.log(response);
+      } catch (error) {
+        // Error Catching
+      }
       const memberresponse = await axios.get(`${API_BASE_URL}/readmembersname`);
       const names = memberresponse.data.data.map((member) => member.name);
+      console.log(memberresponse);
       setMemberNames(names);
 
       const uniqueloanresponse = await axios.get(
@@ -337,7 +341,7 @@ const Loans = () => {
     // Filter loans based on search term in 'memberNo' and 'borrowerNumber' columns
     const filteredLoans = loansData.filter((loan) => {
       const memberNo = loan.memberNo.toString().toLowerCase(); // Convert to lowercase string
-      const borrowerNumber = loan.borrower.toString().toLowerCase(); // Convert to lowercase string
+      const borrowerNumber = loan.memberName.toString().toLowerCase(); // Convert to lowercase string
       const searchTermLower = searchTerm.toLowerCase(); // Convert search term to lowercase
 
       // Check if 'memberNo' or 'borrowerNumber' includes the search term
@@ -419,8 +423,8 @@ const Loans = () => {
               <Form.Label>Borrower</Form.Label>
               <Form.Control
                 as="select"
-                name="borrower"
-                value={formData.borrower}
+                name="memberName"
+                value={formData.memberName}
                 onChange={handleInputChange}
               >
                 <option value="">Select Borrower Name</option>
@@ -581,8 +585,8 @@ const Loans = () => {
               <Form.Label>Borrower</Form.Label>
               <Form.Control
                 as="select"
-                name="borrower"
-                value={formData.borrower}
+                name="memberName"
+                value={formData.memberName}
                 onChange={handleInputChange}
               >
                 <option value="">Select Borrower Name</option>
@@ -700,7 +704,7 @@ const Loans = () => {
             <th>Loan ID</th>
             <th>Account ID</th>
             <th>Loan Product</th>
-            <th>Borrower</th>
+            <th>Member Name</th>
             <th>Member No</th>
             <th>Release Date</th>
             <th>Loan Amount</th>
@@ -718,7 +722,7 @@ const Loans = () => {
               <td>{loan.loanId}</td>
               <td>{loan.account}</td>
               <td>{loan.loanProduct}</td>
-              <td>{loan.borrower}</td>
+              <td>{loan.memberName}</td>
               <td>{loan.memberNo}</td>
               <td>{new Date(loan.releaseDate).toLocaleDateString()}</td>
               <td>{loan.appliedAmount}</td>

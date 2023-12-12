@@ -33,17 +33,27 @@ const Accounts = () => {
 
   const [accountFormData, setAccountFormData] = useState({
     _id: "",
-    accountNumber: 0,
-    member: "",
     memberNo: 0,
+    memberName: "",
     email: "",
     branchName: "",
-    aadhar: "",
-    pancard: "",
+    photo: null,
+    accountNumber: "",
     accountType: "",
-    status: "",
     openingBalance: 0,
     currentBalance: 0,
+    fatherName: "",
+    gender: "",
+    maritalStatus: "",
+    dateOfBirth: "",
+    currentAddress: "",
+    permanentAddress: "",
+    whatsAppNo: "",
+    idProof: null,
+    nomineeName: "",
+    relationship: "",
+    nomineeMobileNo: "",
+    nomineeDateOfBirth: "",
   });
 
   const handleOpenModal = () => setShowModal(true);
@@ -52,44 +62,86 @@ const Accounts = () => {
     setShowModal(false);
     setSelectedAccountIndex(null);
     setFormData({
+      memberNo: 0,
+      memberName: "",
+      email: "",
+      branchName: "",
+      photo: null,
       accountNumber: "",
-      member: "",
       accountType: "",
-      status: "",
       openingBalance: 0,
-      currentBalance: openingBalance,
-    });
+      currentBalance: 0,
+      fatherName: "",
+      gender: "",
+      maritalStatus: "",
+      dateOfBirth: "",
+      currentAddress: "",
+      permanentAddress: "",
+      whatsAppNo: "",
+      idProof: null,
+      nomineeName: "",
+      relationship: "",
+      nomineeMobileNo: "",
+      nomineeDateOfBirth: "",
+      });
   };
 
   const handleOpenEditModal = async (id) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/accounts/${id}`);
       const accountData = response.data.data; // Assuming response.data contains the account data
-
+  
       setAccountFormData({
         _id: id,
         accountNumber: accountData.accountNumber,
-        member: accountData.memberName,
+        memberName: accountData.memberName,
         memberNo: accountData.memberNo,
         email: accountData.email,
         branchName: accountData.branchName,
-        aadhar: accountData.aadhar,
-        pancard: accountData.pancard,
         accountType: accountData.accountType,
-        status: accountData.status,
         openingBalance: accountData.openingBalance,
         currentBalance: accountData.currentBalance,
+        photo: accountData.photo,
+        fatherName: accountData.fatherName,
+        gender: accountData.gender,
+        maritalStatus: accountData.maritalStatus,
+        dateOfBirth: accountData.dateOfBirth,
+        currentAddress: accountData.currentAddress,
+        permanentAddress: accountData.permanentAddress,
+        whatsAppNo: accountData.whatsAppNo,
+        idProof: accountData.idProof,
+        nomineeName: accountData.nomineeName,
+        relationship: accountData.relationship,
+        nomineeMobileNo: accountData.nomineeMobileNo,
+        nomineeDateOfBirth: accountData.nomineeDateOfBirth,
       });
-
+  
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
-      // console.error("Error fetching account data:", error);
       // Handle the error condition, show an error message, or perform other actions
+      console.error("Error fetching account data:", error);
     }
   };
-
+  
   const handleCloseEditModal = () => {
     setShowEditModal(false);
+  };
+
+  const handleUpdateChange = (event) => {
+    const { name, value } = event.target;
+
+    // Convert the member number to a number type before setting the state
+    if (name === "memberNo") {
+      setUpdateData({
+        ...updateData,
+        [name]: parseInt(value, 10), // Parse the input value to an integer
+      });
+    } else {
+      setUpdateData({
+        ...updateData,
+        [name]: value,
+      });
+    }
   };
 
   const handleInputChange = (e) => {
@@ -165,7 +217,7 @@ const Accounts = () => {
         // console.log('Member Name Status:',response);
         setMembersData(response.data.data);
       });
-      // .catch((error) => console.log("Error Fetching Member Numbers"));
+    // .catch((error) => console.log("Error Fetching Member Numbers"));
 
     const uniqueaccountresponse = await axios.get(
       `${API_BASE_URL}/randomgenAccountId`
@@ -325,7 +377,17 @@ const Accounts = () => {
                 readOnly
               />
             </Form.Group>
-            <Form.Group controlId="formMemberNumber">
+            <Form.Group controlId="formMemberName">
+              <Form.Label>Member Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter member name"
+                name="memberName"
+                value={accountFormData.memberName}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formMemberNo">
               <Form.Label>Member Number</Form.Label>
               <Form.Control
                 type="text"
@@ -336,15 +398,32 @@ const Accounts = () => {
                 readOnly
               />
             </Form.Group>
-            <Form.Group controlId="formMember">
-              <Form.Label>Member</Form.Label>
+            <Form.Group controlId="formEmail">
+              <Form.Label>Email</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Enter member name"
-                name="memberName"
-                value={accountFormData.member}
+                type="email"
+                placeholder="Enter email"
+                name="email"
+                value={accountFormData.email}
                 onChange={handleInputChange}
               />
+            </Form.Group>
+            <Form.Group controlId="formBranchName">
+              <Form.Label>Branch Name</Form.Label>
+              <Form.Control
+                as="select"
+                name="branchName"
+                value={accountFormData.branchName}
+                onChange={handleInputChange}
+              >
+                <option value="">Select a branch</option>
+                {/* Populate branch names dynamically */}
+                {branchNames.map((branch, index) => (
+                  <option key={index} value={branch}>
+                    {branch}
+                  </option>
+                ))}
+              </Form.Control>
             </Form.Group>
             <Form.Group controlId="formAccountType">
               <Form.Label>Account Type</Form.Label>
@@ -369,48 +448,160 @@ const Accounts = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group controlId="formAadhar">
-              <Form.Label>Aadhar</Form.Label>
+            <Form.Group controlId="formOpeningBalance">
+              <Form.Label>Current Balance</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Enter Aadhar number"
-                name="aadhar"
-                value={accountFormData.aadhar}
+                type="number"
+                placeholder="Enter Current balance"
+                name="currentBalance"
+                value={accountFormData.currentBalance}
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group controlId="formPancard">
-              <Form.Label>Pancard</Form.Label>
+            <Form.Group controlId="formPhoto">
+              <Form.Label>Photo</Form.Label>
+              <Form.Control
+                    type="file"
+                    accept="image/*"
+                    name="photo"
+                    onChange={handleUpdateChange}
+                  />
+            </Form.Group>
+            {/* Father's Name */}
+            <Form.Group controlId="formFatherName">
+              <Form.Label>Father's Name</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter Pancard number"
-                name="pancard"
-                value={accountFormData.pancard}
+                placeholder="Enter father's name"
+                name="fatherName"
+                value={accountFormData.fatherName}
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group controlId="formBranch">
-              <Form.Label>Branch</Form.Label>
+            {/* Gender */}
+            <Form.Group controlId="formGender">
+              <Form.Label>Gender</Form.Label>
               <Form.Select
-                name="branchName"
-                value={accountFormData.branchName}
+                name="gender"
+                value={accountFormData.gender}
                 onChange={handleInputChange}
               >
-                <option value="">Select a branch</option>
-                {branchNames.map((branch, index) => (
-                  <option key={index} value={branch}>
-                    {branch}
-                  </option>
-                ))}
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
               </Form.Select>
-            </Form.Group>{" "}
-            <Form.Group controlId="formEMAIL">
-              <Form.Label>Email </Form.Label>
+            </Form.Group>
+            {/* Marital Status */}
+            <Form.Group controlId="formMaritalStatus">
+              <Form.Label>Marital Status</Form.Label>
+              <Form.Select
+                name="maritalStatus"
+                value={accountFormData.maritalStatus}
+                onChange={handleInputChange}
+              >
+                    <option>Select Marital Status</option>
+                    <option>Single</option>
+                    <option>Married</option>
+                    <option>Divorced</option>
+                    <option>Widowed</option>
+              </Form.Select>
+            </Form.Group>
+            {/* Date of Birth */}
+            <Form.Group controlId="formDateOfBirth">
+              <Form.Label>Date of Birth</Form.Label>
               <Form.Control
-                type="email"
-                placeholder="Enter email"
-                name="email"
-                value={accountFormData.email}
+                type="date"
+                placeholder="Enter date of birth"
+                name="dateOfBirth"
+                value={accountFormData.dateOfBirth}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            {/* Current Address */}
+            <Form.Group controlId="formCurrentAddress">
+              <Form.Label>Current Address</Form.Label>
+              <Form.Control
+                as="textarea"
+                placeholder="Enter current address"
+                name="currentAddress"
+                value={accountFormData.currentAddress}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            {/* Permanent Address */}
+            <Form.Group controlId="formPermanentAddress">
+              <Form.Label>Permanent Address</Form.Label>
+              <Form.Control
+                as="textarea"
+                placeholder="Enter permanent address"
+                name="permanentAddress"
+                value={accountFormData.permanentAddress}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            {/* WhatsApp Number */}
+            <Form.Group controlId="formWhatsAppNo">
+              <Form.Label>WhatsApp Number</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter WhatsApp number"
+                name="whatsAppNo"
+                value={accountFormData.whatsAppNo}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            {/* ID Proof */}
+            <Form.Group controlId="formIdProof">
+              <Form.Label>ID Proof</Form.Label>
+              <Form.Control
+                    type="file"
+                    accept="image/*"
+                    name="photo"
+                    onChange={handleUpdateChange}
+                  />
+            </Form.Group>
+            {/* Nominee Name */}
+            <Form.Group controlId="formNomineeName">
+              <Form.Label>Nominee Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter nominee name"
+                name="nomineeName"
+                value={accountFormData.nomineeName}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            {/* Relationship */}
+            <Form.Group controlId="formRelationship">
+              <Form.Label>Relationship</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter relationship"
+                name="relationship"
+                value={accountFormData.relationship}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            {/* Nominee Mobile Number */}
+            <Form.Group controlId="formNomineeMobileNo">
+              <Form.Label>Nominee Mobile Number</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter nominee mobile number"
+                name="nomineeMobileNo"
+                value={accountFormData.nomineeMobileNo}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            {/* Nominee Date of Birth */}
+            <Form.Group controlId="formNomineeDateOfBirth">
+              <Form.Label>Nominee Date of Birth</Form.Label>
+              <Form.Control
+                type="date"
+                placeholder="Enter nominee date of birth"
+                name="nomineeDateOfBirth"
+                value={accountFormData.nomineeDateOfBirth}
                 onChange={handleInputChange}
               />
             </Form.Group>

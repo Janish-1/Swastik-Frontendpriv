@@ -110,18 +110,28 @@ const Members = () => {
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [accountFormData, setAccountFormData] = useState({
     memberNo: 0,
-    firstName: "",
-    lastName: "",
+    memberName: "",
     email: "",
     branchName: "",
-    aadhar: "", // New field
-    pancard: "", // New field
-    accountNo: "",
+    photo: null,
+    accountNumber: "",
     accountType: "",
     openingBalance: 0,
     currentBalance: 0,
+    fatherName: "",
+    gender: "",
+    maritalStatus: "",
+    dateOfBirth: "",
+    currentAddress: "",
+    permanentAddress: "",
+    whatsAppNo: "",
+    idProof: null,
+    nomineeName: "",
+    relationship: "",
+    nomineeMobileNo: "",
+    nomineeDateOfBirth: "",
   });
-
+  
   const handleOpenAccountModal = async (id) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/getMember/${id}`);
@@ -131,17 +141,27 @@ const Members = () => {
       // console.log("Opening Balance Retrieved:", memberData);
       setAccountFormData({
         memberNo: memberData.memberNo,
-        memberName: memberData.firstName + " " + memberData.lastName,
+        memberName: memberData.fullName,
         email: memberData.email,
         branchName: memberData.branchName,
-        aadhar: memberData.aadhar,
-        pancard: memberData.pancard,
         accountNumber: uniqueaccountid, // Use the generated unique account number here
-        status: "Active",
         accountType: "", // Initialize with an empty string or default value
         openingBalance: 0, // Initialize with an empty string or default value
+        photo: memberData.photo,
+        fatherName: memberData.fatherName,
+        gender: memberData.gender,
+        maritalStatus: memberData.maritalStatus,
+        dateOfBirth: memberData.dateOfBirth,
+        currentAddress: memberData.currentAddress,
+        permanentAddress: memberData.permanentAddress,
+        whatsAppNo: memberData.whatsAppNo,
+        idProof: memberData.idProof,
+        nomineeName: memberData.nomineeName,
+        relationship: memberData.relationship,
+        nomineeMobileNo: memberData.nomineeMobileNo,
+        nomineeDateOfBirth: memberData.nomineeDateOfBirth,
       });
-
+      
       setShowAccountModal(true);
     } catch (error) {
       // console.error("Error fetching member data:", error);
@@ -154,18 +174,28 @@ const Members = () => {
     // Additional logic to reset account form data
     setAccountFormData((prevAccountFormData) => ({
       ...prevAccountFormData,
-      memberNo: "",
-      memberName: "",
+      memberNo: 0,
+      fullName: "",
       email: "",
       branchName: "",
-      aadhar: "",
-      pancard: "",
-      accountNumber: "",
-      status: "",
+      photo: null,
+      accountNo: "",
       accountType: "",
       openingBalance: 0,
       currentBalance: 0,
-    }));
+      fatherName: "",
+      gender: "",
+      maritalStatus: "",
+      dateOfBirth: "",
+      currentAddress: "",
+      permanentAddress: "",
+      whatsAppNo: "",
+      idProof: null,
+      nomineeName: "",
+      relationship: "",
+      nomineeMobileNo: "",
+      nomineeDateOfBirth: "",
+      }));
   };
 
   const handleAccountInputChange = (e) => {
