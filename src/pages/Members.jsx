@@ -213,30 +213,40 @@ const Members = () => {
   };
 
   const handleOpenEditModal = async (id) => {
-    // console.log(id);
     try {
       const response = await axios.get(`${API_BASE_URL}/getmember/${id}`);
       const memberData = response.data; // Assuming response.data contains the member data
-      // console.log(memberData);
-      // Assuming memberData has fields like firstName, lastName, email, etc.
+      
+      console.log(memberData);
+
       setUpdateData({
         id: memberData._id,
         memberNo: memberData.memberNo,
-        firstName: memberData.firstName,
-        lastName: memberData.lastName,
+        fullName: memberData.fullName,
         email: memberData.email,
         branchName: memberData.branchName,
-        aadhar: memberData.aadhar, // New field
-        pancard: memberData.pancard, // New field
+        photo: memberData.photo,
+        fatherName: memberData.fatherName,
+        gender: memberData.gender,
+        maritalStatus: memberData.maritalStatus,
+        dateOfBirth: memberData.dateOfBirth,
+        currentAddress: memberData.currentAddress,
+        permanentAddress: memberData.permanentAddress,
+        whatsAppNo: memberData.whatsAppNo,
+        idProof: memberData.idProof,
+        nomineeName: memberData.nomineeName,
+        relationship: memberData.relationship,
+        nomineeMobileNo: memberData.nomineeMobileNo,
+        nomineeDateOfBirth: memberData.nomineeDateOfBirth,
       });
-
+  
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
-      // console.error('Error fetching member data:', error);
       // Handle error or display an error message to the user
+      console.error('Error fetching member data:', error);
     }
   };
-
+  
   const handleCloseEditModal = () => {
     setShowEditModal(false);
     setSelectedMemberIndex(null);
@@ -337,18 +347,39 @@ const Members = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(
-        `${API_BASE_URL}/updatemember/${updateData.id}`,
-        updateData
+      const formDataWithImages = new FormData();
+      formDataWithImages.append("images", formData.photo);
+      formDataWithImages.append("images", formData.idProof);
+      console.log(formDataWithImages);
+  
+      const responseUpload = await axios.post(
+        `${API_BASE_URL}/uploadmultiple`,
+        formDataWithImages,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
-
+  
+      const imageUrls = {
+        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
+        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+      };
+  
+      await axios.put(`${API_BASE_URL}/updatemember/${updateData.id}`, {
+        ...updateData,
+        photo: imageUrls.imageUrl1,
+        idProof: imageUrls.imageUrl2,
+      });
+  
       handleCloseEditModal();
       fetchData();
     } catch (error) {
-      // Handle error
+      console.error("Error:", error);
     }
   };
-
+  
   const handleDelete = async (id) => {
     try {
       const response = axios.post(`${API_BASE_URL}/deletemember/${id}`);
@@ -666,99 +697,288 @@ const Members = () => {
         </Modal.Body>
       </Modal>
 
-      <Modal show={showEditModal} onHide={handleCloseEditModal}>
+      <Modal show={showEditModal} onHide={handleCloseEditModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Update Member</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleUpdate}>
-            <Form.Group controlId="TableId">
-              {/* <Form.Label>ID</Form.Label> */}
-              <Form.Control
-                type="integer"
-                placeholder=""
-                name="id"
-                value={updateData.id}
-                onChange={handleUpdateChange}
-                readOnly
-                style={{ display: "none" }}
-              />
-            </Form.Group>
-            <Form.Group controlId="formMemberNo">
-              <Form.Label>Member No</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter member number"
-                name="memberNo"
-                value={updateData.memberNo}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formFirstName">
-              <Form.Label>First Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter first name"
-                name="firstName"
-                value={updateData.firstName}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formLastName">
-              <Form.Label>Last Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter last name"
-                name="lastName"
-                value={updateData.lastName}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formEmail">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter email"
-                name="email"
-                value={updateData.email}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formBranch">
-              <Form.Label>Branch</Form.Label>
-              <Form.Select
-                name="branchName"
-                value={updateData.branchName}
-                onChange={handleUpdateChange}
-              >
-                <option value="">Select a branch</option>
-                {branchNames.map((branch, index) => (
-                  <option key={index} value={branch}>
-                    {branch}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            <Form.Group controlId="formAadhar">
-              <Form.Label>Aadhar</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Aadhar number"
-                name="aadhar"
-                value={updateData.aadhar}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formPancard">
-              <Form.Label>Pancard</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Pancard number"
-                name="pancard"
-                value={updateData.pancard}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
+          <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formMemberNo">
+                  <Form.Label>Member Number</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="memberNo"
+                    value={updateData.memberNo}
+                    placeholder=""
+                    onChange={handleUpdateChange}
+                    readOnly
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formFatherName">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={updateData.email}
+                    placeholder="Enter email"
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Personal Information */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formBranch">
+                  <Form.Label>Branch</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="branchName"
+                    value={updateData.branchName}
+                    onChange={handleUpdateChange}
+                    as="select"
+                  >
+                    <option value="">Select Branch</option>
+                    {branchNames.map((branch, index) => (
+                      <option key={index} value={branch}>
+                        {branch}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>{" "}
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formPhoto">
+                  <Form.Label>Photo (Browse file)</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    name="photo"
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Full Name and Father Name */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formfullName">
+                  <Form.Label>Full Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="fullName"
+                    value={updateData.fullName}
+                    placeholder="Enter full name"
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formFatherName">
+                  <Form.Label>Father Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="fatherName"
+                    value={updateData.fatherName}
+                    placeholder="Enter father's name"
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Gender and Marital Status */}
+            <Row className="mb-3">
+              <Form.Group as={Row} controlId="formGender">
+                <Col md={9}>
+                  <div className="d-flex md:space-x-10">
+                    <Form.Check
+                      type="radio"
+                      label="Male"
+                      name="gender"
+                      id="genderMale"
+                      value="Male"
+                      checked={updateData.gender === "Male"}
+                      onChange={handleUpdateChange}
+                    />
+                    <Form.Check
+                      type="radio"
+                      label="Female"
+                      name="gender"
+                      id="genderFemale"
+                      value="Female"
+                      checked={updateData.gender === "Female"}
+                      onChange={handleUpdateChange}
+                    />
+                    <Form.Check
+                      type="radio"
+                      label="Others"
+                      name="gender"
+                      id="genderOthers"
+                      value="Others"
+                      checked={updateData.gender === "Others"}
+                      onChange={handleUpdateChange}
+                    />
+                  </div>
+                </Col>
+              </Form.Group>
+            </Row>
+
+            {/* Marital Status and Date of Birth */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formMaritalStatus">
+                  <Form.Label>Marital Status</Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="maritalStatus"
+                    value={updateData.maritalStatus}
+                    onChange={handleUpdateChange}
+                  >
+                    <option>Select Marital Status</option>
+                    <option>Single</option>
+                    <option>Married</option>
+                    <option>Divorced</option>
+                    <option>Widowed</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formDOB">
+                  <Form.Label>Date of Birth</Form.Label>
+                  <Form.Control
+                    type="date"
+                    name="dateOfBirth"
+                    value={updateData.dateOfBirth}
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Current Address and Permanent Address */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formAddress">
+                  <Form.Label>Current Address</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="currentAddress"
+                    value={updateData.currentAddress}
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formPermanentAddress">
+                  <Form.Label>Permanent Address</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="permanentAddress"
+                    value={updateData.permanentAddress}
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* WhatsApp Number and ID Proof */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formWhatsappNo">
+                  <Form.Label>WhatsApp No.</Form.Label>
+                  <Form.Control
+                    type="number"
+                    placeholder="Enter WhatsApp number"
+                    name="whatsAppNo"
+                    value={updateData.whatsAppNo}
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formIdProof">
+                  <Form.Label>
+                    ID Proof (Aadhar, Passport, Electricity Bill)
+                  </Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    name="idProof"
+                    onChange={handleFileChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* HR Section */}
+            <hr />
+
+            {/* Nominee Details */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formNomineeName">
+                  <Form.Label>Nominee Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter nominee name"
+                    name="nomineeName"
+                    value={updateData.nomineeName}
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formRelationship">
+                  <Form.Label>Relationship</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter relationship"
+                    name="relationship"
+                    value={updateData.relationship}
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formNomineeMobile">
+                  <Form.Label>Nominee Mobile No.</Form.Label>
+                  <Form.Control
+                    type="tel"
+                    placeholder="Enter nominee mobile number"
+                    name="nomineeMobileNo"
+                    value={updateData.nomineeMobileNo}
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formNomineeDOB">
+                  <Form.Label>Nominee Date of Birth</Form.Label>
+                  <Form.Control
+                    type="date"
+                    name="nomineeDateOfBirth"
+                    value={updateData.nomineeDateOfBirth}
+                    onChange={handleUpdateChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <br />
             <Button variant="primary" type="submit">
               Edit
             </Button>
@@ -868,13 +1088,13 @@ const Members = () => {
       >
         <thead>
           <tr>
+            <th>Member Number</th>
             <th>Profile Pic</th>
             <th>Name</th>
             <th>branchName</th>
             <th>Email</th>
             <th>Nominee</th>
             <th>WhatsApp</th>
-            <th>ID Proof</th>
             {/* <th>Account Type</th> */}
             <th>Actions</th>
           </tr>
@@ -882,6 +1102,7 @@ const Members = () => {
         <tbody>
           {membersData.map((member) => (
             <tr key={member._id}>
+              <td>{member.memberNo}</td>
               <td>
                 {" "}
                 {member.photo ? (
@@ -895,14 +1116,6 @@ const Members = () => {
               <td>{member.email}</td>
               <td>{member.nomineeName}</td>
               <td>{member.whatsAppNo}</td>
-              <td>
-                {" "}
-                {member.image ? (
-                  <img src={member.idProof} alt="Profile" width="40" height="40" />
-                ) : (
-                  "No Image"
-                )}
-              </td>
               {/* <td>{member.accountType}</td> */}
               <td>
                 <Dropdown>
