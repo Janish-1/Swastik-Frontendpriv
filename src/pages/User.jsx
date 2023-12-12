@@ -14,7 +14,7 @@ const User = () => {
     email: "",
     password: "",
     userType: "",
-    status: "",
+    // status: "",
     image: null,
   });
 
@@ -33,7 +33,7 @@ const User = () => {
         email: userData.email,
         password: userData.password, // Assuming you don't want to pre-fill password in the form for security reasons
         userType: userData.userType,
-        status: userData.status,
+        // status: userData.status,
         image: userData.image, // Reset image in the form
       });
       fetchData();
@@ -51,7 +51,7 @@ const User = () => {
       email: "",
       password: "",
       userType: "",
-      status: "",
+      // status: "",
       image: null,
     });
   };
@@ -70,7 +70,6 @@ const User = () => {
       formDataForApi.append("email", formData.email);
       formDataForApi.append("password", formData.password);
       formDataForApi.append("userType", formData.userType);
-      formDataForApi.append("status", formData.status);
       formDataForApi.append("image", formData.image);
 
       const response = await axios.put(
@@ -99,7 +98,6 @@ const User = () => {
           email: "",
           password: "",
           userType: "",
-          status: "",
           image: null,
         });
         setShowEditModal(false);
@@ -138,7 +136,6 @@ const User = () => {
     formDataForApi.append("email", formData.email);
     formDataForApi.append("password", formData.password);
     formDataForApi.append("userType", formData.userType);
-    formDataForApi.append("status", formData.status);
     formDataForApi.append("image", formData.image);
 
     try {
@@ -159,16 +156,7 @@ const User = () => {
         email: formData.email,
         password: formData.password,
         userType: formData.userType,
-        status: formData.status,
         imageUrl: imageUrl, // Send the received image URL to the backend
-      });
-
-      console.log("User created:", responseCreateUser.data);
-      const responseUser = await axios.post(`${API_BASE_URL}/all-create`, {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        userType: formData.userType,
       });
 
       // Clear form data and perform necessary actions after successful submission
@@ -177,7 +165,6 @@ const User = () => {
         email: "",
         password: "",
         userType: "",
-        status: "",
         image: null,
       });
       handleCloseModal();
@@ -269,13 +256,11 @@ const User = () => {
                 required
               >
                 <option value="">Select User Type</option>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
                 <option value="franchise">Franchise</option>
                 <option value="agent">Agent</option>
               </Form.Control>
             </Form.Group>
-            <Form.Group controlId="formStatus">
+            {/* <Form.Group controlId="formStatus">
               <Form.Label>Status</Form.Label>
               <Form.Control
                 as="select"
@@ -288,7 +273,7 @@ const User = () => {
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </Form.Control>
-            </Form.Group>
+            </Form.Group> */}
 
             <Form.Group controlId="formImage">
               <Form.Label>Image</Form.Label>
@@ -359,7 +344,7 @@ const User = () => {
                 <option value="agent">Agent</option>
               </Form.Control>
             </Form.Group>
-            <Form.Group controlId="formStatus">
+            {/* <Form.Group controlId="formStatus">
               <Form.Label>Status</Form.Label>
               <Form.Control
                 as="select"
@@ -372,7 +357,7 @@ const User = () => {
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </Form.Control>
-            </Form.Group>
+            </Form.Group> */}
 
             <Form.Group controlId="formImage">
               <Form.Label>Image</Form.Label>
@@ -397,7 +382,7 @@ const User = () => {
             <th>Name</th>
             <th>Email</th>
             <th>User Type</th>
-            <th>Status</th>
+            {/* <th>Status</th> */}
             <th>Action</th>
           </tr>
         </thead>
@@ -419,13 +404,13 @@ const User = () => {
               <td>{user.name}</td>
               <td>{user.email}</td>
               <td>{user.userType}</td>
-              <td>
+              {/* <td>
                 <Badge
                   variant={user.status === "active" ? "success" : "danger"}
                 >
                   {user.status}
                 </Badge>
-              </td>
+              </td> */}
               <td>
                 <Button
                   variant="warning"

@@ -21,7 +21,6 @@ const Branches = () => {
     password: "",
     contactphone: "",
     branchaddress: "",
-    userType: "manager",
   });
   const [membersData, setMembersData] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
@@ -124,7 +123,6 @@ const Branches = () => {
       password: "",
       contactphone: "",
       branchaddress: "",
-      userType: "manager",
     });
 
     handleCloseModal();
@@ -152,7 +150,6 @@ const Branches = () => {
         password: "",
         contactphone: "",
         branchaddress: "",
-        userType: "manager",
       });
       fetchData();
     } catch (error) {
