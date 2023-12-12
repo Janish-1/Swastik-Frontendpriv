@@ -21,6 +21,7 @@ const Branches = () => {
     password: "",
     contactphone: "",
     branchaddress: "",
+    userType: "manager",
   });
   const [membersData, setMembersData] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
@@ -114,14 +115,6 @@ const Branches = () => {
     } catch (error) {
       setShowAlert(true);
     }
-    // Create a manager user associated with the branch
-    const responseUser = await axios.post(`${API_BASE_URL}/all-create`, {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      userType: "manager",
-    });
-
     // Handle success of user creation
     // console.log("Manager User Created:", responseUser.data);
     setFormData({
@@ -131,12 +124,10 @@ const Branches = () => {
       password: "",
       contactphone: "",
       branchaddress: "",
+      userType: "manager",
     });
 
-    // Close modal after a delay (you can adjust the delay as needed)
-    setTimeout(() => {
-      handleCloseModal();
-    }, 500);
+    handleCloseModal();
   };
 
   const handleUpdate = async (e, id) => {
@@ -153,16 +144,6 @@ const Branches = () => {
       // Close the edit modal
       handleCloseEditModal();
 
-      const response1 = await axios.put(
-        `${API_BASE_URL}/update-user/${formData.email}`,
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          userType: "manager",
-        }
-      );
-
       // Reset form data
       setFormData({
         branchName: "",
@@ -171,6 +152,7 @@ const Branches = () => {
         password: "",
         contactphone: "",
         branchaddress: "",
+        userType: "manager",
       });
       fetchData();
     } catch (error) {

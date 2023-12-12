@@ -35,7 +35,7 @@ import ExpenseReport from "./pages/reports/Expense";
 import RevenueReport from "./pages/reports/Revenue";
 import AccountStatement from "./pages/reports/Accountstatement";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
