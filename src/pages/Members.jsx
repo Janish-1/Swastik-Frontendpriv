@@ -281,8 +281,8 @@ const Members = () => {
     e.preventDefault();
     try {
       const formDataWithImages = new FormData();
-      formDataWithImages.append('images', formData.photo);
-      formDataWithImages.append('images', formData.idProof);
+      formDataWithImages.append("images", formData.photo);
+      formDataWithImages.append("images", formData.idProof);
       console.log(formDataWithImages);
 
       const responseUpload = await axios.post(
@@ -290,11 +290,11 @@ const Members = () => {
         formDataWithImages,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         }
       );
-      
+
       const imageUrls = {
         imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
         imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
@@ -309,28 +309,28 @@ const Members = () => {
 
       setFormData({
         memberNo: 0,
-        fullName: '',
-        email: '',
-        branchName: '',
+        fullName: "",
+        email: "",
+        branchName: "",
         photo: null,
-        fatherName: '',
-        gender: '',
-        maritalStatus: '',
-        dateOfBirth: '',
-        currentAddress: '',
-        permanentAddress: '',
-        whatsAppNo: '',
+        fatherName: "",
+        gender: "",
+        maritalStatus: "",
+        dateOfBirth: "",
+        currentAddress: "",
+        permanentAddress: "",
+        whatsAppNo: "",
         idProof: null,
-        nomineeName: '',
-        relationship: '',
-        nomineeMobileNo: '',
-        nomineeDateOfBirth: '',
+        nomineeName: "",
+        relationship: "",
+        nomineeMobileNo: "",
+        nomineeDateOfBirth: "",
       });
 
       handleCloseModal();
       fetchData();
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
@@ -868,13 +868,13 @@ const Members = () => {
       >
         <thead>
           <tr>
-            <th>Member No</th>
-            <th>First Name</th>
-            <th>Last Name</th>
+            <th>Profile Pic</th>
+            <th>Name</th>
+            <th>branchName</th>
             <th>Email</th>
-            <th>Branch</th>
-            <th>Aadhar Number</th>
-            <th>Pan Card</th>
+            <th>Nominee</th>
+            <th>WhatsApp</th>
+            <th>ID Proof</th>
             {/* <th>Account Type</th> */}
             <th>Actions</th>
           </tr>
@@ -882,13 +882,27 @@ const Members = () => {
         <tbody>
           {membersData.map((member) => (
             <tr key={member._id}>
-              <td>{member.memberNo}</td>
-              <td>{member.firstName}</td>
-              <td>{member.lastName}</td>
-              <td>{member.email}</td>
+              <td>
+                {" "}
+                {member.photo ? (
+                  <img src={member.photo} alt="Profile" width="40" height="40" />
+                ) : (
+                  "No Image"
+                )}
+              </td>
+              <td>{member.fullName}</td>
               <td>{member.branchName}</td>
-              <td>{member.aadhar}</td>
-              <td>{member.pancard}</td>
+              <td>{member.email}</td>
+              <td>{member.nomineeName}</td>
+              <td>{member.whatsAppNo}</td>
+              <td>
+                {" "}
+                {member.image ? (
+                  <img src={member.idProof} alt="Profile" width="40" height="40" />
+                ) : (
+                  "No Image"
+                )}
+              </td>
               {/* <td>{member.accountType}</td> */}
               <td>
                 <Dropdown>
