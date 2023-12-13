@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Modal, Button, Form, Table, Badge } from "react-bootstrap";
+import { Modal, Button, Form, Table, Badge, Row, Col } from "react-bootstrap";
 import AgentForm from "./AgentForm";
 import { FaEdit, FaTrash } from "react-icons/fa";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -18,7 +18,142 @@ const User = () => {
     // status: "",
     image: null,
   });
+  const [agentModalopen, setagentmodalopen] = useState(false);
+  const [agentformdata, setagentForm] = useState({
+    name: "",
+    qualification: "",
+    image: null,
+    photo: null,
+    fatherName: "",
+    maritalStatus: "",
+    dob: "",
+    age: "",
+    aadhar: "",
+    panCard: "",
+    address: "",
+    permanentAddress: "",
+    email: "",
+    mobile: "",
+    nomineeName: "",
+    nomineeRelationship: "",
+    nomineeDob: "",
+    nomineeMobile: "",
+    password: "",
+  });
 
+  const handleEditAgent = async (id) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/all-users/${id}`);
+      const agentdata = response.data;
+  
+      // Set the fetched data with image URLs into the state
+      setagentForm({
+        ...agentdata,
+        // Assuming 'image' and 'photo' are fields containing image URLs
+        image: agentdata.image || '', 
+        photo: agentdata.photo || '', 
+      });
+  
+      setagentmodalopen(true);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      // Handle the error, such as displaying an error message to the user
+    }
+  };
+
+  const agentmodalclose = () => {
+    setagentmodalopen(false);
+  };
+
+  const handleagentSubmit = async () => {
+    try {
+      const formDataWithImages = new FormData();
+
+      console.log(agentformdata);
+  
+      if (agentformdata.image) {
+        formDataWithImages.append("images", agentformdata.image);
+      }
+  
+      if (agentformdata.photo) {
+        formDataWithImages.append("images", agentformdata.photo);
+      }
+  
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+  
+      const responseUpload = await axios.post(
+        `${API_BASE_URL}/uploadmultiple`,
+        formDataWithImages,
+        config
+      );
+  
+      const imageUrls = {
+        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
+        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+      };
+  
+      const agentDataToUpdate = { ...agentformdata }; // Create a copy to modify
+  
+      // Update image URLs only if new images were uploaded
+      if (agentformdata.image) {
+        agentDataToUpdate.image = imageUrls.imageUrl1;
+      }
+  
+      if (agentformdata.photo) {
+        agentDataToUpdate.photo = imageUrls.imageUrl2;
+      }
+  
+      await axios.put(`${API_BASE_URL}/updateagent/${agentId}`, agentDataToUpdate);
+  
+      // Reset form data and close modal
+      setagentForm({
+        name: "",
+        qualification: "",
+        image: null,
+        photo: null,
+        fatherName: "",
+        maritalStatus: "",
+        dob: "",
+        age: "",
+        aadhar: "",
+        panCard: "",
+        address: "",
+        permanentAddress: "",
+        email: "",
+        mobile: "",
+        nomineeName: "",
+        nomineeRelationship: "",
+        nomineeDob: "",
+        nomineeMobile: "",
+        password: "",
+      });
+      agentmodalclose();
+    } catch (error) {
+      // Handle Error
+    }
+  };
+    
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+  
+    setagentForm((prevData) => {
+      const updatedData = { ...prevData };
+  
+      if (name === "image" || name === "photo") {
+        // Check if files array is not empty and update the image/photo property
+        updatedData[name] = files.length > 0 ? files[0] : null;
+      } else {
+        updatedData[name] = value;
+      }
+  
+      return updatedData;
+    });
+  };
+  
   const handleEditModalOpen = async (userId) => {
     setEditUserId(userId);
 
@@ -211,8 +346,8 @@ const User = () => {
   return (
     <div className="body-div">
       <div className="h-30 grid grid-cols-7 gap-3 content-start">
-      <Button onClick={handleOpenModal}>Add User</Button>
-      <AgentForm onFormSubmit={handleFormUpdate} />
+        <Button onClick={handleOpenModal}>Add User</Button>
+        <AgentForm onFormSubmit={handleFormUpdate} />
       </div>
 
       <Modal show={showModal} onHide={handleCloseModal}>
@@ -383,6 +518,283 @@ const User = () => {
         </Modal.Body>
       </Modal>
 
+      <Modal show={agentModalopen} onHide={agentmodalclose} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Agent</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleagentSubmit}>
+            {/* Form Fields */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formname">
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="name"
+                    value={agentformdata.name}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formMobile">
+                  <Form.Label>Mobile</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="mobile"
+                    value={agentformdata.mobile}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formQualification">
+                  <Form.Label>Qualification</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="qualification"
+                    value={agentformdata.qualification}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formImage">
+                  <Form.Label>Upload Marksheet</Form.Label>
+                  <Form.Control
+                    type="file"
+                    name="image"
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formPhoto">
+                  <Form.Label>Choose Photo</Form.Label>
+                  <Form.Control
+                    type="file"
+                    name="photo"
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formFatherName">
+                  <Form.Label>Father's Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="fatherName"
+                    value={agentformdata.fatherName}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={4}>
+                <Form.Group controlId="formMaritalStatus">
+                  <Form.Label>Marital Status</Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="maritalStatus"
+                    value={agentformdata.maritalStatus}
+                    onChange={handleChange}
+                  >
+                    <option value="">Please Select an Option</option>
+                    <option value="single">Single</option>
+                    <option value="married">Married</option>
+                    <option value="married">Widowed</option>
+                    <option value="married">Divorced</option>
+                    {/* Add other options as needed */}
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+
+              <Col md={4}>
+                <Form.Group controlId="formDob">
+                  <Form.Label>Date of Birth</Form.Label>
+                  <Form.Control
+                    type="date"
+                    name="dob"
+                    value={agentformdata.dob}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={4}>
+                <Form.Group controlId="formAge">
+                  <Form.Label>Age</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="age"
+                    value={agentformdata.age}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formPanCard">
+                  <Form.Label>Pan Card</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="panCard"
+                    value={agentformdata.panCard}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formAadhar">
+                  <Form.Label>Aadhar</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="aadhar"
+                    value={agentformdata.aadhar}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3"></Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formAddress">
+                  <Form.Label>Address</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    name="address"
+                    value={agentformdata.address}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formPermanentAddress">
+                  <Form.Label>Permanent Address</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    name="permanentAddress"
+                    value={agentformdata.permanentAddress}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formEmail">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={agentformdata.email}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formpassword">
+                  <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="password"
+                    value={agentformdata.password}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <br></br>
+            <hr />
+            <hr />
+            {/* Nominee Details */}
+            <br></br>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formNomineeName">
+                  <Form.Label>Nominee Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="nomineeName"
+                    value={agentformdata.nomineeName}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formNomineeRelationship">
+                  <Form.Label>Nominee Relationship</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="nomineeRelationship"
+                    value={agentformdata.nomineeRelationship}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formNomineeDob">
+                  <Form.Label>Nominee Date of Birth</Form.Label>
+                  <Form.Control
+                    type="date"
+                    name="nomineeDob"
+                    value={agentformdata.nomineeDob}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formNomineeMobile">
+                  <Form.Label>Nominee Mobile</Form.Label>
+                  <Form.Control
+                    type="tel"
+                    name="nomineeMobile"
+                    value={agentformdata.nomineeMobile}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Buttons */}
+            <Button variant="primary" onClick={handleagentSubmit}>
+              Submit
+            </Button>
+            <Button className="mx-2" variant="info" onClick={agentmodalclose}>
+              Cancel
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
       <Table striped bordered hover className="mt-4 rounded-lg overflow-hidden">
         <thead>
           <tr>
@@ -399,12 +811,7 @@ const User = () => {
             <tr key={index}>
               <td>
                 {user.image ? (
-                  <img
-                    src= {user.image}
-                    alt="Profile"
-                    width="40"
-                    height="40"
-                  />
+                  <img src={user.image} alt="Profile" width="40" height="40" />
                 ) : (
                   "No Image"
                 )}
@@ -420,12 +827,21 @@ const User = () => {
                 </Badge>
               </td> */}
               <td>
-                <Button
-                  variant="warning"
-                  onClick={() => handleEditModalOpen(user._id)}
-                >
-                  <FaEdit />
-                </Button>{" "}
+                {user.userType === "agent" ? (
+                  <Button
+                    variant="warning"
+                    onClick={() => handleEditAgent(user._id)}
+                  >
+                    <FaEdit />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="primary"
+                    onClick={() => handleEditModalOpen(user._id)}
+                  >
+                    <FaEdit />
+                  </Button>
+                )}
                 <Button variant="danger" onClick={() => handleDelete(user._id)}>
                   <FaTrash />
                 </Button>
