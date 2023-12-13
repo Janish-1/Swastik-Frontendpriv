@@ -77,6 +77,7 @@ const Repayments = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/repayments`);
       setRepaymentsData(response.data.data);
+      console.log(response);
     } catch (error) {
       // Handle error or display an error message to the user
     }
@@ -302,6 +303,7 @@ const Repayments = () => {
             <th>Late Penalties</th>
             <th>Total Amount</th>
             <th>Payment Status</th>
+            <th>Month Status</th>
           </tr>
         </thead>
         <tbody>
@@ -327,6 +329,7 @@ const Repayments = () => {
                     : "Pay Now"}
                 </Button>
               </td>
+              <td>{repayment.monthstatus}</td>
             </tr>
           ))}
         </tbody>

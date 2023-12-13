@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Modal, Button, Form, Table, Badge } from "react-bootstrap";
+import AgentForm from "./AgentForm";
 import { FaEdit, FaTrash } from "react-icons/fa";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
@@ -203,9 +204,16 @@ const User = () => {
     }
   };
 
+  const handleFormUpdate = () => {
+    fetchData(); // Toggling state to trigger a re-render
+  };
+
   return (
     <div className="body-div">
+      <div className="h-30 grid grid-cols-7 gap-3 content-start">
       <Button onClick={handleOpenModal}>Add User</Button>
+      <AgentForm onFormSubmit={handleFormUpdate} />
+      </div>
 
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
@@ -256,8 +264,8 @@ const User = () => {
                 required
               >
                 <option value="">Select User Type</option>
-                <option value="franchise">Franchise</option>
-                <option value="agent">Agent</option>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
               </Form.Control>
             </Form.Group>
             {/* <Form.Group controlId="formStatus">
@@ -340,8 +348,8 @@ const User = () => {
                 required
               >
                 <option value="">Select User Type</option>
-                <option value="franchise">Franchise</option>
-                <option value="agent">Agent</option>
+                <option value="user">user</option>
+                <option value="admin">Admin</option>
               </Form.Control>
             </Form.Group>
             {/* <Form.Group controlId="formStatus">
