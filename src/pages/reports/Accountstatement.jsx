@@ -98,9 +98,14 @@ const AccountStatement = () => {
                   <Button variant="primary" type="submit" className="mt-8">
                     Search
                   </Button>
-                  <Button variant="danger" onClick={handleExportToPDF}>
+                  <Col md={9} >
+              <Button className="justify-start mt-2"  variant="danger" type="button">
+                Export to PDF
+              </Button>
+            </Col>
+                  {/* <Button className="justify-start ml-2" variant="danger" onClick={handleExportToPDF}>
                     Export to PDF
-                  </Button>
+                  </Button> */}
                 </Col>
               </Row>
             </Form>
@@ -110,7 +115,7 @@ const AccountStatement = () => {
         <hr />
         <br />
 
-        <Table striped bordered hover className="rounded-lg overflow-hidden">
+        <Table  responsive striped bordered hover className="rounded-lg overflow-hidden">
           <thead>
             <tr>
               <th>Date</th>

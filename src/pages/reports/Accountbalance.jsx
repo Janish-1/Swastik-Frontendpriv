@@ -90,6 +90,7 @@ export default function AccountBalance() {
           <h2>Account Balance</h2>
 
           <Table
+          responsive
             striped
             bordered
             hover

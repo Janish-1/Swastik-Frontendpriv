@@ -145,50 +145,85 @@ const Deposit = () => {
               ))}
             </Form.Control>
           </Form.Group>
-          <Form.Group controlId="transactionAmount">
-            <Form.Label className="custom-form-label">Amount *</Form.Label>
-            <Form.Control
-              className="custom-form-control"
-              type="number"
-              name="transactionAmount"
-              value={formData.transactionAmount}
-              onChange={handleInputChange}
-              required
-            />
-          </Form.Group>
-          <Form.Group controlId="status">
-            <Form.Label className="custom-form-label">Status *</Form.Label>
-            <Form.Control
-              className="custom-form-control"
-              as="select"
-              name="status"
-              value={formData.status}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Please Select an Option</option>
-              <option value="Completed">Completed</option>
-              <option value="Pending">Pending</option>
-              <option value="Cancelled">Cancelled</option>
-            </Form.Control>
-          </Form.Group>
-          <Form.Group controlId="description">
-            <Form.Label className="custom-form-label">Description *</Form.Label>
-            <Form.Control
-              className="custom-form-control"
-              as="textarea"
-              rows={4}
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              required
-            />
-          </Form.Group>
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
-        </Form>
-      </Container>
+            <Form.Group controlId="transactionAmount">
+              <Form.Label className="custom-form-label">Amount *</Form.Label>
+              <Form.Control
+                  className="custom-form-control"
+                type="number"
+                name="transactionAmount"
+                value={formData.transactionAmount}
+                onChange={handleInputChange}
+                required
+              />
+            </Form.Group>
+            <Form.Group controlId="status">
+              <Form.Label className="custom-form-label">Status *</Form.Label>
+              <Form.Control
+                  className="custom-form-control"
+                as="select"
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Please Select an Option</option>
+                <option value="Completed">Completed</option>
+                <option value="Pending">Pending</option>
+                <option value="Cancelled">Cancelled</option>
+              </Form.Control>
+            </Form.Group>
+            <Form.Group controlId="description">
+              <Form.Label className="custom-form-label">Description *</Form.Label>
+              <Form.Control
+                  className="custom-form-control"
+                as="textarea"
+                rows={4}
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                required
+              />
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          </Form>
+        </Container>
+      <div className="mx-6 ">
+        <h1 className="text-3xl m-2 text-cyan-500 font-medium ">
+          Recent Deposits
+        </h1>
+        <Table className="text-center text-white rounded-lg overflow-hidden" bordered hover responsive>
+    <thead>
+      <tr className="table-secondary">
+        <th>Date</th>
+        <th>Member</th>
+        <th>Account Number</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {transactions
+        .filter((transaction) => transaction.debitOrCredit === "Credit")
+        .slice(0, 10)
+        .map((transaction, index) => (
+          <tr key={index}>
+            <td>{new Date(transaction.date).toLocaleString()}</td>
+            <td>{transaction.member}</td>
+            <td>{transaction.accountNumber}</td>
+            <td>{transaction.transactionAmount}</td>
+            <td>{transaction.status}</td>
+            <td>{transaction.debitOrCredit}</td>
+            <td>{transaction.description}</td>
+          </tr>
+        ))}
+    </tbody>
+  </Table>
+
+      </div>
       <div className="mx-6 ">
         <h1 className="text-3xl m-2 text-cyan-500 font-medium ">
           Recent Deposits

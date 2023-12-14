@@ -157,6 +157,7 @@ export default function Expense() {
 
           {/* Expense Table */}
           <Table
+            responsive
             striped
             bordered
             hover

@@ -198,7 +198,7 @@ const Expense = () => {
         </Modal.Body>
       </Modal>
 
-      <Table striped bordered hover className="rounded-lg overflow-hidden">
+      <Table responsive striped bordered hover className="rounded-lg overflow-hidden">
         <thead>
           <tr>
             <th>Date</th>

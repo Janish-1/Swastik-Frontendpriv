@@ -129,6 +129,7 @@ export default function Loanreport() {
           <h2>Loan Report</h2>
 
           <Table
+            responsive
             striped
             bordered
             hover

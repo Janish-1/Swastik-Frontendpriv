@@ -89,9 +89,12 @@ export default function Loandue() {
     setFilteredData(data); // Set filteredData initially with all data
   }, [data]);
 
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-  });
+  const handleSearch = () => {
+    const filtered = data.filter((item) =>
+      item.loanId.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredData(filtered);
+  };
 
   const handleExportToPDF = () => {
     const blob = new Blob([<MyDocument data={filteredData} />], {
@@ -103,10 +106,6 @@ export default function Loandue() {
     link.click();
   };
 
-  const handleSearch = () => {
-    // Perform search logic here if needed
-    // setSearchValue(/* get the search input value */);
-  };
 
   return (
     <div>
@@ -129,13 +128,13 @@ export default function Loandue() {
                     </Form.Group>
                   </Col>
                   <Col md={6} className="d-flex justify-content-between">
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      onClick={handlePrint}
-                    >
-                      Print
-                    </Button>
+                  <Button
+                    variant="primary"
+                    type="button"
+                    onClick={handleSearch} // Update to call handleSearch
+                  >
+                    Search
+                  </Button>
                     <Button variant="danger" onClick={handleExportToPDF}>
                       Export to PDF
                     </Button>
@@ -146,7 +145,7 @@ export default function Loandue() {
           </Row>
           {/* Display filteredData instead of the original data */}
           <div className="mt-4" ref={componentRef}>
-            <Table striped bordered hover>
+            <Table responsive striped bordered hover>
               <thead>
                 <tr>
                   <th>Loan ID</th>

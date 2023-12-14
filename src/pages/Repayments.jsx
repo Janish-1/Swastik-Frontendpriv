@@ -291,7 +291,7 @@ const Repayments = () => {
         </Modal.Body>
       </Modal>
 
-      <Table striped bordered hover className="mt-4 rounded-lg overflow-hidden">
+      <Table responsive striped bordered hover className="mt-4 rounded-lg overflow-hidden">
         <thead>
           <tr>
             <th>Loan ID</th>

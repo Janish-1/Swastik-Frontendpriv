@@ -12,6 +12,18 @@ import {
 } from "react-bootstrap";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  Modal,
+  Button,
+  Form,
+  Table,
+  FormControl,
+  Dropdown,
+} from "react-bootstrap";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+// console.log("Api URL:", API_BASE_URL);
 
 const Accounts = () => {
   const [showModal, setShowModal] = useState(false);
@@ -20,10 +32,15 @@ const Accounts = () => {
     member: "",
     accountType: "", // Change default value to an empty string
     status: "", // Change default value to an empty string
+    accountNumber: "",
+    member: "",
+    accountType: "", // Change default value to an empty string
+    status: "", // Change default value to an empty string
     openingBalance: 0,
   });
   const [accountsData, setAccountsData] = useState([]);
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredAccounts, setFilteredAccounts] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -89,6 +106,7 @@ const Accounts = () => {
   const handleOpenEditModal = async (id) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/accounts/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/accounts/${id}`);
       const accountData = response.data.data; // Assuming response.data contains the account data
   
       setAccountFormData({
@@ -115,14 +133,14 @@ const Accounts = () => {
         nomineeMobileNo: accountData.nomineeMobileNo,
         nomineeDateOfBirth: accountData.nomineeDateOfBirth,
       });
-  
+
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
+      // console.error("Error fetching account data:", error);
       // Handle the error condition, show an error message, or perform other actions
-      console.error("Error fetching account data:", error);
     }
   };
-  
+
   const handleCloseEditModal = () => {
     setShowEditModal(false);
   };
@@ -153,11 +171,19 @@ const Accounts = () => {
     setAccountFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
+      [name]: name === "openingBalance" ? parseFloat(value) : value,
+    }));
+    setAccountFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
     }));
   };
 
   const handleDelete = async (id) => {
     try {
+      const response = await axios.delete(
+        `${API_BASE_URL}/deleteaccounts/${id}`
+      );
       const response = await axios.delete(
         `${API_BASE_URL}/deleteaccounts/${id}`
       );
@@ -174,6 +200,10 @@ const Accounts = () => {
     e.preventDefault();
     try {
       // console.log(formData);
+      await axios.put(
+        `${API_BASE_URL}/updateaccounts/${accountFormData._id}`,
+        accountFormData
+      );
       await axios.put(
         `${API_BASE_URL}/updateaccounts/${accountFormData._id}`,
         accountFormData
@@ -195,6 +225,7 @@ const Accounts = () => {
       // alert('Data Entered Successfully');
       fetchData(); // Fetch data after successful addition
       handleCloseModal();
+      handleCloseModal();
     } catch (error) {
       // alert('Check Data Fields for no duplicates');
       // console.error('Error:', error);
@@ -205,8 +236,10 @@ const Accounts = () => {
     try {
       // Fetch accounts data
       const response = await axios.get(`${API_BASE_URL}/accounts`);
+      const response = await axios.get(`${API_BASE_URL}/accounts`);
       setAccountsData(response.data.data); // Assuming response.data contains the account data
     } catch (error) {
+      // console.error("Error fetching accounts:", error);
       // console.error("Error fetching accounts:", error);
       // Handle error or display an error message to the user
     }
@@ -362,6 +395,7 @@ const Accounts = () => {
                 placeholder=""
                 name="id"
                 value={accountFormData._id}
+                value={accountFormData._id}
                 onChange={handleInputChange}
                 readOnly
               />
@@ -371,9 +405,11 @@ const Accounts = () => {
               <Form.Control
                 type="text"
                 placeholder=""
+                placeholder=""
                 name="accountNumber"
                 value={accountFormData.accountNumber}
                 onChange={handleInputChange}
+                readOnly
                 readOnly
               />
             </Form.Group>
@@ -619,13 +655,25 @@ const Accounts = () => {
         hover
         className="mt-4 rounded-lg overflow-hidden"
       >
+      <Table
+        striped
+        responsive
+        bordered
+        hover
+        className="mt-4 rounded-lg overflow-hidden"
+      >
         <thead>
           <tr>
             <th>Account Number</th>
             <th>Member Number</th>
             <th>Member Name</th>
+            <th>Member Number</th>
+            <th>Member Name</th>
             <th>Account Type</th>
             <th>Opening Balance</th>
+            <th>Current Balance</th>
+            <th>Branch</th>
+            <th>Email</th>
             <th>Current Balance</th>
             <th>Branch</th>
             <th>Email</th>
@@ -635,11 +683,17 @@ const Accounts = () => {
         <tbody>
           {filteredAccounts.map((account) => (
             <tr key={account._id}>
+            <tr key={account._id}>
               <td>{account.accountNumber}</td>
+              <td>{account.memberNo}</td>
+              <td>{account.memberName}</td>
               <td>{account.memberNo}</td>
               <td>{account.memberName}</td>
               <td>{account.accountType}</td>
               <td>{account.openingBalance}</td>
+              <td>{account.currentBalance}</td>
+              <td>{account.branchName}</td>
+              <td>{account.email}</td>
               <td>{account.currentBalance}</td>
               <td>{account.branchName}</td>
               <td>{account.email}</td>
@@ -650,9 +704,22 @@ const Accounts = () => {
                     variant="primary"
                     id={`dropdown-${account._id}`}
                   >
+                  <Dropdown.Toggle
+                    className="btn-secondary"
+                    variant="primary"
+                    id={`dropdown-${account._id}`}
+                  >
                     Action
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
+                    <Dropdown.Item
+                      onClick={() => handleOpenEditModal(account._id)}
+                    >
+                      Edit
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleDelete(account._id)}>
+                      Delete
+                    </Dropdown.Item>
                     <Dropdown.Item
                       onClick={() => handleOpenEditModal(account._id)}
                     >

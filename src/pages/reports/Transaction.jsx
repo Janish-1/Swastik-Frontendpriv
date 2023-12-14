@@ -155,6 +155,7 @@ export default function Transaction() {
 
           {/* Transaction Table */}
           <Table
+            responsive
             striped
             bordered
             hover

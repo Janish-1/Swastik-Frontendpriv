@@ -23,7 +23,15 @@ import {
   BsShield,
   BsChatLeft,
   BsFillPeopleFill,
+  BsFillPeopleFill,
 } from "react-icons/bs";
+import {
+  GiReceiveMoney,
+  GiPayMoney,
+  GiMoneyStack,
+  GiTakeMyMoney,
+  GiExpense,
+} from "react-icons/gi";
 import {
   GiReceiveMoney,
   GiPayMoney,
@@ -60,6 +68,105 @@ import product6 from "./product6.jpg";
 import product7 from "./product7.jpg";
 import product8 from "./product8.jpg";
 
+// // Get the token from localStorage
+// const token = localStorage.getItem("token");
+
+// if (token) {
+//   const tokenParts = token.split(".");
+//   const encodedPayload = tokenParts[1];
+//   const decodedPayload = atob(encodedPayload);
+//   const payload = JSON.parse(decodedPayload);
+//   console.log("Role: ", payload.role);
+// } else {
+//   // console.log("Token not found in localStorage");
+// }
+
+// export const links = [
+//   {
+
+//     links: [
+//       {
+//         name: "Dashboard",
+//         icon: <MdDashboard />,
+
+//       },
+//       {
+//         name: "Branches",
+//         icon: <AiOutlineBranches />,
+//       },
+//     ],
+//   },
+
+//   {
+//     title: "Pages",
+//     links: [
+//       {
+//         name: "Members",
+//         icon: <BsFillPeopleFill />,
+//       },
+//       {
+//         name: "Loans",
+//         icon: <GiReceiveMoney />,
+//       },
+//       {
+//         name: "Repayments",
+//         icon: <GiPayMoney />,
+//       },
+//       {
+//         name: "Accounts",
+//         icon: <MdAccountBalance />,
+//       },
+//       {
+//         name: "Deposit",
+//         icon: <GiMoneyStack />,
+//       },
+//       {
+//         name: "Withdraw",
+//         icon: <GiTakeMyMoney />,
+//       },
+//       {
+//         name: "Transaction",
+//         icon: <GrTransaction />,
+//       },
+//       {
+//         name: "Expense",
+//         icon: <GiExpense />,
+//       },
+
+//       {
+//         name: "User",
+//         icon: <FaUser />,
+//       },
+//       {
+//         name: "Reports",
+//         icon: <GoReport />,
+//       },
+//       {
+//         name: "System Settings",
+//         icon: <IoMdSettings />,
+//       },
+//     ],
+//   },
+
+// ];
+
+// Function to filter links based on user roles
+export const filterLinksByRole = (userRole) => {
+  switch (userRole) {
+    case "admin":
+      return [
+        {
+          links: [
+            {
+              name: "Dashboard",
+              icon: <MdDashboard />,
+            },
+            {
+              name: "Branches",
+              icon: <AiOutlineBranches />,
+            },
+          ],
+        },
 // // Get the token from localStorage
 // const token = localStorage.getItem("token");
 
@@ -211,6 +318,8 @@ export const filterLinksByRole = (userRole) => {
           ],
         },
       ];
+
+
     case "manager":
       return [
         {
@@ -277,6 +386,8 @@ export const filterLinksByRole = (userRole) => {
           ],
         },
       ];
+
+      
     case "agent":
       return [
         {
@@ -285,10 +396,7 @@ export const filterLinksByRole = (userRole) => {
               name: "Dashboard",
               icon: <MdDashboard />,
             },
-            // {
-            //   name: "Branches",
-            //   icon: <AiOutlineBranches />,
-            // },
+            
           ],
         },
 
@@ -303,10 +411,10 @@ export const filterLinksByRole = (userRole) => {
               name: "Loans",
               icon: <GiReceiveMoney />,
             },
-            // {
-            //   name: "Repayments",
-            //   icon: <GiPayMoney />,
-            // },
+            {
+              name: "Repayments",
+              icon: <GiPayMoney />,
+            },
             {
               name: "Accounts",
               icon: <MdAccountBalance />,

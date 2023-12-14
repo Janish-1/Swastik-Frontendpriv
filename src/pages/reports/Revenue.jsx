@@ -161,6 +161,7 @@ export default function Revenue() {
             </Col>
           </Row>
           <Table
+            responsive
             striped
             bordered
             hover

@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
+
 const Branches = () => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -171,7 +172,7 @@ const Branches = () => {
       alert("failed");
     }
   };
-
+  
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
