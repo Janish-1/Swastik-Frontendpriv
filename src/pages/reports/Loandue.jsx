@@ -159,7 +159,7 @@ export default function Loandue() {
                   <tr key={item.id}>
                     <td>{item.loanId}</td>
                     <td>{item.memberNo}</td>
-                    <td>{item.borrower}</td>
+                    <td>{item.memberName}</td>
                     <td>{item.totalDue}</td>
                   </tr>
                 ))}

@@ -49,7 +49,7 @@ export default function AccountBalance() {
       <tr key={index}>
         <td>{dataRow.accountNumber}</td>
         <td>{dataRow.availableBalance}</td>
-        <td>{dataRow.associatedLoanIds}</td>
+        <td>{dataRow.associatedLoanIds.join(', ')}</td>
         <td>{dataRow.currentBalance}</td>
       </tr>
     ));

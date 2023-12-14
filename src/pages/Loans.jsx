@@ -65,6 +65,7 @@ const Loans = () => {
     }));
   };
 
+  
   const handleOpenEditModal = async (id) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/loans/${id}`);
@@ -189,7 +190,7 @@ const Loans = () => {
       } = formData;
 
       await axios.post(`${API_BASE_URL}/createloan`, {
-        loanId,
+        loanId: uniqueloanid,
         loanProduct,
         memberName,
         memberNo,

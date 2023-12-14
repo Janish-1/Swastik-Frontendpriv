@@ -315,8 +315,14 @@ const User = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/users`); // Replace with your API endpoint
-      setUsersData(response.data); // Update usersData state with the fetched data
-    } catch (error) {
+
+      // Filter usersData based on userType condition (e.g., "user", "agent", "admin")
+      const filteredUsers = response.data.filter((user) =>
+        ["user", "agent", "admin"].includes(user.userType)
+      );
+      
+      setUsersData(filteredUsers); // Update usersData state with the filtered data
+      } catch (error) {
       // console.error('Error fetching users:', error);
       // Handle error or display an error message to the user
     }

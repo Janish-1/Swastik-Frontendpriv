@@ -61,6 +61,44 @@ const Transaction = () => {
     }));
   };
 
+  const fetchDetails = async (inputValue, type) => {
+    try {
+      let response;
+      if (type === "member") {
+        response = await axios.get(
+          `${API_BASE_URL}/detailsByMemberId/${inputValue}`
+        );
+        const memberDetails = response.data;
+        const { accountNumber } = memberDetails;
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          accountNumber: accountNumber,
+          // Update other form fields as needed
+        }));
+      } else if (type === "account") {
+        response = await axios.get(
+          `${API_BASE_URL}/detailsByAccountNumber/${inputValue}`
+        );
+        const accountDetails = response.data;
+        const { member } = accountDetails;
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          member: member,
+          // Update other form fields as needed
+        }));
+      }
+      // Handle the retrieved details accordingly
+    } catch (error) {
+      // Handle error or display an error message
+      // console.error("Error fetching details:", error);
+    }
+  };
+
+  const handleMemberOrAccountSelect = (value, type) => {
+    // Call fetchDetails function with the selected value and type
+    fetchDetails(value, type);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -110,8 +148,11 @@ const Transaction = () => {
               as="select"
               name="member"
               value={formData.member}
-              onChange={handleInputChange}
-              required
+              onChange={(e) => {
+                handleInputChange(e);
+                fetchDetails(e.target.value, "member");
+              }}
+            required
             >
               <option value="">Select Member</option>
               {members.map((member) => (
@@ -130,8 +171,11 @@ const Transaction = () => {
               as="select"
               name="accountNumber"
               value={formData.accountNumber}
-              onChange={handleInputChange}
-              required
+              onChange={(e) => {
+                handleInputChange(e);
+                fetchDetails(e.target.value, "account");
+              }}
+            required
             >
               <option value="">Select Account</option>
               {accounts.map((accountNumber) => (

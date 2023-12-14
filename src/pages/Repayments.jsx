@@ -126,7 +126,7 @@ const Repayments = () => {
               : repayment
           )
         );
-        // console.log("Repayment data exists for the current month.");
+        console.log("Repayment data exists for the current month.");
       } else {
         const createResponse = await axios.post(
           `${API_BASE_URL}/api/updatePaymentAndCreateDetails/${repaymentId}`

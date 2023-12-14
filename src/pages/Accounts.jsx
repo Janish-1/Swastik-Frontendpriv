@@ -1,17 +1,4 @@
 // Accounts.jsx
-
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import {
-  Modal,
-  Button,
-  Form,
-  Table,
-  FormControl,
-  Dropdown,
-} from "react-bootstrap";
-const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -32,15 +19,10 @@ const Accounts = () => {
     member: "",
     accountType: "", // Change default value to an empty string
     status: "", // Change default value to an empty string
-    accountNumber: "",
-    member: "",
-    accountType: "", // Change default value to an empty string
-    status: "", // Change default value to an empty string
     openingBalance: 0,
   });
   const [accountsData, setAccountsData] = useState([]);
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredAccounts, setFilteredAccounts] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -100,15 +82,14 @@ const Accounts = () => {
       relationship: "",
       nomineeMobileNo: "",
       nomineeDateOfBirth: "",
-      });
+    });
   };
 
   const handleOpenEditModal = async (id) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/accounts/${id}`);
-      const response = await axios.get(`${API_BASE_URL}/accounts/${id}`);
       const accountData = response.data.data; // Assuming response.data contains the account data
-  
+
       setAccountFormData({
         _id: id,
         accountNumber: accountData.accountNumber,
@@ -184,9 +165,6 @@ const Accounts = () => {
       const response = await axios.delete(
         `${API_BASE_URL}/deleteaccounts/${id}`
       );
-      const response = await axios.delete(
-        `${API_BASE_URL}/deleteaccounts/${id}`
-      );
       // console.log(response);
       // alert('Delete Success');
       fetchData(); // Fetch data after successful deletion
@@ -235,7 +213,6 @@ const Accounts = () => {
   const fetchData = async () => {
     try {
       // Fetch accounts data
-      const response = await axios.get(`${API_BASE_URL}/accounts`);
       const response = await axios.get(`${API_BASE_URL}/accounts`);
       setAccountsData(response.data.data); // Assuming response.data contains the account data
     } catch (error) {
@@ -395,7 +372,6 @@ const Accounts = () => {
                 placeholder=""
                 name="id"
                 value={accountFormData._id}
-                value={accountFormData._id}
                 onChange={handleInputChange}
                 readOnly
               />
@@ -405,11 +381,9 @@ const Accounts = () => {
               <Form.Control
                 type="text"
                 placeholder=""
-                placeholder=""
                 name="accountNumber"
                 value={accountFormData.accountNumber}
                 onChange={handleInputChange}
-                readOnly
                 readOnly
               />
             </Form.Group>
@@ -497,11 +471,11 @@ const Accounts = () => {
             <Form.Group controlId="formPhoto">
               <Form.Label>Photo</Form.Label>
               <Form.Control
-                    type="file"
-                    accept="image/*"
-                    name="photo"
-                    onChange={handleUpdateChange}
-                  />
+                type="file"
+                accept="image/*"
+                name="photo"
+                onChange={handleUpdateChange}
+              />
             </Form.Group>
             {/* Father's Name */}
             <Form.Group controlId="formFatherName">
@@ -536,11 +510,11 @@ const Accounts = () => {
                 value={accountFormData.maritalStatus}
                 onChange={handleInputChange}
               >
-                    <option>Select Marital Status</option>
-                    <option>Single</option>
-                    <option>Married</option>
-                    <option>Divorced</option>
-                    <option>Widowed</option>
+                <option>Select Marital Status</option>
+                <option>Single</option>
+                <option>Married</option>
+                <option>Divorced</option>
+                <option>Widowed</option>
               </Form.Select>
             </Form.Group>
             {/* Date of Birth */}
@@ -591,11 +565,11 @@ const Accounts = () => {
             <Form.Group controlId="formIdProof">
               <Form.Label>ID Proof</Form.Label>
               <Form.Control
-                    type="file"
-                    accept="image/*"
-                    name="photo"
-                    onChange={handleUpdateChange}
-                  />
+                type="file"
+                accept="image/*"
+                name="photo"
+                onChange={handleUpdateChange}
+              />
             </Form.Group>
             {/* Nominee Name */}
             <Form.Group controlId="formNomineeName">
@@ -655,25 +629,13 @@ const Accounts = () => {
         hover
         className="mt-4 rounded-lg overflow-hidden"
       >
-      <Table
-        striped
-        responsive
-        bordered
-        hover
-        className="mt-4 rounded-lg overflow-hidden"
-      >
         <thead>
           <tr>
             <th>Account Number</th>
             <th>Member Number</th>
             <th>Member Name</th>
-            <th>Member Number</th>
-            <th>Member Name</th>
             <th>Account Type</th>
             <th>Opening Balance</th>
-            <th>Current Balance</th>
-            <th>Branch</th>
-            <th>Email</th>
             <th>Current Balance</th>
             <th>Branch</th>
             <th>Email</th>
@@ -683,17 +645,11 @@ const Accounts = () => {
         <tbody>
           {filteredAccounts.map((account) => (
             <tr key={account._id}>
-            <tr key={account._id}>
               <td>{account.accountNumber}</td>
-              <td>{account.memberNo}</td>
-              <td>{account.memberName}</td>
               <td>{account.memberNo}</td>
               <td>{account.memberName}</td>
               <td>{account.accountType}</td>
               <td>{account.openingBalance}</td>
-              <td>{account.currentBalance}</td>
-              <td>{account.branchName}</td>
-              <td>{account.email}</td>
               <td>{account.currentBalance}</td>
               <td>{account.branchName}</td>
               <td>{account.email}</td>
@@ -704,22 +660,9 @@ const Accounts = () => {
                     variant="primary"
                     id={`dropdown-${account._id}`}
                   >
-                  <Dropdown.Toggle
-                    className="btn-secondary"
-                    variant="primary"
-                    id={`dropdown-${account._id}`}
-                  >
                     Action
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item
-                      onClick={() => handleOpenEditModal(account._id)}
-                    >
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleDelete(account._id)}>
-                      Delete
-                    </Dropdown.Item>
                     <Dropdown.Item
                       onClick={() => handleOpenEditModal(account._id)}
                     >

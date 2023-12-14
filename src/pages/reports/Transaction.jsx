@@ -88,6 +88,7 @@ export default function Transaction() {
                         value={formData.transactionType}
                         onChange={handleChange}
                       >
+                        <option value="">Please Select an Option</option>
                         <option>Debit</option>
                         <option>Credit</option>
                       </Form.Control>
@@ -104,9 +105,9 @@ export default function Transaction() {
                         onChange={handleChange}
                       >
                         {" "}
+                        <option value="">Please Select an Option</option>
                         <option value="Pending">Pending</option>
                         <option value="Completed">Completed</option>
-                        <option>All</option>
                       </Form.Control>
                     </Form.Group>
                   </Col>

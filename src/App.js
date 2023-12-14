@@ -10,28 +10,13 @@ import {
 import { FiSettings } from "react-icons/fi";
 import { TooltipComponent } from "@syncfusion/ej2-react-popups";
 import Branches from "./pages/Branches";
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useNavigate,
-} from "react-router-dom";
-import { FiSettings } from "react-icons/fi";
-import { TooltipComponent } from "@syncfusion/ej2-react-popups";
-import Branches from "./pages/Branches";
 import Members from "./pages/Members";
 import Accounts from "./pages/Accounts";
 import Repayments from "./pages/Repayments";
 import Loans from "./pages/Loans";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
 import Deposit from "./pages/Deposit";
-import Dashboard from "./pages/Dashboard";
 import Dashboard from "./pages/Dashboard";
 import Withdraw from "./pages/Withdraw";
 import Transaction from "./pages/Transaction";
@@ -70,40 +55,10 @@ const App = () => {
       // Verify the token on the server to check its validity
       axios
         .get(`${API_BASE_URL}/verify-token`, {
-  const [userRole, setUserRole] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      const tokenParts = token.split(".");
-      const encodedPayload = tokenParts[1];
-      const decodedPayload = atob(encodedPayload);
-      const payload = JSON.parse(decodedPayload);
-      const role = payload.role; // Assuming 'role' contains the user's role
-      setUserRole(role); // Set userRole state with the extracted role
-
-      // Verify the token on the server to check its validity
-      axios
-        .get(`${API_BASE_URL}/verify-token`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
-        .then(() => {
-          // Token is valid, user is authenticated
-          setAuthenticated(true);
-        })
-        .catch(() => {
-          // Token is invalid, remove it from local storage
-          localStorage.removeItem("token");
-          setAuthenticated(false); // Set authenticated to false
-        });
-    } else {
-      setAuthenticated(false); // No token found, set authenticated to false
-    }
-  }, []); // Empty dependency array to run the effect only once on mount
-
         .then(() => {
           // Token is valid, user is authenticated
           setAuthenticated(true);
@@ -140,19 +95,6 @@ const AuthenticatedRoutes = ({ userRole }) => {
     setThemeSettings,
   } = useStateContext();
 
-const AuthenticatedRoutes = ({ userRole }) => {
-  const {
-    setCurrentColor,
-    setCurrentMode,
-    currentMode,
-    activeMenu,
-    currentColor,
-    themeSettings,
-    setThemeSettings,
-  } = useStateContext();
-
-  const currentThemeColor = localStorage.getItem("colorMode");
-  const currentThemeMode = localStorage.getItem("themeMode");
   const currentThemeColor = localStorage.getItem("colorMode");
   const currentThemeMode = localStorage.getItem("themeMode");
   if (currentThemeColor && currentThemeMode) {

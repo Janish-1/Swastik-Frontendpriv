@@ -37,7 +37,7 @@ const AccountStatement = () => {
     }
   };
 
-  useEffect(() =>{
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -98,11 +98,15 @@ const AccountStatement = () => {
                   <Button variant="primary" type="submit" className="mt-8">
                     Search
                   </Button>
-                  <Col md={9} >
-              <Button className="justify-start mt-2"  variant="danger" type="button">
-                Export to PDF
-              </Button>
-            </Col>
+                  <Col md={9}>
+                    <Button
+                      className="justify-start mt-2"
+                      variant="danger"
+                      type="button"
+                    >
+                      Export to PDF
+                    </Button>
+                  </Col>
                   {/* <Button className="justify-start ml-2" variant="danger" onClick={handleExportToPDF}>
                     Export to PDF
                   </Button> */}
@@ -115,7 +119,13 @@ const AccountStatement = () => {
         <hr />
         <br />
 
-        <Table  responsive striped bordered hover className="rounded-lg overflow-hidden">
+        <Table
+          responsive
+          striped
+          bordered
+          hover
+          className="rounded-lg overflow-hidden"
+        >
           <thead>
             <tr>
               <th>Date</th>
@@ -129,7 +139,9 @@ const AccountStatement = () => {
             {transactions.length > 0 ? (
               transactions.map((transaction, index) => (
                 <tr key={index}>
-                  <td>{new Date(transaction.date).toLocaleString()}</td>
+                  <td>
+                    {new Date(+new Date(transaction.Date)).toLocaleString()}
+                  </td>
                   <td>{transaction.Description}</td>
                   <td>{transaction.Debit}</td>
                   <td>{transaction.Credit}</td>

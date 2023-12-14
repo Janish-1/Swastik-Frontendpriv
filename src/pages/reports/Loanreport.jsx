@@ -155,7 +155,7 @@ export default function Loanreport() {
                   <td>{loan.memberNo}</td>
                   <td>{loan.releaseDate}</td>
                   <td>{loan.loanProduct}</td>
-                  <td>{loan.borrower}</td>
+                  <td>{loan.memberName}</td>
                   <td>{loan.appliedAmount}</td>
                   <td>{loan.dueAmount !== null ? loan.dueAmount : "N/A"}</td>
                   <td>{loan.status}</td>

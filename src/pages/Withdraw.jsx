@@ -7,7 +7,6 @@ import "./depositform.css";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
 
-
 const Withdraw = () => {
   const [formData, setFormData] = useState({
     date: "",
@@ -24,9 +23,7 @@ const Withdraw = () => {
 
   const fetchData = async () => {
     try {
-      const memberResponse = await axios.get(
-        `${API_BASE_URL}/readmemberids`
-      );
+      const memberResponse = await axios.get(`${API_BASE_URL}/readmemberids`);
       setMembers(memberResponse.data.data);
       // console.log('Member IDs Status:', memberResponse);
 
@@ -43,6 +40,44 @@ const Withdraw = () => {
   useEffect(() => {
     fetchData();
   }, []); // Empty dependency array ensures this runs only once on component mount
+
+  const fetchDetails = async (inputValue, type) => {
+    try {
+      let response;
+      if (type === "member") {
+        response = await axios.get(
+          `${API_BASE_URL}/detailsByMemberId/${inputValue}`
+        );
+        const memberDetails = response.data;
+        const { accountNumber } = memberDetails;
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          accountNumber: accountNumber,
+          // Update other form fields as needed
+        }));
+      } else if (type === "account") {
+        response = await axios.get(
+          `${API_BASE_URL}/detailsByAccountNumber/${inputValue}`
+        );
+        const accountDetails = response.data;
+        const { member } = accountDetails;
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          member: member,
+          // Update other form fields as needed
+        }));
+      }
+      // Handle the retrieved details accordingly
+    } catch (error) {
+      // Handle error or display an error message
+      // console.error("Error fetching details:", error);
+    }
+  };
+
+  const handleMemberOrAccountSelect = (value, type) => {
+    // Call fetchDetails function with the selected value and type
+    fetchDetails(value, type);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -106,7 +141,10 @@ const Withdraw = () => {
               as="select"
               name="member"
               value={formData.member}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                handleInputChange(e);
+                fetchDetails(e.target.value, "member");
+              }}
               required
             >
               <option value="">Select Member</option>
@@ -126,7 +164,10 @@ const Withdraw = () => {
               as="select"
               name="accountNumber"
               value={formData.accountNumber}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                handleInputChange(e);
+                fetchDetails(e.target.value, "account");
+              }}
               required
             >
               <option value="">Select Account</option>

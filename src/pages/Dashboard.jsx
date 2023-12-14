@@ -221,7 +221,7 @@ const Ecommerce = () => {
         <h1 className="text-3xl m-2 text-cyan-500 font-medium">
           Recent Transaction
         </h1>
-        <table className="table text-center bg-info text-white rounded-lg overflow-hidden ">
+        <Table className="table text-center bg-info text-white rounded-lg overflow-hidden ">
           <thead>
             <tr className="table-secondary">
               <th>Date</th>
