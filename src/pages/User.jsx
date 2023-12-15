@@ -69,14 +69,12 @@ const User = () => {
     try {
       const formDataWithImages = new FormData();
 
-      console.log(agentformdata);
-  
       if (agentformdata.image) {
-        formDataWithImages.append("images", agentformdata.image);
+        formDataWithImages.append("imageone", agentformdata.image);
       }
   
       if (agentformdata.photo) {
-        formDataWithImages.append("images", agentformdata.photo);
+        formDataWithImages.append("imageone", agentformdata.photo);
       }
   
       const config = {
@@ -86,14 +84,14 @@ const User = () => {
       };
   
       const responseUpload = await axios.post(
-        `${API_BASE_URL}/uploadmultiple`,
+        `${API_BASE_URL}/uploadimage`, // Change the endpoint to your image upload API
         formDataWithImages,
         config
       );
   
       const imageUrls = {
-        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
-        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+        imageUrl1: responseUpload.data.url, // Change these properties according to the response structure
+        imageUrl2: responseUpload.data.url, // Change these properties according to the response structure
       };
   
       const agentDataToUpdate = { ...agentformdata }; // Create a copy to modify
@@ -108,7 +106,7 @@ const User = () => {
       }
   
       await axios.put(`${API_BASE_URL}/updateagent/${agentId}`, agentDataToUpdate);
-  
+    
       // Reset form data and close modal
       setagentForm({
         name: "",

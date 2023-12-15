@@ -95,7 +95,7 @@ const Members = () => {
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
-  
+
     if (name === "photo" || name === "idProof") {
       setFormData((prevData) => ({
         ...prevData,
@@ -110,13 +110,13 @@ const Members = () => {
         ...prevData,
         [name]: value,
       }));
-  
+
       if (name === "walletId") {
         setWalletId(value);
       }
     }
   };
-    
+
   const handleSharesChange = (e) => {
     const shares = e.target.value;
     setNumberOfShares(shares);
@@ -302,6 +302,8 @@ const Members = () => {
         relationship: memberData.relationship,
         nomineeMobileNo: memberData.nomineeMobileNo,
         nomineeDateOfBirth: memberData.nomineeDateOfBirth,
+        walletId: memberData.walletId,
+        numberofShares: memberData.numberOfShares,
       });
 
       setShowEditModal(true); // Open the edit modal
@@ -419,31 +421,56 @@ const Members = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const formDataWithImages = new FormData();
-      formDataWithImages.append("images", formData.photo);
-      formDataWithImages.append("images", formData.idProof);
-      console.log(formDataWithImages);
+      let photoUrl = "";
+      let idProofUrl = "";
 
-      const responseUpload = await axios.post(
-        `${API_BASE_URL}/uploadmultiple`,
-        formDataWithImages,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      // Check if photo file is present
+      if (formData.photo) {
+        const photoFormData = new FormData();
+        photoFormData.append("imageone", formData.photo);
+        const responsePhoto = await axios.post(
+          `${API_BASE_URL}/uploadimage`,
+          photoFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
-      const imageUrls = {
-        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
-        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+        photoUrl = responsePhoto.data.url;
+      }
+
+      // Check if idProof file is present
+      if (formData.idProof) {
+        const idProofFormData = new FormData();
+        idProofFormData.append("imageone", formData.idProof);
+
+        const responseIdProof = await axios.post(
+          `${API_BASE_URL}/uploadimage`,
+          idProofFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        idProofUrl = responseIdProof.data.url;
+      }
+
+      // Prepare the updated member data with image URLs
+      const updatedData = {
+        ...updateData,
+        photo: photoUrl,
+        idProof: idProofUrl,
       };
 
-      await axios.put(`${API_BASE_URL}/updatemember/${updateData.id}`, {
-        ...updateData,
-        photo: imageUrls.imageUrl1,
-        idProof: imageUrls.imageUrl2,
-      });
+      // Send the updated member data to the backend for updating
+      const responseUpdate = await axios.put(
+        `${API_BASE_URL}/updatemember/${updateData.id}`,
+        updatedData
+      );
 
       handleCloseEditModal();
       fetchData();
@@ -803,7 +830,7 @@ const Members = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleUpdate}>
-          <Row className="mb-3">
+            <Row className="mb-3">
               <Col md={6}>
                 <Form.Group controlId="formMemberNo">
                   <Form.Label>Member Number</Form.Label>
@@ -859,7 +886,7 @@ const Members = () => {
                     type="file"
                     accept="image/*"
                     name="photo"
-                    onChange={handleUpdateChange}
+                    onChange={handleFileChange}
                   />
                 </Form.Group>
               </Col>
@@ -1119,16 +1146,22 @@ const Members = () => {
 
             <Tab.Content>
               <Tab.Pane eventKey="details">
-              <Details id={viewMemberData._id} memberData={viewMemberData} />
+                <Details id={viewMemberData._id} memberData={viewMemberData} />
               </Tab.Pane>
               <Tab.Pane eventKey="overview">
-                <AccountOverview id={viewMemberData._id} memberData={viewMemberData}/>
+                <AccountOverview
+                  id={viewMemberData._id}
+                  memberData={viewMemberData}
+                />
               </Tab.Pane>
               <Tab.Pane eventKey="transactions">
-                <Transactions id={viewMemberData._id} memberData={viewMemberData}/>
+                <Transactions
+                  id={viewMemberData._id}
+                  memberData={viewMemberData}
+                />
               </Tab.Pane>
               <Tab.Pane eventKey="loans">
-                <Loans id={viewMemberData._id} memberData={viewMemberData}/>
+                <Loans id={viewMemberData._id} memberData={viewMemberData} />
               </Tab.Pane>
               {/* Add more Tab.Pane components as needed */}
             </Tab.Content>
