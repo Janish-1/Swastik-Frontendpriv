@@ -3,32 +3,55 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
-const Loans = ({ id }) => {
-  const [memberDetails, setMemberDetails] = useState({});
+const Loans = ({ id, memberData }) => {
+  const [memberDetails, setMemberDetails] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const memberNo = memberData.memberNo;
+  console.log(id, memberData);
+
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/accountDetails/${id}`);
-        const data = response.data; // Assuming data is an object
-        setMemberDetails(data);
-        setLoading(false);
+        const response = await axios.get(`${API_BASE_URL}/loansbymember/${memberNo}`);
+
+        if (isMounted) {
+          const data = response.data.data;
+          if (Array.isArray(data)) {
+            setMemberDetails(data);
+            setLoading(false);
+          } else {
+            console.error('Error: Response data is not an array');
+            setLoading(false);
+          }
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchData();
-  }, [id]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, memberNo]);
 
   if (loading) {
     return <p>Loading...</p>;
   }
 
-  // Specify the fields you want to display
-  const fieldsToDisplay = ['accountNumber', 'availableBalance', 'CurrentBalance', 'associatedLoanIds'];
+  // Display table only if memberDetails is an array
+  if (!Array.isArray(memberDetails) || memberDetails.length === 0) {
+    return <p>No data available</p>;
+  }
+
+  const fieldsToDisplay = ['loanId', 'loanProduct', 'appliedAmount', 'status'];
 
   return (
     <div className="overflow-x-auto">
@@ -43,13 +66,15 @@ const Loans = ({ id }) => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          <tr>
-            {fieldsToDisplay.map((field) => (
-              <td key={field} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {memberDetails[field]}
-              </td>
-            ))}
-          </tr>
+          {memberDetails.map((item, index) => (
+            <tr key={index}>
+              {fieldsToDisplay.map((field) => (
+                <td key={field} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {item[field]}
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

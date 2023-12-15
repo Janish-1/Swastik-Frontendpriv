@@ -78,6 +78,20 @@ const Members = () => {
   const [amount, setAmount] = useState(0);
   const handleModalShow = () => setShowModal(true);
   const handleModalClose = () => setShowModal(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewMemberData, setViewMemberData] = useState(0);
+
+  const handleOpenViewModal = (id) => {
+    console.log(id);
+    const selectedMember = membersData.find((member) => member._id === id);
+    setViewMemberData(selectedMember);
+    setShowViewModal(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+    setViewMemberData(true);
+  };
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
@@ -448,21 +462,6 @@ const Members = () => {
       // console.log('Failed Delete');
       // alert('Delete Failed');
     }
-  };
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [viewMemberData, setViewMemberData] = useState({
-    _id: "6578363b29cb0bb6b63e57c0",
-  });
-
-  const handleOpenViewModal = (id) => {
-    const selectedMember = membersData.find((member) => member._id === id);
-    setViewMemberData(selectedMember);
-    setShowViewModal(true);
-  };
-
-  const handleCloseViewModal = () => {
-    setShowViewModal(false);
-    setViewMemberData(true);
   };
 
   return (
@@ -1120,16 +1119,16 @@ const Members = () => {
 
             <Tab.Content>
               <Tab.Pane eventKey="details">
-                <Details id={viewMemberData._id} />
+              <Details id={viewMemberData._id} memberData={viewMemberData} />
               </Tab.Pane>
               <Tab.Pane eventKey="overview">
-                <AccountOverview id={viewMemberData._id} />
+                <AccountOverview id={viewMemberData._id} memberData={viewMemberData}/>
               </Tab.Pane>
               <Tab.Pane eventKey="transactions">
-                <Transactions id={viewMemberData._id} />
+                <Transactions id={viewMemberData._id} memberData={viewMemberData}/>
               </Tab.Pane>
               <Tab.Pane eventKey="loans">
-                <Loans id={viewMemberData._id} />
+                <Loans id={viewMemberData._id} memberData={viewMemberData}/>
               </Tab.Pane>
               {/* Add more Tab.Pane components as needed */}
             </Tab.Content>

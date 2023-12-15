@@ -11,9 +11,17 @@ const AccountOverview = ({ id }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/accountDetails/${id}`);
-        const data = response.data; // Assuming data is an object
-        setMemberDetails(data);
+        const response = await axios.get(`${API_BASE_URL}/memberAccountDetails/${id}`);
+        const data = response.data;
+
+        const newData = {
+          "Account Number": data.accountNumber,
+          "Available Balance": data.availableBalance,
+          "Current Balance": data.currentBalance,
+          "Associated Loans": data.associatedLoanIds,
+        };
+
+        setMemberDetails(newData);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -28,11 +36,9 @@ const AccountOverview = ({ id }) => {
     return <p>Loading...</p>;
   }
 
-  // Specify the fields you want to display based on api  in each component
-  const fieldsToDisplay = ['accountNumber','availableBalance','currentBalance','associatedLoanIds'];
+  const fieldsToDisplay = ['Account Number', 'Available Balance', 'Current Balance', 'Associated Loans'];
 
-      
-  
+
   // Specify the fields that are images
 // const imageFields = ['photo'];
 
