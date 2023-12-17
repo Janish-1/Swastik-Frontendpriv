@@ -1235,7 +1235,6 @@ const Members = () => {
             <th>Email</th>
             <th>Nominee</th>
             <th>WhatsApp</th>
-            <th>ID Proof</th>
             {/* <th>Account Type</th> */}
             <th>Actions</th>
           </tr>
@@ -1261,19 +1260,6 @@ const Members = () => {
               <td>{member.email}</td>
               <td>{member.nomineeName}</td>
               <td>{member.whatsAppNo}</td>
-              <td>
-                {" "}
-                {member.image ? (
-                  <img
-                    src={member.idProof}
-                    alt="Profile"
-                    width="40"
-                    height="40"
-                  />
-                ) : (
-                  "No Image"
-                )}
-              </td>
               {/* <td>{member.accountType}</td> */}
               <td>
                 <Dropdown>

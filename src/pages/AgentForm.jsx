@@ -7,6 +7,7 @@ export default function AgentForm() {
   const [modalOpen, setModalOpen] = useState(false);
   const [memberNumbers, setmemberNumbers] = useState([]);
   const [formData, setFormData] = useState({
+    memberNo: 0,
     name: "",
     qualification: "",
     image: null,
@@ -77,6 +78,7 @@ export default function AgentForm() {
 
       // Reset form data and close modal
       setFormData({
+        memberNo: 0,
         name: "",
         qualification: "",
         image: null,

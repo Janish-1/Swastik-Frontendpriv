@@ -640,6 +640,7 @@ const Accounts = () => {
             <th>Branch</th>
             <th>Email</th>
             <th>Action</th>
+            <th>Approval</th>
           </tr>
         </thead>
         <tbody>
@@ -674,6 +675,7 @@ const Accounts = () => {
                   </Dropdown.Menu>
                 </Dropdown>
               </td>
+              <td>{account.approval}</td>
             </tr>
           ))}
         </tbody>

@@ -13,12 +13,12 @@ import {
   weeklyStats,
   dropdownData,
   SparklineAreaData,
-  ecomPieChartData,
 } from "../data/dummy";
 import { useStateContext } from "../contexts/ContextProvider";
 import product9 from "../data/product9.jpg";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { PieChart, Pie, Cell, Tooltip } from "recharts";
 
 // const path = require('path');
 // const dotenv = require('dotenv');
@@ -51,6 +51,7 @@ const Ecommerce = () => {
   const [totalCurrentBalance, settotalCurrentBalance] = useState();
   const [pendingLoans, setPendingLoans] = useState();
   const [transactions, setTransactions] = useState([]);
+  const [ecomPieChartData, setEcomPieChartData] = useState([]);
 
   // Get the token from localStorage
   const token = localStorage.getItem("token");
@@ -99,6 +100,10 @@ const Ecommerce = () => {
         `${API_BASE_URL}/transactions`
       );
       setTransactions(transactionsResponse.data.data);
+      axios.get(`${API_BASE_URL}/expense-per-year`).then((response) => {
+        // Set the retrieved data to ecomPieChartData state
+        setEcomPieChartData(response.data);
+      });
     } catch (error) {
       // console.error("Error fetching data:", error);
     }
@@ -202,12 +207,18 @@ const Ecommerce = () => {
           <div className="mt-10 flex gap-10 flex-wrap justify-center">
             <div className=" border-r-1 border-color m-4 pr-10">
               <div className="w-40">
-                <Pie
-                  id="pie-chart"
-                  data={ecomPieChartData}
-                  legendVisiblity={false}
-                  height="260px"
-                />
+                <PieChart width={400} height={400}>
+                  <Tooltip />
+                  <Pie
+                    data={ecomPieChartData}
+                    dataKey="y" // Assuming "y" contains the value for each section in the chart
+                    cx={200}
+                    cy={200}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    label
+                  />
+                </PieChart>
               </div>
             </div>
             <div>

@@ -49,15 +49,16 @@ const User = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/all-users/${id}`);
       const agentdata = response.data;
+      console.log(agentdata);
       // Set the fetched data with image URLs into the state
       setagentForm({
         ...agentdata,
         // Assuming 'image' and 'photo' are fields containing image URLs
         agentId: id,
-        image: null, 
-        photo: null, 
+        image: null,
+        photo: null,
       });
-  
+
       setagentmodalopen(true);
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -68,46 +69,46 @@ const User = () => {
   const handleFileChange = (event) => {
     const { name, files } = event.target;
     setagentForm({
-      ...formData,
+      ...agentformdata,
       [name]: files[0],
     });
   };
 
   const agentmodalclose = () => {
-          // Reset form data and close modal
-          setagentForm({
-            memberNo: 0,
-            name: "",
-            qualification: "",
-            image: null,
-            photo: null,
-            fatherName: "",
-            maritalStatus: "",
-            dob: "",
-            age: "",
-            aadhar: "",
-            panCard: "",
-            address: "",
-            permanentAddress: "",
-            email: "",
-            mobile: "",
-            nomineeName: "",
-            nomineeRelationship: "",
-            nomineeDob: "",
-            nomineeMobile: "",
-            password: "",
-          });    
+    // Reset form data and close modal
+    setagentForm({
+      memberNo: 0,
+      name: "",
+      qualification: "",
+      image: null,
+      photo: null,
+      fatherName: "",
+      maritalStatus: "",
+      dob: "",
+      age: "",
+      aadhar: "",
+      panCard: "",
+      address: "",
+      permanentAddress: "",
+      email: "",
+      mobile: "",
+      nomineeName: "",
+      nomineeRelationship: "",
+      nomineeDob: "",
+      nomineeMobile: "",
+      password: "",
+    });
     setagentmodalopen(false);
   };
 
   const handleagentSubmit = async () => {
     try {
-      let imageOneUrl = "";
-      let imageTwoUrl = "";
+      let updatedAgentData = { ...agentformdata }; // Create a copy of agentformdata
   
       if (agentformdata.image) {
         const imageFormData = new FormData();
-        imageFormData.append("image", agentformdata.image); // Ensure field name matches backend
+        imageFormData.append("imageone", agentformdata.image);
+  
         const responseImage = await axios.post(
           `${API_BASE_URL}/uploadimage`,
           imageFormData,
@@ -117,17 +118,18 @@ const User = () => {
             },
           }
         );
+  
         if (responseImage.status === 200) {
-          imageOneUrl = responseImage.data.url;
+          updatedAgentData.image = responseImage.data.url; // Update the URL in updatedAgentData
         } else {
-          // Handle unsuccessful image upload
           throw new Error("Image upload failed");
         }
       }
   
       if (agentformdata.photo) {
         const photoFormData = new FormData();
-        photoFormData.append("photo", agentformdata.photo); // Ensure field name matches backend
+        photoFormData.append("imageone", agentformdata.photo);
+  
         const responsePhoto = await axios.post(
           `${API_BASE_URL}/uploadimage`,
           photoFormData,
@@ -137,29 +139,25 @@ const User = () => {
             },
           }
         );
+  
         if (responsePhoto.status === 200) {
-          imageTwoUrl = responsePhoto.data.url;
+          updatedAgentData.photo = responsePhoto.data.url; // Update the URL in updatedAgentData
         } else {
-          // Handle unsuccessful photo upload
           throw new Error("Photo upload failed");
         }
       }
   
-      const updatedAgentData = {
-        ...agentformdata,
-        image: imageOneUrl,
-        photo: imageTwoUrl,
-      };
-      
       const agentId = agentformdata.agentId;
-      
+  
       const updateResponse = await axios.put(
         `${API_BASE_URL}/updateagent/${agentId}`,
-        updatedAgentData
+        updatedAgentData // Send updatedAgentData to update the agent details
       );
   
       if (updateResponse.status === 200) {
-        agentmodalclose();
+        // Update successful, perform any necessary actions
+        fetchData(); // Refresh data or update UI after successful update
+        agentmodalclose(); // Close the modal or perform relevant action
       } else {
         throw new Error("Agent update failed");
       }
@@ -169,25 +167,24 @@ const User = () => {
       // Perform error handling like displaying an error message
     }
   };
-  
     
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-  
+
     setagentForm((prevData) => {
       const updatedData = { ...prevData };
-  
+
       if (name === "image" || name === "photo") {
         // Check if files array is not empty and update the image/photo property
         updatedData[name] = files.length > 0 ? files[0] : null;
       } else {
         updatedData[name] = value;
       }
-  
+
       return updatedData;
     });
   };
-  
+
   const handleEditModalOpen = async (userId) => {
     setEditUserId(userId);
 
@@ -239,7 +236,7 @@ const User = () => {
 
     try {
       const formDataForApi = new FormData();
-      formDataForApi.append("MemberNo",formData.memberNo);
+      formDataForApi.append("MemberNo", formData.memberNo);
       formDataForApi.append("name", formData.name);
       formDataForApi.append("email", formData.email);
       formDataForApi.append("password", formData.password);
@@ -308,13 +305,13 @@ const User = () => {
     e.preventDefault();
 
     const formDataForApi = new FormData();
-    formDataForApi.append("memberNo",formData.memberNo);
+    formDataForApi.append("memberNo", formData.memberNo);
     formDataForApi.append("name", formData.name);
     formDataForApi.append("email", formData.email);
     formDataForApi.append("password", formData.password);
     formDataForApi.append("userType", formData.userType);
     formDataForApi.append("image", formData.image);
-    formDataForApi.append("MemberNo",formData.memberNo);
+    formDataForApi.append("MemberNo", formData.memberNo);
 
     try {
       const responseUpload = await axios.post(
@@ -365,13 +362,13 @@ const User = () => {
       const filteredUsers = response.data.filter((user) =>
         ["user", "agent", "admin"].includes(user.userType)
       );
-      
+
       setUsersData(filteredUsers); // Update usersData state with the filtered data
 
       const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
       const memberNumbers = membersResponse.data.data;
       setmemberNumbers(memberNumbers);
-      } catch (error) {
+    } catch (error) {
       // console.error('Error fetching users:', error);
       // Handle error or display an error message to the user
     }
@@ -394,15 +391,11 @@ const User = () => {
     }
   };
 
-  const handleFormUpdate = () => {
-    fetchData(); // Toggling state to trigger a re-render
-  };
-
   return (
     <div className="body-div">
       <div className="h-30 grid grid-cols-7 gap-3 content-start">
         <Button onClick={handleOpenModal}>Add User</Button>
-        <AgentForm onFormSubmit={handleFormUpdate} />
+        <AgentForm onFormSubmit={fetchData} />
       </div>
 
       <Modal show={showModal} onHide={handleCloseModal}>
@@ -411,7 +404,7 @@ const User = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formMemberNo">
+            <Form.Group controlId="formMemberNo">
               <Form.Label>Member No</Form.Label>
               <Form.Control
                 as="select"
@@ -511,15 +504,14 @@ const User = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleEdit}>
-          <Form.Group controlId="formMemberNo">
+            <Form.Group controlId="formMemberNo">
               <Form.Label>Member No</Form.Label>
               <Form.Control
                 name="memberNo"
                 value={formData.memberNo}
                 onChange={handleInputChange}
                 readOnly
-              > 
-              </Form.Control>
+              ></Form.Control>
             </Form.Group>
             <Form.Group controlId="formName">
               <Form.Label>Name</Form.Label>
@@ -607,18 +599,17 @@ const User = () => {
           <Form onSubmit={handleagentSubmit}>
             {/* Form Fields */}
             <Row className="mb-3">
-            <Col md={6}>
-            <Form.Group controlId="formMemberNo">
-              <Form.Label>Member No</Form.Label>
-              <Form.Control
-                name="memberNo"
-                value={agentformdata.memberNo}
-                onChange={handleInputChange}
-                readOnly
-              >
-              </Form.Control>
-            </Form.Group>
-            </Col>
+              <Col md={6}>
+                <Form.Group controlId="formMemberNo">
+                  <Form.Label>Member No</Form.Label>
+                  <Form.Control
+                    name="memberNo"
+                    value={agentformdata.memberNo}
+                    onChange={handleInputChange}
+                    readOnly
+                  ></Form.Control>
+                </Form.Group>
+              </Col>
             </Row>
             <Row className="mb-3">
               <Col md={6}>
@@ -905,8 +896,17 @@ const User = () => {
           {usersData.map((user, index) => (
             <tr key={index}>
               <td>
-                {user.image ? (
-                  <img src={user.image} alt="Profile" width="40" height="40" />
+                {user.photo ? (
+                  <img
+                    src={user.photo}
+                    alt="Profile"
+                    width="40"
+                    height="40"
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevent infinite fallback loop
+                      // You can also handle error messages or styling here
+                    }}
+                  />
                 ) : (
                   "No Image"
                 )}
