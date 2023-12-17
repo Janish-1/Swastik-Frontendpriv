@@ -5,7 +5,7 @@ import { IoIosMore } from "react-icons/io";
 import { DropDownListComponent } from "@syncfusion/ej2-react-dropdowns";
 import { Table } from "react-bootstrap";
 // import Button from 'react-bootstrap/Button';
-import { Stacked, Pie, Button, LineChart, SparkLine } from "../components";
+import { Stacked, Button, LineChart, SparkLine } from "../components";
 import {
   earningData,
   medicalproBranding,
@@ -207,14 +207,13 @@ const Ecommerce = () => {
           <div className="mt-10 flex gap-10 flex-wrap justify-center">
             <div className=" border-r-1 border-color m-4 pr-10">
               <div className="w-40">
-                <PieChart width={400} height={400}>
+                <PieChart width={200} height={200}>
                   <Tooltip />
                   <Pie
                     data={ecomPieChartData}
                     dataKey="y" // Assuming "y" contains the value for each section in the chart
                     cx={200}
                     cy={200}
-                    outerRadius={80}
                     fill="#8884d8"
                     label
                   />
