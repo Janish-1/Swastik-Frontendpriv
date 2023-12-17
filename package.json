@@ -3,68 +3,72 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-      "@react-pdf/renderer": "^3.1.14",
-      "@syncfusion/ej2": "^19.4.48",
-      "@syncfusion/ej2-react-calendars": "^19.4.48",
-      "@syncfusion/ej2-react-charts": "^19.4.50",
-      "@syncfusion/ej2-react-dropdowns": "^19.4.52",
-      "@syncfusion/ej2-react-grids": "^19.4.50",
-      "@syncfusion/ej2-react-inputs": "^19.4.52",
-      "@syncfusion/ej2-react-kanban": "^19.4.48",
-      "@syncfusion/ej2-react-popups": "^19.4.52",
-      "@syncfusion/ej2-react-richtexteditor": "^19.4.50",
-      "@syncfusion/ej2-react-schedule": "^19.4.50",
-      "axios": "^1.6.2",
-      "body-parser": "^1.20.2",
-      "bootstrap": "^5.3.2",
-      "cloudinary": "^1.41.0",
-      "cors": "^2.8.5",
-      "crypto-es": "^2.1.0",
-      "dotenv": "^16.3.1",
-      "express": "^4.18.2",
-      "express-rate-limit": "^7.1.5",
-      "jsonwebtoken": "^9.0.2",
-      "moment": "^2.29.4",
-      "mongoose": "^8.0.2",
-      "multer": "^1.4.5-lts.1",
-      "path": "^0.12.7",
-      "react": "^17.0.2",
-      "react-bootstrap": "^2.9.1",
-      "react-datepicker": "^4.23.0",
-      "react-dom": "^17.0.2",
-      "react-icons": "^4.3.1",
-      "react-pdf": "^7.5.1",
-      "react-router-dom": "^6.2.1",
-      "react-scripts": "5.0.0",
-      "react-to-print": "^2.14.15",
-      "uuid": "^9.0.1"
+        "@react-pdf/renderer": "^3.1.14",
+        "@syncfusion/ej2": "^19.4.48",
+        "@syncfusion/ej2-react-calendars": "^19.4.48",
+        "@syncfusion/ej2-react-charts": "^19.4.50",
+        "@syncfusion/ej2-react-dropdowns": "^19.4.52",
+        "@syncfusion/ej2-react-grids": "^19.4.50",
+        "@syncfusion/ej2-react-inputs": "^19.4.52",
+        "@syncfusion/ej2-react-kanban": "^19.4.48",
+        "@syncfusion/ej2-react-popups": "^19.4.52",
+        "@syncfusion/ej2-react-richtexteditor": "^19.4.50",
+        "@syncfusion/ej2-react-schedule": "^19.4.50",
+        "axios": "^1.6.2",
+        "body-parser": "^1.20.2",
+        "bootstrap": "^5.3.2",
+        "cloudinary": "^1.41.0",
+        "cors": "^2.8.5",
+        "crypto-es": "^2.1.0",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "express-rate-limit": "^7.1.5",
+        "file-saver": "^2.0.5",
+        "html2canvas": "^1.4.1",
+        "jsonwebtoken": "^9.0.2",
+        "jspdf": "^2.5.1",
+        "moment": "^2.29.4",
+        "mongoose": "^8.0.2",
+        "multer": "^1.4.5-lts.1",
+        "path": "^0.12.7",
+        "react": "^17.0.2",
+        "react-bootstrap": "^2.9.1",
+        "react-datepicker": "^4.23.0",
+        "react-dom": "^17.0.2",
+        "react-icons": "^4.3.1",
+        "react-pdf": "^7.5.1",
+        "react-router-dom": "^6.2.1",
+        "react-scripts": "5.0.0",
+        "react-to-print": "^2.14.15",
+        "uuid": "^9.0.1"
     },
     "scripts": {
-      "start": "react-scripts start",
-      "build": "react-scripts build",
-      "test": "react-scripts test",
-      "eject": "react-scripts eject"
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
     },
     "browserslist": {
-      "production": [
-        ">0.2%",
-        "not dead",
-        "not op_mini all"
-      ],
-      "development": [
-        "last 1 chrome version",
-        "last 1 firefox version",
-        "last 1 safari version"
-      ]
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
     },
     "devDependencies": {
-      "autoprefixer": "^10.4.2",
-      "dotenv-webpack": "^8.0.1",
-      "postcss": "^8.4.6",
-      "tailwindcss": "^3.0.19"
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+        "autoprefixer": "^10.4.2",
+        "dotenv-webpack": "^8.0.1",
+        "postcss": "^8.4.6",
+        "tailwindcss": "^3.0.19"
     },
     "browser": {
-      "crypto": false,
-      "os": false
+        "crypto": false,
+        "os": false
     }
-  }
+}

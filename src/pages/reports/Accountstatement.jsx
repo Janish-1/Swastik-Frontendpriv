@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Form, Button, Row, Col, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
 
@@ -11,83 +13,6 @@ const AccountStatement = () => {
   const [endDate, setEndDate] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [accounts, setAccounts] = useState([]);
-
-  // Styles for PDF generation
-  const styles = StyleSheet.create({
-    page: {
-      fontFamily: "Helvetica",
-      padding: 20,
-    },
-    header: {
-      fontSize: 18,
-      marginBottom: 20,
-      textAlign: "center",
-    },
-  });
-
-  // Create a PDF blob using the MyDocument component
-  const blob = (
-    <PDFDownloadLink document={<MyDocument />} fileName="AccStatement.pdf">
-      {({ blob, url, loading, error }) =>
-        loading ? "Loading document..." : "Download now!"
-      }
-    </PDFDownloadLink>
-  );
-
-  return blob;
-};
-
-const handleExportToPDF = () => {
-  const MyDocument = () => (
-    <Document>
-      <Page style={styles.page}>
-        <Text style={styles.header}>Account Statement</Text>
-        <Table
-          responsive
-          striped
-          bordered
-          hover
-          className="rounded-lg overflow-hidden"
-        >
-          {/* Render your table headers */}
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Description</th>
-              <th>Debit</th>
-              <th>Credit</th>
-              <th>Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Map through transactions to populate table */}
-            {transactions.length > 0 ? (
-              transactions.map((transaction, index) => (
-                <tr key={index}>
-                  {/* Populate table data */}
-                  <td>
-                    {new Date(+new Date(transaction.Date)).toLocaleString()}
-                  </td>
-                  <td>{transaction.Description}</td>
-                  <td>{transaction.Debit}</td>
-                  <td>{transaction.Credit}</td>
-                  <td>{transaction.Balance}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5">
-                  {transactions.length === 0
-                    ? "No transactions found"
-                    : "Loading..."}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
-      </Page>
-    </Document>
-  );
 
   const fetchData = async () => {
     const accountResponse = await axios.get(
@@ -107,10 +32,10 @@ const handleExportToPDF = () => {
         const transactionsData = response.data || [];
         setTransactions(transactionsData);
       } else {
-        // console.error("Failed to fetch data");
+        console.error("Failed to fetch data");
       }
     } catch (error) {
-      // console.error("Error fetching data:", error);
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -118,20 +43,25 @@ const handleExportToPDF = () => {
     fetchData();
   }, []);
 
+  const downloadPDF = () => {
+    const input = document.getElementById("table-to-download");
+
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save("table.pdf");
+    });
+  };
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     fetchData();
   };
 
-  const handleExportToPDF = () => {
-    const blob = new Blob([<MyDocument data={data} />], {
-      type: "application/pdf",
-    });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "AccStatement.pdf";
-    link.click();
-  };
   return (
     <div>
       <Reports />
@@ -180,7 +110,7 @@ const handleExportToPDF = () => {
                       className="justify-start mt-2"
                       variant="danger"
                       type="button"
-                      onClick={handleExportToPDF}
+                      onClick={downloadPDF}
                     >
                       Export to PDF
                     </Button>
@@ -203,6 +133,7 @@ const handleExportToPDF = () => {
           bordered
           hover
           className="rounded-lg overflow-hidden"
+          id="table-to-download" // Add an ID to the table
         >
           <thead>
             <tr>
