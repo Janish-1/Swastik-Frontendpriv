@@ -12,6 +12,83 @@ const AccountStatement = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [accounts, setAccounts] = useState([]);
 
+  // Styles for PDF generation
+  const styles = StyleSheet.create({
+    page: {
+      fontFamily: "Helvetica",
+      padding: 20,
+    },
+    header: {
+      fontSize: 18,
+      marginBottom: 20,
+      textAlign: "center",
+    },
+  });
+
+  // Create a PDF blob using the MyDocument component
+  const blob = (
+    <PDFDownloadLink document={<MyDocument />} fileName="AccStatement.pdf">
+      {({ blob, url, loading, error }) =>
+        loading ? "Loading document..." : "Download now!"
+      }
+    </PDFDownloadLink>
+  );
+
+  return blob;
+};
+
+const handleExportToPDF = () => {
+  const MyDocument = () => (
+    <Document>
+      <Page style={styles.page}>
+        <Text style={styles.header}>Account Statement</Text>
+        <Table
+          responsive
+          striped
+          bordered
+          hover
+          className="rounded-lg overflow-hidden"
+        >
+          {/* Render your table headers */}
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Debit</th>
+              <th>Credit</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Map through transactions to populate table */}
+            {transactions.length > 0 ? (
+              transactions.map((transaction, index) => (
+                <tr key={index}>
+                  {/* Populate table data */}
+                  <td>
+                    {new Date(+new Date(transaction.Date)).toLocaleString()}
+                  </td>
+                  <td>{transaction.Description}</td>
+                  <td>{transaction.Debit}</td>
+                  <td>{transaction.Credit}</td>
+                  <td>{transaction.Balance}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5">
+                  {transactions.length === 0
+                    ? "No transactions found"
+                    : "Loading..."}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      </Page>
+    </Document>
+  );
+
   const fetchData = async () => {
     const accountResponse = await axios.get(
       `${API_BASE_URL}/readaccountnumbers`
@@ -103,6 +180,7 @@ const AccountStatement = () => {
                       className="justify-start mt-2"
                       variant="danger"
                       type="button"
+                      onClick={handleExportToPDF}
                     >
                       Export to PDF
                     </Button>

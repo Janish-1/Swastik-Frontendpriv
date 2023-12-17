@@ -8,9 +8,11 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const User = () => {
   const [showModal, setShowModal] = useState(false);
+  const [memberNumbers, setmemberNumbers] = useState([]);
   const [showeditModal, setShowEditModal] = useState(false);
   const [editUserId, setEditUserId] = useState(null);
   const [formData, setFormData] = useState({
+    memberNo: 0,
     name: "",
     email: "",
     password: "",
@@ -20,6 +22,8 @@ const User = () => {
   });
   const [agentModalopen, setagentmodalopen] = useState(false);
   const [agentformdata, setagentForm] = useState({
+    agentId: 0,
+    memberNo: 0,
     name: "",
     qualification: "",
     image: null,
@@ -45,13 +49,13 @@ const User = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/all-users/${id}`);
       const agentdata = response.data;
-  
       // Set the fetched data with image URLs into the state
       setagentForm({
         ...agentdata,
         // Assuming 'image' and 'photo' are fields containing image URLs
-        image: agentdata.image || '', 
-        photo: agentdata.photo || '', 
+        agentId: id,
+        image: null, 
+        photo: null, 
       });
   
       setagentmodalopen(true);
@@ -61,79 +65,111 @@ const User = () => {
     }
   };
 
+  const handleFileChange = (event) => {
+    const { name, files } = event.target;
+    setagentForm({
+      ...formData,
+      [name]: files[0],
+    });
+  };
+
   const agentmodalclose = () => {
+          // Reset form data and close modal
+          setagentForm({
+            memberNo: 0,
+            name: "",
+            qualification: "",
+            image: null,
+            photo: null,
+            fatherName: "",
+            maritalStatus: "",
+            dob: "",
+            age: "",
+            aadhar: "",
+            panCard: "",
+            address: "",
+            permanentAddress: "",
+            email: "",
+            mobile: "",
+            nomineeName: "",
+            nomineeRelationship: "",
+            nomineeDob: "",
+            nomineeMobile: "",
+            password: "",
+          });    
     setagentmodalopen(false);
   };
 
   const handleagentSubmit = async () => {
     try {
-      const formDataWithImages = new FormData();
-
+      let imageOneUrl = "";
+      let imageTwoUrl = "";
+  
       if (agentformdata.image) {
-        formDataWithImages.append("imageone", agentformdata.image);
+        const imageFormData = new FormData();
+        imageFormData.append("image", agentformdata.image); // Ensure field name matches backend
+        const responseImage = await axios.post(
+          `${API_BASE_URL}/uploadimage`,
+          imageFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        if (responseImage.status === 200) {
+          imageOneUrl = responseImage.data.url;
+        } else {
+          // Handle unsuccessful image upload
+          throw new Error("Image upload failed");
+        }
       }
   
       if (agentformdata.photo) {
-        formDataWithImages.append("imageone", agentformdata.photo);
+        const photoFormData = new FormData();
+        photoFormData.append("photo", agentformdata.photo); // Ensure field name matches backend
+        const responsePhoto = await axios.post(
+          `${API_BASE_URL}/uploadimage`,
+          photoFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        if (responsePhoto.status === 200) {
+          imageTwoUrl = responsePhoto.data.url;
+        } else {
+          // Handle unsuccessful photo upload
+          throw new Error("Photo upload failed");
+        }
       }
   
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      const updatedAgentData = {
+        ...agentformdata,
+        image: imageOneUrl,
+        photo: imageTwoUrl,
       };
-  
-      const responseUpload = await axios.post(
-        `${API_BASE_URL}/uploadimage`, // Change the endpoint to your image upload API
-        formDataWithImages,
-        config
+      
+      const agentId = agentformdata.agentId;
+      
+      const updateResponse = await axios.put(
+        `${API_BASE_URL}/updateagent/${agentId}`,
+        updatedAgentData
       );
   
-      const imageUrls = {
-        imageUrl1: responseUpload.data.url, // Change these properties according to the response structure
-        imageUrl2: responseUpload.data.url, // Change these properties according to the response structure
-      };
-  
-      const agentDataToUpdate = { ...agentformdata }; // Create a copy to modify
-  
-      // Update image URLs only if new images were uploaded
-      if (agentformdata.image) {
-        agentDataToUpdate.image = imageUrls.imageUrl1;
+      if (updateResponse.status === 200) {
+        agentmodalclose();
+      } else {
+        throw new Error("Agent update failed");
       }
-  
-      if (agentformdata.photo) {
-        agentDataToUpdate.photo = imageUrls.imageUrl2;
-      }
-  
-      await axios.put(`${API_BASE_URL}/updateagent/${agentId}`, agentDataToUpdate);
-    
-      // Reset form data and close modal
-      setagentForm({
-        name: "",
-        qualification: "",
-        image: null,
-        photo: null,
-        fatherName: "",
-        maritalStatus: "",
-        dob: "",
-        age: "",
-        aadhar: "",
-        panCard: "",
-        address: "",
-        permanentAddress: "",
-        email: "",
-        mobile: "",
-        nomineeName: "",
-        nomineeRelationship: "",
-        nomineeDob: "",
-        nomineeMobile: "",
-        password: "",
-      });
-      agentmodalclose();
     } catch (error) {
       // Handle Error
+      console.error("Error:", error);
+      // Perform error handling like displaying an error message
     }
   };
+  
     
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -163,6 +199,7 @@ const User = () => {
 
       setShowEditModal(true);
       setFormData({
+        memberNo: userData.memberNo,
         name: userData.name,
         email: userData.email,
         password: userData.password, // Assuming you don't want to pre-fill password in the form for security reasons
@@ -181,12 +218,14 @@ const User = () => {
     setShowEditModal(false);
     // Reset formData when closing the modal
     setFormData({
+      memberNo: "",
       name: "",
       email: "",
       password: "",
       userType: "",
       // status: "",
       image: null,
+      memberNo: 0,
     });
   };
 
@@ -200,6 +239,7 @@ const User = () => {
 
     try {
       const formDataForApi = new FormData();
+      formDataForApi.append("MemberNo",formData.memberNo);
       formDataForApi.append("name", formData.name);
       formDataForApi.append("email", formData.email);
       formDataForApi.append("password", formData.password);
@@ -220,6 +260,7 @@ const User = () => {
         const responseUser = await axios.put(
           `${API_BASE_URL}/update-user/${formData.email}`,
           {
+            memberNo: formData.memberNo,
             name: formData.name,
             email: formData.email,
             password: formData.password,
@@ -228,6 +269,7 @@ const User = () => {
         );
         // console.log("User updated successfully");
         setFormData({
+          memberNo: "",
           name: "",
           email: "",
           password: "",
@@ -266,11 +308,13 @@ const User = () => {
     e.preventDefault();
 
     const formDataForApi = new FormData();
+    formDataForApi.append("memberNo",formData.memberNo);
     formDataForApi.append("name", formData.name);
     formDataForApi.append("email", formData.email);
     formDataForApi.append("password", formData.password);
     formDataForApi.append("userType", formData.userType);
     formDataForApi.append("image", formData.image);
+    formDataForApi.append("MemberNo",formData.memberNo);
 
     try {
       const responseUpload = await axios.post(
@@ -286,15 +330,18 @@ const User = () => {
       const imageUrl = responseUpload.data.url;
 
       const responseCreateUser = await axios.post(`${API_BASE_URL}/users`, {
+        memberNo: formData.memberNo,
         name: formData.name,
         email: formData.email,
         password: formData.password,
         userType: formData.userType,
         imageUrl: imageUrl, // Send the received image URL to the backend
+        mebmerNo: formData.memberNo,
       });
 
       // Clear form data and perform necessary actions after successful submission
       setFormData({
+        memberNo: "",
         name: "",
         email: "",
         password: "",
@@ -320,6 +367,10 @@ const User = () => {
       );
       
       setUsersData(filteredUsers); // Update usersData state with the filtered data
+
+      const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
+      const memberNumbers = membersResponse.data.data;
+      setmemberNumbers(memberNumbers);
       } catch (error) {
       // console.error('Error fetching users:', error);
       // Handle error or display an error message to the user
@@ -360,6 +411,22 @@ const User = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
+          <Form.Group controlId="formMemberNo">
+              <Form.Label>Member No</Form.Label>
+              <Form.Control
+                as="select"
+                name="memberNo"
+                value={formData.memberNo}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Member No</option>
+                {memberNumbers.map((memberNo) => (
+                  <option key={memberNo} value={memberNo}>
+                    {memberNo}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formName">
               <Form.Label>Name</Form.Label>
               <Form.Control
@@ -444,6 +511,16 @@ const User = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleEdit}>
+          <Form.Group controlId="formMemberNo">
+              <Form.Label>Member No</Form.Label>
+              <Form.Control
+                name="memberNo"
+                value={formData.memberNo}
+                onChange={handleInputChange}
+                readOnly
+              > 
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formName">
               <Form.Label>Name</Form.Label>
               <Form.Control
@@ -530,6 +607,20 @@ const User = () => {
           <Form onSubmit={handleagentSubmit}>
             {/* Form Fields */}
             <Row className="mb-3">
+            <Col md={6}>
+            <Form.Group controlId="formMemberNo">
+              <Form.Label>Member No</Form.Label>
+              <Form.Control
+                name="memberNo"
+                value={agentformdata.memberNo}
+                onChange={handleInputChange}
+                readOnly
+              >
+              </Form.Control>
+            </Form.Group>
+            </Col>
+            </Row>
+            <Row className="mb-3">
               <Col md={6}>
                 <Form.Group controlId="formname">
                   <Form.Label>Name</Form.Label>
@@ -574,7 +665,7 @@ const User = () => {
                   <Form.Control
                     type="file"
                     name="image"
-                    onChange={handleChange}
+                    onChange={handleFileChange}
                   />
                 </Form.Group>
               </Col>
@@ -587,7 +678,7 @@ const User = () => {
                   <Form.Control
                     type="file"
                     name="photo"
-                    onChange={handleChange}
+                    onChange={handleFileChange}
                   />
                 </Form.Group>
               </Col>
@@ -833,7 +924,7 @@ const User = () => {
               <td>
                 {user.userType === "agent" ? (
                   <Button
-                    variant="warning"
+                    variant="primary"
                     onClick={() => handleEditAgent(user._id)}
                   >
                     <FaEdit />

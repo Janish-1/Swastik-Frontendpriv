@@ -34,6 +34,7 @@ import TransactionReport from "./pages/reports/Transaction";
 import ExpenseReport from "./pages/reports/Expense";
 import RevenueReport from "./pages/reports/Revenue";
 import AccountStatement from "./pages/reports/Accountstatement";
+import AgentDash from "./pages/AgentDash";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
 
@@ -266,8 +267,8 @@ const AuthenticatedRoutes = ({ userRole }) => {
               <div>
                 <Routes>
                   {/* pages  */}
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/" element={<AgentDash />} />
+                  <Route path="/dashboard" element={<AgentDash />} />
                   <Route path="/branches" element={<Branches />} />
                   <Route path="/members" element={<Members />} />
                   <Route path="/accounts" element={<Accounts />} />

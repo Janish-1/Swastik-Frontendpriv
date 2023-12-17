@@ -5,6 +5,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 export default function AgentForm() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [memberNumbers, setmemberNumbers] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     qualification: "",
@@ -102,6 +103,23 @@ export default function AgentForm() {
     }
   };
 
+    // Function to fetch user data from the backend
+    const fetchData = async () => {
+      try {  
+        const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
+        const memberNumbers = membersResponse.data.data;
+        setmemberNumbers(memberNumbers);
+        } catch (error) {
+        // console.error('Error fetching users:', error);
+        // Handle error or display an error message to the user
+      }
+    };
+  
+    useEffect(() => {
+      // Call the function to fetch user data when the component mounts
+      fetchData();
+    }, []); // Run once on component mount  
+
   return (
     <div>
       <Button onClick={handleOpenModal}>Add Agent</Button>
@@ -112,6 +130,26 @@ export default function AgentForm() {
         </Modal.Header>
         <Modal.Body>
           <Form>
+          <Row className="mb-3">
+            <Col md={6}>
+            <Form.Group controlId="formMemberNo">
+              <Form.Label>Member No</Form.Label>
+              <Form.Control
+                as="select"
+                name="memberNo"
+                value={formData.memberNo}
+                onChange={handleChange}
+              >
+                <option value="">Select Member No</option>
+                {memberNumbers.map((memberNo) => (
+                  <option key={memberNo} value={memberNo}>
+                    {memberNo}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+            </Col>
+            </Row>
             {/* Form Fields */}
             <Row className="mb-3">
               <Col md={6}>
