@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
 
@@ -57,6 +59,20 @@ export default function Expense() {
 
     fetchData();
   }, [startDate, endDate, expenseType]);
+
+  const downloadPDF = () => {
+    const input = document.getElementById("table-to-download");
+
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save("expense.pdf");
+    });
+  };
 
   // Function to filter expenses based on the reference field
   const filteredExpenses = expenses.filter((expense) => {
@@ -148,8 +164,13 @@ export default function Expense() {
                 </Form.Group>
               </Form>
             </Col>
-            <Col md={6} className="text-right">
-              <Button variant="danger" type="button">
+            <Col md={9}>
+              <Button
+                className="justify-start mt-2"
+                variant="danger"
+                type="button"
+                onClick={downloadPDF}
+              >
                 Export to PDF
               </Button>
             </Col>
@@ -162,6 +183,7 @@ export default function Expense() {
             bordered
             hover
             className="mt-2 rounded-lg overflow-hidden"
+            id="table-to-download" // Add an ID to the table
           >
             <thead>
               <tr>

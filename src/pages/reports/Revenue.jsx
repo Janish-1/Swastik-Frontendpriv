@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import axios from "axios";
 import Reports from "../Reports";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
 
@@ -9,6 +11,20 @@ export default function Revenue() {
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
   const [revenueData, setRevenueData] = useState({});
+
+  const downloadPDF = () => {
+    const input = document.getElementById("table-to-download");
+
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save("revenue.pdf");
+    });
+  };
 
   const handleSearch = async () => {
     try {
@@ -150,11 +166,12 @@ export default function Revenue() {
                 </Form.Group>
               </Form>
             </Col>
-            <Col md={6} className="text-right">
+            <Col md={9}>
               <Button
+                className="justify-start mt-2"
                 variant="danger"
                 type="button"
-                onClick={handleExportToPDF}
+                onClick={downloadPDF}
               >
                 Export to PDF
               </Button>
@@ -166,6 +183,7 @@ export default function Revenue() {
             bordered
             hover
             className="mt-2 rounded-lg overflow-hidden"
+            id="table-to-download" // Add an ID to the table
           >
             <thead>
               <tr>

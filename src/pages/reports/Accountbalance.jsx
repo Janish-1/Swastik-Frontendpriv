@@ -1,7 +1,9 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import Reports from "../Reports";
 import axios from "axios";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
 
@@ -26,10 +28,23 @@ export default function AccountBalance() {
     }
   };
 
-  useEffect(() =>{
+  useEffect(() => {
     fetchData();
   }, []);
 
+  const downloadPDF = () => {
+    const input = document.getElementById("table-to-download");
+
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save("accountbalance.pdf");
+    });
+  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -49,7 +64,7 @@ export default function AccountBalance() {
       <tr key={index}>
         <td>{dataRow.accountNumber}</td>
         <td>{dataRow.availableBalance}</td>
-        <td>{dataRow.associatedLoanIds.join(', ')}</td>
+        <td>{dataRow.associatedLoanIds.join(", ")}</td>
         <td>{dataRow.currentBalance}</td>
       </tr>
     ));
@@ -81,6 +96,16 @@ export default function AccountBalance() {
                 <Button variant="primary" type="submit" className="mt-8">
                   Search
                 </Button>
+                <Col md={9}>
+                  <Button
+                    className="justify-start mt-2"
+                    variant="danger"
+                    type="button"
+                    onClick={downloadPDF}
+                  >
+                    Export to PDF
+                  </Button>
+                </Col>
               </Form>
             </Col>
           </Row>
@@ -90,11 +115,12 @@ export default function AccountBalance() {
           <h2>Account Balance</h2>
 
           <Table
-          responsive
+            responsive
             striped
             bordered
             hover
             className="mt-2 rounded-lg overflow-hidden"
+            id="table-to-download" // Add an ID to the table
           >
             <thead>
               <tr>
