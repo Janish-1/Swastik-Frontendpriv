@@ -18,7 +18,18 @@ import { useStateContext } from "../contexts/ContextProvider";
 import product9 from "../data/product9.jpg";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { PieChart, Pie, Cell, Tooltip } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts";
 
 // const path = require('path');
 // const dotenv = require('dotenv');
@@ -52,6 +63,10 @@ const Ecommerce = () => {
   const [pendingLoans, setPendingLoans] = useState();
   const [transactions, setTransactions] = useState([]);
   const [ecomPieChartData, setEcomPieChartData] = useState([]);
+  const [stackedChartData, setStackedChartData] = useState([]);
+
+  // Define an array of colors corresponding to each year
+  const colors = ["#8884d8", "#82ca9d", "#ffc658", "#d34c4c", "#888888"];
 
   // Get the token from localStorage
   const token = localStorage.getItem("token");
@@ -80,6 +95,8 @@ const Ecommerce = () => {
   // Fetch data for total members, deposit requests, withdraw requests, and pending loans
   const fetchData = async () => {
     try {
+      const response = await axios.get(`${API_BASE_URL}/populate-revenue`);
+      console.log(response);
       const membersResponse = await axios.get(`${API_BASE_URL}/countMembers`);
       setTotalMembers(membersResponse.data.count);
 
@@ -101,8 +118,27 @@ const Ecommerce = () => {
       );
       setTransactions(transactionsResponse.data.data);
       axios.get(`${API_BASE_URL}/expense-per-year`).then((response) => {
-        // Set the retrieved data to ecomPieChartData state
-        setEcomPieChartData(response.data);
+        const formattedData = response.data.map((item) => ({
+          x: new Date(item.x).getFullYear(), // Assuming 'x' is a date or string representation of a date
+          y: item.y,
+          text: item.text,
+        }));
+        setEcomPieChartData(formattedData);
+      });
+      axios.get(`${API_BASE_URL}/stacked-chart-data`).then((response) => {
+        const formattedData = response.data.map((item) => ({
+          x: item.x,
+          y: item.y,
+        }));
+
+        // Sort the formattedData array based on the 'x' values (years)
+        formattedData.sort((a, b) => {
+          const yearA = parseInt(a.x);
+          const yearB = parseInt(b.x);
+          return yearA - yearB;
+        });
+
+        setStackedChartData(formattedData);
       });
     } catch (error) {
       // console.error("Error fetching data:", error);
@@ -115,6 +151,11 @@ const Ecommerce = () => {
   }, []);
 
   const navigate = useNavigate();
+
+  // Extract unique years from ecomPieChartData
+  const uniqueYears = Array.from(
+    new Set(ecomPieChartData.map((data) => data.x))
+  );
 
   return (
     <div className="mt-18">
@@ -199,29 +240,79 @@ const Ecommerce = () => {
       {/* 4th card end */}
 
       <div className="flex flex-wrap justify-center mt-10 mb-10">
-        <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-4 rounded-2xl md:w-760 w-90 shadow-lg mt-8">
+        <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-4 rounded-2xl md:w-960 w-full shadow-lg mt-8">
           <div className="flex justify-between">
-            <p className="font-semibold text-xl">Expense Overview </p>
+            <p className="font-semibold text-xl">Expense Overview</p>
           </div>
-
-          <div className="mt-10 flex gap-10 flex-wrap justify-center">
-            <div className=" border-r-1 border-color m-4 pr-10">
-              <div className="w-40">
-                <PieChart width={200} height={200}>
-                  <Tooltip />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "10px",
+            }}
+          >
+            <div style={{ margin: "0 10px" }}>
+              Expense Per Year
+              <div style={{ width: "350px", height: "300px" }}>
+                <PieChart width={350} height={300}>
+                  <Tooltip
+                    formatter={(value, name, props) => [
+                      props.payload.x,
+                      props.payload.y,
+                    ]}
+                  />
                   <Pie
                     data={ecomPieChartData}
-                    dataKey="y" // Assuming "y" contains the value for each section in the chart
-                    cx={200}
-                    cy={200}
+                    dataKey="y"
+                    cx={150}
+                    cy={150}
+                    label={({ x }) => `${x}`} // Display the 'x' value (year) as the label
+                    outerRadius={100}
                     fill="#8884d8"
-                    label
+                    labelLine={true}
+                  />
+                  {/* Legend code remains unchanged */}
+                  <Legend
+                    align="left"
+                    verticalAlign="middle"
+                    layout="vertical"
+                    iconType="circle"
+                    payload={uniqueYears.map((x, index) => ({
+                      value: x,
+                      type: "circle",
+                      id: x,
+                      color: colors[index % ecomPieChartData.length],
+                    }))}
                   />
                 </PieChart>
               </div>
             </div>
-            <div>
-              <Stacked currentMode={currentMode} width="320px" height="360px" />
+            <div style={{ margin: "0 10px" }}>
+              Earnings Per Year
+              <div
+                style={{ width: "600px", height: "400px", margin: "0 auto" }}
+              >
+                <BarChart
+                  width={600}
+                  height={400}
+                  data={stackedChartData}
+                  margin={{ right: 50, left: 30, bottom: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="x"
+                    tick={{ fontSize: 12 }}
+                    angle={-45}
+                    textAnchor="middle"
+                    interval={0}
+                    dy={10} // Adjust the vertical position of the label
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="y" fill="#8884d8" />
+                </BarChart>
+              </div>
             </div>
           </div>
         </div>

@@ -199,7 +199,7 @@ export default function Revenue() {
                   <td>{year}</td>
                   <td>{month}</td>
                   <td>Loan</td>
-                  <td>{revenueData.totalRevenue}</td>
+                  <td>{revenueData.monthlyRevenue}</td>
                 </tr>
               ) : (
                 <tr>
