@@ -270,7 +270,7 @@ const Ecommerce = () => {
                     label={({ x }) => `${x}`} // Display the 'x' value (year) as the label
                     outerRadius={100}
                     fill="#8884d8"
-                    labelLine={true}
+                    labelLine={false}
                   />
                   {/* Legend code remains unchanged */}
                   <Legend
@@ -278,10 +278,10 @@ const Ecommerce = () => {
                     verticalAlign="middle"
                     layout="vertical"
                     iconType="circle"
-                    payload={uniqueYears.map((x, index) => ({
-                      value: x,
+                    payload={uniqueYears.map((year, index) => ({
+                      value: year,
                       type: "circle",
-                      id: x,
+                      id: year,
                       color: colors[index % ecomPieChartData.length],
                     }))}
                   />

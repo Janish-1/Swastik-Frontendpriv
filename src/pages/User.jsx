@@ -148,7 +148,8 @@ const User = () => {
       }
   
       const agentId = agentformdata.agentId;
-  
+      // Data Correctly Coming
+      console.log("Agent Data: ",updatedAgentData);
       const updateResponse = await axios.put(
         `${API_BASE_URL}/updateagent/${agentId}`,
         updatedAgentData // Send updatedAgentData to update the agent details
