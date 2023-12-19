@@ -312,7 +312,7 @@ const Branches = () => {
         <Modal.Body>
           <Form onSubmit={handleUpdate}>
             <Form.Group controlId="formID">
-              <Form.Label>ID</Form.Label>
+              {/* <Form.Label>ID</Form.Label> */}
               <Form.Control
                 type="integer"
                 placeholder="Enter Id"
@@ -320,7 +320,8 @@ const Branches = () => {
                 value={formData.branchId}
                 onChange={handleInputChange}
                 readOnly
-              />
+                style={{ display: 'none' }}
+                />
             </Form.Group>
             <Form.Group controlId="formName">
               <Form.Label>Name</Form.Label>

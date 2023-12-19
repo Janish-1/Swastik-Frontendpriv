@@ -20,6 +20,15 @@ const User = () => {
     // status: "",
     image: null,
   });
+  const [updated, setupdatedFormData] = useState({
+    memberNo: 0,
+    name: "",
+    email: "",
+    password: "",
+    userType: "",
+    // status: "",
+    image: null,
+  });
   const [agentModalopen, setagentmodalopen] = useState(false);
   const [agentformdata, setagentForm] = useState({
     agentId: 0,
@@ -104,11 +113,11 @@ const User = () => {
   const handleagentSubmit = async () => {
     try {
       let updatedAgentData = { ...agentformdata }; // Create a copy of agentformdata
-  
+
       if (agentformdata.image) {
         const imageFormData = new FormData();
         imageFormData.append("imageone", agentformdata.image);
-  
+
         const responseImage = await axios.post(
           `${API_BASE_URL}/uploadimage`,
           imageFormData,
@@ -118,18 +127,18 @@ const User = () => {
             },
           }
         );
-  
+
         if (responseImage.status === 200) {
           updatedAgentData.image = responseImage.data.url; // Update the URL in updatedAgentData
         } else {
           throw new Error("Image upload failed");
         }
       }
-  
+
       if (agentformdata.photo) {
         const photoFormData = new FormData();
         photoFormData.append("imageone", agentformdata.photo);
-  
+
         const responsePhoto = await axios.post(
           `${API_BASE_URL}/uploadimage`,
           photoFormData,
@@ -139,22 +148,22 @@ const User = () => {
             },
           }
         );
-  
+
         if (responsePhoto.status === 200) {
           updatedAgentData.photo = responsePhoto.data.url; // Update the URL in updatedAgentData
         } else {
           throw new Error("Photo upload failed");
         }
       }
-  
+
       const agentId = agentformdata.agentId;
       // Data Correctly Coming
-      console.log("Agent Data: ",updatedAgentData);
+      console.log("Agent Data: ", updatedAgentData);
       const updateResponse = await axios.put(
         `${API_BASE_URL}/updateagent/${agentId}`,
         updatedAgentData // Send updatedAgentData to update the agent details
       );
-  
+
       if (updateResponse.status === 200) {
         // Update successful, perform any necessary actions
         fetchData(); // Refresh data or update UI after successful update
@@ -168,7 +177,7 @@ const User = () => {
       // Perform error handling like displaying an error message
     }
   };
-    
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -195,17 +204,16 @@ const User = () => {
       );
       const userData = response.data;
 
-      setShowEditModal(true);
-      setFormData({
+      setupdatedFormData({
         memberNo: userData.memberNo,
         name: userData.name,
         email: userData.email,
         password: userData.password, // Assuming you don't want to pre-fill password in the form for security reasons
         userType: userData.userType,
         // status: userData.status,
-        image: userData.image, // Reset image in the form
+        image: null, // Reset image in the form
       });
-      fetchData();
+      setShowEditModal(true);
     } catch (error) {
       // console.error('Error fetching user data for edit:', error);
       // Handle error or display an error message to the user
@@ -234,61 +242,68 @@ const User = () => {
 
   const handleEdit = async (e) => {
     e.preventDefault();
-
     try {
-      const formDataForApi = new FormData();
-      formDataForApi.append("MemberNo", formData.memberNo);
-      formDataForApi.append("name", formData.name);
-      formDataForApi.append("email", formData.email);
-      formDataForApi.append("password", formData.password);
-      formDataForApi.append("userType", formData.userType);
-      formDataForApi.append("image", formData.image);
-
+      let updatedForm = { ...updated };
+  
+      if (updated.image) {
+        const imageFormData = new FormData();
+        imageFormData.append("image", updated.image);
+  
+        try {
+          const responseImage = await axios.post(
+            `${API_BASE_URL}/uploadimage`,
+            imageFormData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+  
+          if (responseImage.status === 200) {
+            updatedForm = {
+              ...updatedForm,
+              image: responseImage.data.url,
+            };
+          } else {
+            console.error("Image upload failed");
+          }
+        } catch (imageUploadError) {
+          console.error("Error uploading image:", imageUploadError);
+          // Continue even if image upload fails
+        }
+      }
+  
       const response = await axios.put(
         `${API_BASE_URL}/updateintuser/${editUserId}`,
-        formDataForApi,
+        updatedForm,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json", // Ensure correct content type based on server expectations
           },
         }
       );
-      // console.log(responseUser);
-      if (response.status === 200) {
-        const responseUser = await axios.put(
-          `${API_BASE_URL}/update-user/${formData.email}`,
-          {
-            memberNo: formData.memberNo,
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            userType: formData.userType,
-          }
-        );
-        // console.log("User updated successfully");
-        setFormData({
-          memberNo: "",
-          name: "",
-          email: "",
-          password: "",
-          userType: "",
-          image: null,
-        });
-        setShowEditModal(false);
-        fetchData(); // Fetch updated data
-      } else {
-        // console.error("Failed to update user");
-        // Handle failure - display an error message or perform necessary actions
-      }
+      
+      // Rest of your logic
+      handleCloseeditModal();
+      fetchData();
     } catch (error) {
-      // console.error("Error updating user:", error);
+      console.error("Error updating user:", error);
       // Handle error - display an error message or perform necessary actions
     }
   };
-
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleUpdateChange = (e) => {
+    const { name, value } = e.target;
+    setupdatedFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -304,7 +319,7 @@ const User = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     const formDataForApi = new FormData();
     formDataForApi.append("memberNo", formData.memberNo);
     formDataForApi.append("name", formData.name);
@@ -489,7 +504,7 @@ const User = () => {
                 type="file"
                 accept="image/*"
                 name="file"
-                onChange={handleImageChange}
+                onChange={handleFileChange}
               />
             </Form.Group>
             <Button variant="primary" type="submit">
@@ -509,8 +524,8 @@ const User = () => {
               <Form.Label>Member No</Form.Label>
               <Form.Control
                 name="memberNo"
-                value={formData.memberNo}
-                onChange={handleInputChange}
+                value={updated.memberNo}
+                onChange={handleUpdateChange}
                 readOnly
               ></Form.Control>
             </Form.Group>
@@ -520,8 +535,8 @@ const User = () => {
                 type="text"
                 placeholder="Enter name"
                 name="name"
-                value={formData.name}
-                onChange={handleInputChange}
+                value={updated.name}
+                onChange={handleUpdateChange}
                 required
               />
             </Form.Group>
@@ -531,8 +546,8 @@ const User = () => {
                 type="email"
                 placeholder="Enter email"
                 name="email"
-                value={formData.email}
-                onChange={handleInputChange}
+                value={updated.email}
+                onChange={handleUpdateChange}
                 required
               />
             </Form.Group>
@@ -542,8 +557,8 @@ const User = () => {
                 type="password"
                 placeholder="Enter password"
                 name="password"
-                value={formData.password}
-                onChange={handleInputChange}
+                value={updated.password}
+                onChange={handleUpdateChange}
                 required
               />
             </Form.Group>
@@ -552,8 +567,8 @@ const User = () => {
               <Form.Control
                 as="select"
                 name="userType"
-                value={formData.userType}
-                onChange={handleInputChange}
+                value={updated.userType}
+                onChange={handleUpdateChange}
                 required
               >
                 <option value="">Select User Type</option>
@@ -897,19 +912,32 @@ const User = () => {
           {usersData.map((user, index) => (
             <tr key={index}>
               <td>
-                {user.photo ? (
+                {user.userType === "user" || user.userType === "admin" ? (
+                  // Display user or admin photo
+                  <>
+                    {user.image ? (
+                      <img
+                        src={user.image}
+                        alt="Profile"
+                        width="40"
+                        height="40"
+                        onError={(e) => {
+                          e.target.onerror = null; // Prevent infinite fallback loop
+                          // You can also handle error messages or styling here
+                        }}
+                      />
+                    ) : (
+                      "No Image"
+                    )}
+                  </>
+                ) : (
+                  // Display a default image for other roles
                   <img
-                    src={user.photo}
-                    alt="Profile"
+                    src={user.photo} // Replace with the path to your default image
+                    alt="Default"
                     width="40"
                     height="40"
-                    onError={(e) => {
-                      e.target.onerror = null; // Prevent infinite fallback loop
-                      // You can also handle error messages or styling here
-                    }}
                   />
-                ) : (
-                  "No Image"
                 )}
               </td>
               <td>{user.name}</td>

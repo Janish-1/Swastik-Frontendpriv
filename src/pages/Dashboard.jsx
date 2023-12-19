@@ -72,24 +72,54 @@ const Ecommerce = () => {
   const token = localStorage.getItem("token");
 
   if (token) {
-    // Split the token into its components (header, payload, signature)
     const tokenParts = token.split(".");
-
-    // Decode the payload (which is the second part of the token)
     const encodedPayload = tokenParts[1];
-
-    // Decode the Base64 encoded payload to get the actual data
     const decodedPayload = atob(encodedPayload);
-
-    // Parse the JSON data to get the object representation of the payload
     const payload = JSON.parse(decodedPayload);
-
-    // Log the token and its payload
-    // console.log("Token:", token);
-    // console.log("Payload:", payload);
     // console.log("Role: ", payload.role);
   } else {
     // console.log("Token not found in localStorage");
+  }
+
+  // Function to retrieve all image URLs from the specified endpoints
+  async function getAllImageUrls() {
+    try {
+      // Array to hold all image URLs
+      let allImageUrls = [];
+
+      // Function to retrieve image URLs from each endpoint and merge them into a single list
+      async function getImageUrls(endpoint) {
+        try {
+          const response = await axios.get(endpoint);
+          const { imageUrls } = response.data;
+          allImageUrls = allImageUrls.concat(imageUrls);
+        } catch (error) {
+          console.error(
+            `Error fetching images from ${endpoint}: ${error.message}`
+          );
+        }
+      }
+
+      // Endpoints for fetching image URLs
+      const endpoints = [
+        `${API_BASE_URL}/getAllMemberImages`,
+        `${API_BASE_URL}/getAllAccountImages`,
+        `${API_BASE_URL}/getAllUserImages`,
+      ];
+
+      // Fetch image URLs from each endpoint
+      for (const endpoint of endpoints) {
+        await getImageUrls(endpoint);
+      }
+
+      // Remove duplicates from the consolidated image URLs list
+      allImageUrls = [...new Set(allImageUrls)];
+
+      return allImageUrls;
+    } catch (error) {
+      console.error(`Error in getAllImageUrls: ${error.message}`);
+      return [];
+    }
   }
 
   // Fetch data for total members, deposit requests, withdraw requests, and pending loans
@@ -117,6 +147,24 @@ const Ecommerce = () => {
         `${API_BASE_URL}/transactions`
       );
       setTransactions(transactionsResponse.data.data);
+      // try {
+      //   // Retrieve all image URLs
+      //   const allImageUrls = await getAllImageUrls();
+      //   console.log(allImageUrls);
+
+      //   // Here, make sure to pass the image URLs appropriately to your DELETE endpoint
+      //   const response = await axios.delete(
+      //     `${API_BASE_URL}/deleteOrphanImages`,
+      //     {
+      //       data: { imageUrls: allImageUrls }, // Pass data as payload (depends on how your API expects it)
+      //       headers: { "Content-Type": "application/json" }, // Add headers if necessary
+      //     }
+      //   );
+
+      //   console.log("Deleted images:", response.data);
+      // } catch (error) {
+      //   console.error("Error deleting images:", error);
+      // }
       axios.get(`${API_BASE_URL}/expense-per-year`).then((response) => {
         const formattedData = response.data.map((item) => ({
           x: new Date(item.x).getFullYear(), // Assuming 'x' is a date or string representation of a date
@@ -267,7 +315,6 @@ const Ecommerce = () => {
                     dataKey="y"
                     cx={150}
                     cy={150}
-                    label={({ x }) => `${x}`} // Display the 'x' value (year) as the label
                     outerRadius={100}
                     fill="#8884d8"
                     labelLine={false}

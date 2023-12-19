@@ -29,6 +29,7 @@ const Accounts = () => {
   const [membersData, setMembersData] = useState([]);
   const [uniqueaccountid, setuniqueaccountid] = useState(0);
   const [branchNames, setBranchNames] = useState([]);
+  const [userRole,setuserRole] = useState("");
 
   const [accountFormData, setAccountFormData] = useState({
     _id: "",
@@ -238,6 +239,20 @@ const Accounts = () => {
       `${API_BASE_URL}/branches/names`
     );
     setBranchNames(branchNamesResponse.data.data);
+
+    // Get the token from localStorage
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      const tokenParts = token.split(".");
+      const encodedPayload = tokenParts[1];
+      const decodedPayload = atob(encodedPayload);
+      const payload = JSON.parse(decodedPayload);
+      setuserRole(payload.role);
+    } else {
+      // console.log("Token not found in localStorage");
+    }
+
   };
 
   useEffect(() => {
@@ -260,6 +275,19 @@ const Accounts = () => {
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
+  };
+
+  const handleAccountApproval = async (accountId) => {
+    // Implement approve loan logic
+    const response = await axios.put(`${API_BASE_URL}/approveaccount/${accountId}`);
+    // console.log(response);
+    fetchData();
+  };
+
+  const handleAccountCancel = async (accountId) => {
+    const response = await axios.put(`${API_BASE_URL}/cancelaccount/${accountId}`);
+    // console.log(response);
+    fetchData();
   };
 
   return (
@@ -671,6 +699,16 @@ const Accounts = () => {
                     </Dropdown.Item>
                     <Dropdown.Item onClick={() => handleDelete(account._id)}>
                       Delete
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={() => handleAccountApproval(account._id)}
+                    >
+                      Approve
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={() => handleAccountCancel(account._id)}
+                    >
+                      Reject
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
