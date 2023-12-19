@@ -92,26 +92,31 @@ export default function Loandue() {
     }
   };
 
-  // Function to handle search input change
   const handleSearchChange = (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const filtered = data.filter((item) =>
-      item.loanId.toLowerCase().includes(searchTerm)
+      // item.loanId.toLowerCase().includes(searchTerm) ||
+      // item.accountId.toLowerCase().includes(searchTerm) ||
+      (item.memberName && item.memberName.toLowerCase().includes(searchTerm))
     );
     setFilteredData(filtered);
   };
-
+  
   useEffect(() => {
     setFilteredData(data); // Set filteredData initially with all data
   }, [data]);
-
+  
   const handleSearch = () => {
     const filtered = data.filter((item) =>
-      item.loanId.toLowerCase().includes(searchTerm.toLowerCase())
+      // item.loanId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // item.accountId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.memberName && item.memberName.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredData(filtered);
   };
-
+  
+  // Rest of your component code remains unchanged
+  
   const handleExportToPDF = () => {
     const blob = new Blob([<MyDocument data={filteredData} />], {
       type: "application/pdf",
