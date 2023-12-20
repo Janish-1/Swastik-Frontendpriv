@@ -35,6 +35,8 @@ import ExpenseReport from "./pages/reports/Expense";
 import RevenueReport from "./pages/reports/Revenue";
 import AccountStatement from "./pages/reports/Accountstatement";
 import AgentDash from "./pages/AgentDash";
+import Switch from "./pages/Switch";
+
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
 
@@ -138,6 +140,7 @@ const AuthenticatedRoutes = ({ userRole }) => {
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/branches" element={<Branches />} />
+                  <Route path="/Switch" element={<Switch />} />
                   <Route path="/members" element={<Members />} />
                   <Route path="/accounts" element={<Accounts />} />
                   <Route path="/repayments" element={<Repayments />} />
@@ -204,6 +207,7 @@ const AuthenticatedRoutes = ({ userRole }) => {
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/branches" element={<Branches />} />
+                  <Route path="/Switch" element={<Switch />} />
                   <Route path="/members" element={<Members />} />
                   <Route path="/accounts" element={<Accounts />} />
                   <Route path="/repayments" element={<Repayments />} />
@@ -320,4 +324,3 @@ const UnauthenticatedRoutes = () => {
 };
 
 export default App;
-

@@ -75,6 +75,10 @@ export const filterLinksByRole = (userRole) => {
               name: "Branches",
               icon: <AiOutlineBranches />,
             },
+            {
+              name: "Switch",
+              icon: <AiOutlineBranches />,
+            },
           ],
         },
 
@@ -139,10 +143,10 @@ export const filterLinksByRole = (userRole) => {
               name: "Dashboard",
               icon: <MdDashboard />,
             },
-            // {
-            //   name: "Branches",
-            //   icon: <AiOutlineBranches />,
-            // },
+            {
+              name: "Switch",
+              icon: <AiOutlineBranches />,
+            },
           ],
         },
 

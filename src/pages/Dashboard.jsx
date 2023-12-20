@@ -76,6 +76,7 @@ const Ecommerce = () => {
     const encodedPayload = tokenParts[1];
     const decodedPayload = atob(encodedPayload);
     const payload = JSON.parse(decodedPayload);
+    console.log(payload);
     // console.log("Role: ", payload.role);
   } else {
     // console.log("Token not found in localStorage");

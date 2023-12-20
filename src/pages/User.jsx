@@ -11,6 +11,7 @@ const User = () => {
   const [memberNumbers, setmemberNumbers] = useState([]);
   const [showeditModal, setShowEditModal] = useState(false);
   const [editUserId, setEditUserId] = useState(null);
+  const [branchNames, setBranchNames] = useState([]);
   const [formData, setFormData] = useState({
     memberNo: 0,
     name: "",
@@ -52,6 +53,7 @@ const User = () => {
     nomineeDob: "",
     nomineeMobile: "",
     password: "",
+    branchName: "",
   });
 
   const handleEditAgent = async (id) => {
@@ -106,6 +108,7 @@ const User = () => {
       nomineeDob: "",
       nomineeMobile: "",
       password: "",
+      branchName: "",
     });
     setagentmodalopen(false);
   };
@@ -380,7 +383,10 @@ const User = () => {
       );
 
       setUsersData(filteredUsers); // Update usersData state with the filtered data
-
+      const branchNamesResponse = await axios.get(
+        `${API_BASE_URL}/branches/names`
+      );
+      setBranchNames(branchNamesResponse.data.data);
       const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
       const memberNumbers = membersResponse.data.data;
       setmemberNumbers(memberNumbers);
@@ -479,7 +485,7 @@ const User = () => {
                 required
               >
                 <option value="">Select User Type</option>
-                <option value="user">User</option>
+                {/* <option value="user">User</option> */}
                 <option value="admin">Admin</option>
               </Form.Control>
             </Form.Group>
@@ -572,7 +578,7 @@ const User = () => {
                 required
               >
                 <option value="">Select User Type</option>
-                <option value="user">user</option>
+                {/* <option value="user">user</option> */}
                 <option value="admin">Admin</option>
               </Form.Control>
             </Form.Group>
@@ -625,6 +631,25 @@ const User = () => {
                     readOnly
                   ></Form.Control>
                 </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formBranch">
+                  <Form.Label>Branch</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="branchName"
+                    value={formData.branchName}
+                    onChange={handleChange}
+                    as="select"
+                  >
+                    <option value="">Select Branch</option>
+                    {branchNames.map((branch, index) => (
+                      <option key={index} value={branch}>
+                        {branch}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>{" "}
               </Col>
             </Row>
             <Row className="mb-3">

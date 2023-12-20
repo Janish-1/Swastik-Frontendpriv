@@ -6,6 +6,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 export default function AgentForm() {
   const [modalOpen, setModalOpen] = useState(false);
   const [memberNumbers, setmemberNumbers] = useState([]);
+  const [branchNames, setBranchNames] = useState([]);
   const [formData, setFormData] = useState({
     memberNo: 0,
     name: "",
@@ -27,6 +28,7 @@ export default function AgentForm() {
     nomineeDob: "",
     nomineeMobile: "",
     password: "",
+    branchName: "",
   });
 
   const handleOpenModal = () => {
@@ -98,6 +100,7 @@ export default function AgentForm() {
         nomineeDob: "",
         nomineeMobile: "",
         password: "",
+        branchName: "",
       });
       handleCloseModal();
     } catch (error) {
@@ -111,6 +114,10 @@ export default function AgentForm() {
         const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
         const memberNumbers = membersResponse.data.data;
         setmemberNumbers(memberNumbers);
+        const branchNamesResponse = await axios.get(
+          `${API_BASE_URL}/branches/names`
+        );
+        setBranchNames(branchNamesResponse.data.data);  
         } catch (error) {
         // console.error('Error fetching users:', error);
         // Handle error or display an error message to the user
@@ -151,6 +158,25 @@ export default function AgentForm() {
               </Form.Control>
             </Form.Group>
             </Col>
+            <Col md={6}>
+                <Form.Group controlId="formBranch">
+                  <Form.Label>Branch</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="branchName"
+                    value={formData.branchName}
+                    onChange={handleChange}
+                    as="select"
+                  >
+                    <option value="">Select Branch</option>
+                    {branchNames.map((branch, index) => (
+                      <option key={index} value={branch}>
+                        {branch}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>{" "}
+              </Col>
             </Row>
             {/* Form Fields */}
             <Row className="mb-3">
