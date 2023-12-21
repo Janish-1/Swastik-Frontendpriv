@@ -79,7 +79,7 @@ function Register() {
         "http://localhost:3001/create",
         formData
       );
-      // console.log("Data sent to the backend:", response.data);
+      // // console.log("Data sent to the backend:", response.data);
       setFormData({
         firstName: "",
         lastName: "",
@@ -98,7 +98,7 @@ function Register() {
       });
       navigate("/Dashboard"); // Redirect upon successful form submission
     } catch (error) {
-      // console.error("Error sending data: ", error);
+      // // console.error("Error sending data: ", error);
     }
   };
 

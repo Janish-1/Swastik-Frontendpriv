@@ -39,7 +39,7 @@ import {
 // dotenv.config({ path: envPath });
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 const DropDown = ({ currentMode }) => (
   <div className="w-28 border-1 border-color px-2 py-1 rounded-md">
@@ -76,10 +76,10 @@ const Ecommerce = () => {
     const encodedPayload = tokenParts[1];
     const decodedPayload = atob(encodedPayload);
     const payload = JSON.parse(decodedPayload);
-    console.log(payload);
-    // console.log("Role: ", payload.role);
+    // console.log(payload);
+    // // console.log("Role: ", payload.role);
   } else {
-    // console.log("Token not found in localStorage");
+    // // console.log("Token not found in localStorage");
   }
 
   // Function to retrieve all image URLs from the specified endpoints
@@ -95,9 +95,9 @@ const Ecommerce = () => {
           const { imageUrls } = response.data;
           allImageUrls = allImageUrls.concat(imageUrls);
         } catch (error) {
-          console.error(
-            `Error fetching images from ${endpoint}: ${error.message}`
-          );
+          // // console.error(
+          //   `Error fetching images from ${endpoint}: ${error.message}`
+          // );
         }
       }
 
@@ -118,7 +118,7 @@ const Ecommerce = () => {
 
       return allImageUrls;
     } catch (error) {
-      console.error(`Error in getAllImageUrls: ${error.message}`);
+      // console.error(`Error in getAllImageUrls: ${error.message}`);
       return [];
     }
   }
@@ -127,7 +127,7 @@ const Ecommerce = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/populate-revenue`);
-      console.log(response);
+      // console.log(response);
       const membersResponse = await axios.get(`${API_BASE_URL}/countMembers`);
       setTotalMembers(membersResponse.data.count);
 
@@ -151,7 +151,7 @@ const Ecommerce = () => {
       // try {
       //   // Retrieve all image URLs
       //   const allImageUrls = await getAllImageUrls();
-      //   console.log(allImageUrls);
+      //   // console.log(allImageUrls);
 
       //   // Here, make sure to pass the image URLs appropriately to your DELETE endpoint
       //   const response = await axios.delete(
@@ -162,9 +162,9 @@ const Ecommerce = () => {
       //     }
       //   );
 
-      //   console.log("Deleted images:", response.data);
+      //   // console.log("Deleted images:", response.data);
       // } catch (error) {
-      //   console.error("Error deleting images:", error);
+      //   // console.error("Error deleting images:", error);
       // }
       axios.get(`${API_BASE_URL}/expense-per-year`).then((response) => {
         const formattedData = response.data.map((item) => ({
@@ -190,7 +190,7 @@ const Ecommerce = () => {
         setStackedChartData(formattedData);
       });
     } catch (error) {
-      // console.error("Error fetching data:", error);
+      // // console.error("Error fetching data:", error);
     }
   };
 

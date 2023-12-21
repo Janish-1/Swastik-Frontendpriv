@@ -17,7 +17,7 @@ import Loans from "./view/Loans";
 import Transactions from "./view/Transactions";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 const Members = () => {
   const [showModal, setShowModal] = useState(false);
@@ -76,13 +76,15 @@ const Members = () => {
   const [walletId, setWalletId] = useState(0);
   const [numberOfShares, setNumberOfShares] = useState(0);
   const [amount, setAmount] = useState(0);
+  const [userType,setusertype] = useState("");
   const handleModalShow = () => setShowModal(true);
   const handleModalClose = () => setShowModal(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewMemberData, setViewMemberData] = useState(0);
 
   const handleOpenViewModal = (id) => {
-    console.log(id);
+    // console.log(id);
+    fetchData();
     const selectedMember = membersData.find((member) => member._id === id);
     setViewMemberData(selectedMember);
     setShowViewModal(true);
@@ -171,7 +173,7 @@ const Members = () => {
       const memberData = response.data; // Assuming response.data contains the member data
       fetchData();
       // Verify the value retrieved for openingBalance from memberData
-      // console.log("Opening Balance Retrieved:", memberData);
+      // // console.log("Opening Balance Retrieved:", memberData);
       setAccountFormData({
         memberNo: memberData.memberNo,
         memberName: memberData.fullName,
@@ -197,7 +199,7 @@ const Members = () => {
 
       setShowAccountModal(true);
     } catch (error) {
-      // console.error("Error fetching member data:", error);
+      // // console.error("Error fetching member data:", error);
       // Handle the error condition, show an error message, or perform other actions
     }
   };
@@ -251,11 +253,11 @@ const Members = () => {
         formDataWithCurrentBalance
       );
       // Handle the response or perform any necessary actions upon successful submission
-      // console.log("Account submitted successfully:", response.data);
+      // // console.log("Account submitted successfully:", response.data);
       handleCloseAccountModal();
     } catch (error) {
       // Handle errors if the request fails
-      // console.error("Error submitting account:", error);
+      // // console.error("Error submitting account:", error);
     }
   };
 
@@ -276,12 +278,12 @@ const Members = () => {
   };
 
   const handleOpenEditModal = async (id) => {
-    // console.log(id);
+    // // console.log(id);
     try {
       const response = await axios.get(`${API_BASE_URL}/getmember/${id}`);
       const memberData = response.data; // Assuming response.data contains the member data
 
-      console.log(memberData);
+      // console.log(memberData);
 
       setUpdateData({
         id: memberData._id,
@@ -309,7 +311,7 @@ const Members = () => {
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
       // Handle error or display an error message to the user
-      console.error("Error fetching member data:", error);
+      // console.error("Error fetching member data:", error);
     }
   };
 
@@ -334,7 +336,7 @@ const Members = () => {
         const dataArray = [data];
         setMembersData(dataArray);
       } else {
-        // console.error('Invalid format for members data:', data);
+        // // console.error('Invalid format for members data:', data);
       }
       const uniquememberresponse = await axios.get(
         `${API_BASE_URL}/randomgenMemberId`
@@ -348,8 +350,18 @@ const Members = () => {
         `${API_BASE_URL}/randomgenWalletId`
       );
       setWalletId(uniquewalletresponse.data.uniqueWalletId);
+      const token = localStorage.getItem('token');
+      if (token){
+        const tokenParts = token.split(".");
+        const encodedPayload = tokenParts[1];
+        const decodedPayload = atob(encodedPayload);
+        const payload = JSON.parse(decodedPayload);
+        const userRole = payload.role; // Assuming 'role' contains the user's rol
+        setusertype(userRole);
+        // console.log(typeof(userType));
+      }
     } catch (error) {
-      // console.error('Error fetching data:', error);
+      // // console.error('Error fetching data:', error);
     }
   };
 
@@ -357,14 +369,89 @@ const Members = () => {
     fetchData();
   }, []);
 
+  function renderDropdownForUserType(memberId) {
+    switch (userType) {
+      case 'admin':
+        return (
+          <Dropdown>
+            <Dropdown.Toggle variant="info" id="dropdown-basic">
+              Actions
+            </Dropdown.Toggle>
+  
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => handleOpenEditModal(memberId)}>
+                Edit
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleDelete(memberId)}>
+                Delete
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleOpenViewModal(memberId)}>
+                View
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleOpenAccountModal(memberId)}>
+                Create Account
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        );
+        case 'manager':
+          return (
+            <Dropdown>
+              <Dropdown.Toggle variant="info" id="dropdown-basic">
+                Actions
+              </Dropdown.Toggle>
+    
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => handleOpenEditModal(memberId)}>
+                  Edit
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleDelete(memberId)}>
+                  Delete
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOpenViewModal(memberId)}>
+                  View
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOpenAccountModal(memberId)}>
+                  Create Account
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          );
+          case 'agent':
+            return (
+              <Dropdown>
+                <Dropdown.Toggle variant="info" id="dropdown-basic">
+                  Actions
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  {/* <Dropdown.Item onClick={() => handleOpenEditModal(memberId)}>
+                    Edit
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleDelete(memberId)}>
+                    Delete
+                  </Dropdown.Item> */}
+                  <Dropdown.Item onClick={() => handleOpenViewModal(memberId)}>
+                    View
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleOpenAccountModal(memberId)}>
+                    Create Account
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            );    
+        default:
+        return null; // If userType doesn't match any case, don't render the Dropdown
+    }
+  }
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log(walletId);
+      // console.log(walletId);
       const formDataWithImages = new FormData();
       formDataWithImages.append("images", formData.photo);
       formDataWithImages.append("images", formData.idProof);
-      console.log(formDataWithImages);
+      // console.log(formDataWithImages);
 
       const responseUpload = await axios.post(
         `${API_BASE_URL}/uploadmultiple`,
@@ -414,7 +501,7 @@ const Members = () => {
       handleCloseModal();
       fetchData();
     } catch (error) {
-      console.error("Error:", error);
+      // console.error("Error:", error);
     }
   };
 
@@ -482,11 +569,11 @@ const Members = () => {
   const handleDelete = async (id) => {
     try {
       const response = axios.post(`${API_BASE_URL}/deletemember/${id}`);
-      // console.log(response);
+      // // console.log(response);
       // alert('Delete Success');
       fetchData();
     } catch (error) {
-      // console.log('Failed Delete');
+      // // console.log('Failed Delete');
       // alert('Delete Failed');
     }
   };
@@ -1262,32 +1349,7 @@ const Members = () => {
               <td>{member.whatsAppNo}</td>
               {/* <td>{member.accountType}</td> */}
               <td>
-                <Dropdown>
-                  <Dropdown.Toggle variant="info" id="dropdown-basic">
-                    Actions
-                  </Dropdown.Toggle>
-
-                  <Dropdown.Menu>
-                    <Dropdown.Item
-                      onClick={() => handleOpenEditModal(member._id)}
-                    >
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleDelete(member._id)}>
-                      Delete
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleOpenViewModal(member._id)}
-                    >
-                      View
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleOpenAccountModal(member._id)}
-                    >
-                      Create Account
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+                  {renderDropdownForUserType(member._id)}
               </td>
             </tr>
           ))}

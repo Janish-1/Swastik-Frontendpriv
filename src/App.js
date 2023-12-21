@@ -276,7 +276,7 @@ const AuthenticatedRoutes = ({ userRole }) => {
                   <Route path="/branches" element={<Branches />} />
                   <Route path="/members" element={<Members />} />
                   <Route path="/accounts" element={<Accounts />} />
-                  {/* <Route path="/repayments" element={<Repayments />} /> */}
+                  <Route path="/repayments" element={<Repayments />} />
                   <Route path="/loans" element={<Loans />} />
                   <Route path="/deposit" element={<Deposit />} />
                   {/* <Route path="/withdraw" element={<Withdraw />} />

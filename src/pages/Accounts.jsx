@@ -10,7 +10,7 @@ import {
   Dropdown,
 } from "react-bootstrap";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 const Accounts = () => {
   const [showModal, setShowModal] = useState(false);
@@ -29,7 +29,7 @@ const Accounts = () => {
   const [membersData, setMembersData] = useState([]);
   const [uniqueaccountid, setuniqueaccountid] = useState(0);
   const [branchNames, setBranchNames] = useState([]);
-  const [userRole,setuserRole] = useState("");
+  const [userRole, setuserRole] = useState("");
 
   const [accountFormData, setAccountFormData] = useState({
     _id: "",
@@ -118,7 +118,7 @@ const Accounts = () => {
 
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
-      // console.error("Error fetching account data:", error);
+      // // console.error("Error fetching account data:", error);
       // Handle the error condition, show an error message, or perform other actions
     }
   };
@@ -166,11 +166,11 @@ const Accounts = () => {
       const response = await axios.delete(
         `${API_BASE_URL}/deleteaccounts/${id}`
       );
-      // console.log(response);
+      // // console.log(response);
       // alert('Delete Success');
       fetchData(); // Fetch data after successful deletion
     } catch (error) {
-      // console.error('Failed Delete:', error);
+      // // console.error('Failed Delete:', error);
       // alert('Delete Failed');
     }
   };
@@ -178,7 +178,7 @@ const Accounts = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      // console.log(formData);
+      // // console.log(formData);
       await axios.put(
         `${API_BASE_URL}/updateaccounts/${accountFormData._id}`,
         accountFormData
@@ -192,7 +192,7 @@ const Accounts = () => {
       handleCloseEditModal();
     } catch (error) {
       // alert('Failed to update account. Please check the data fields.');
-      // console.error('Error:', error);
+      // // console.error('Error:', error);
       handleCloseEditModal();
     }
   };
@@ -207,7 +207,7 @@ const Accounts = () => {
       handleCloseModal();
     } catch (error) {
       // alert('Check Data Fields for no duplicates');
-      // console.error('Error:', error);
+      // // console.error('Error:', error);
     }
   };
 
@@ -215,20 +215,29 @@ const Accounts = () => {
     try {
       // Fetch accounts data
       const response = await axios.get(`${API_BASE_URL}/accounts`);
-      setAccountsData(response.data.data); // Assuming response.data contains the account data
+      const allAccountsData = response.data.data; // Assuming response.data contains the account data
+    
+      if (userRole === 'agent') {
+        // Filter accounts for agent with approved status
+        const agentApprovedAccounts = allAccountsData.filter(
+          (account) => account.approval === 'Approved'
+        );
+        setAccountsData(agentApprovedAccounts);
+      } else {
+        // For other user roles, set all accounts data
+        setAccountsData(allAccountsData);
+      }
     } catch (error) {
-      // console.error("Error fetching accounts:", error);
-      // console.error("Error fetching accounts:", error);
       // Handle error or display an error message to the user
     }
-
+        
     const response = await axios
       .get(`${API_BASE_URL}/readmembersname`)
       .then((response) => {
-        // console.log('Member Name Status:',response);
+        // // console.log('Member Name Status:',response);
         setMembersData(response.data.data);
       });
-    // .catch((error) => console.log("Error Fetching Member Numbers"));
+    // .catch((error) => // console.log("Error Fetching Member Numbers"));
 
     const uniqueaccountresponse = await axios.get(
       `${API_BASE_URL}/randomgenAccountId`
@@ -250,9 +259,8 @@ const Accounts = () => {
       const payload = JSON.parse(decodedPayload);
       setuserRole(payload.role);
     } else {
-      // console.log("Token not found in localStorage");
+      // // console.log("Token not found in localStorage");
     }
-
   };
 
   useEffect(() => {
@@ -279,16 +287,196 @@ const Accounts = () => {
 
   const handleAccountApproval = async (accountId) => {
     // Implement approve loan logic
-    const response = await axios.put(`${API_BASE_URL}/approveaccount/${accountId}`);
-    // console.log(response);
+    const response = await axios.put(
+      `${API_BASE_URL}/approveaccount/${accountId}`
+    );
+    // // console.log(response);
     fetchData();
   };
 
   const handleAccountCancel = async (accountId) => {
-    const response = await axios.put(`${API_BASE_URL}/cancelaccount/${accountId}`);
-    // console.log(response);
+    const response = await axios.put(
+      `${API_BASE_URL}/cancelaccount/${accountId}`
+    );
+    // // console.log(response);
     fetchData();
   };
+
+  // Function to render the entire table based on user type
+  function renderTableForUserType(filteredAccounts) {
+    switch (userRole) {
+      case "admin":
+        return (
+          <table>
+            <thead>
+              <tr>
+                <th>Account Number</th>
+                <th>Member Number</th>
+                <th>Member Name</th>
+                <th>Account Type</th>
+                <th>Opening Balance</th>
+                <th>Current Balance</th>
+                <th>Branch</th>
+                <th>Email</th>
+                <th>Action</th>
+                <th>Approval</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAccounts.map((account) => (
+                <tr key={account._id}>
+                  <td>{account.accountNumber}</td>
+                  <td>{account.memberNo}</td>
+                  <td>{account.memberName}</td>
+                  <td>{account.accountType}</td>
+                  <td>{account.openingBalance}</td>
+                  <td>{account.currentBalance}</td>
+                  <td>{account.branchName}</td>
+                  <td>{account.email}</td>
+                  <td>
+                    <Dropdown>
+                      <Dropdown.Toggle
+                        className="btn-secondary"
+                        variant="primary"
+                        id={`dropdown-${account._id}`}
+                      >
+                        Action
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu>
+                        <Dropdown.Item
+                          onClick={() => handleOpenEditModal(account._id)}
+                        >
+                          Edit
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleDelete(account._id)}
+                        >
+                          Delete
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleAccountApproval(account._id)}
+                        >
+                          Approve
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleAccountCancel(account._id)}
+                        >
+                          Reject
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </td>
+                  <td>{account.approval}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+        case "manager":
+          return (
+            <table>
+              <thead>
+                <tr>
+                  <th>Account Number</th>
+                  <th>Member Number</th>
+                  <th>Member Name</th>
+                  <th>Account Type</th>
+                  <th>Opening Balance</th>
+                  <th>Current Balance</th>
+                  <th>Branch</th>
+                  <th>Email</th>
+                  <th>Action</th>
+                  <th>Approval</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAccounts.map((account) => (
+                  <tr key={account._id}>
+                    <td>{account.accountNumber}</td>
+                    <td>{account.memberNo}</td>
+                    <td>{account.memberName}</td>
+                    <td>{account.accountType}</td>
+                    <td>{account.openingBalance}</td>
+                    <td>{account.currentBalance}</td>
+                    <td>{account.branchName}</td>
+                    <td>{account.email}</td>
+                    <td>
+                      <Dropdown>
+                        <Dropdown.Toggle
+                          className="btn-secondary"
+                          variant="primary"
+                          id={`dropdown-${account._id}`}
+                        >
+                          Action
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                          <Dropdown.Item
+                            onClick={() => handleOpenEditModal(account._id)}
+                          >
+                            Edit
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            onClick={() => handleDelete(account._id)}
+                          >
+                            Delete
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            onClick={() => handleAccountApproval(account._id)}
+                          >
+                            Approve
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            onClick={() => handleAccountCancel(account._id)}
+                          >
+                            Reject
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </td>
+                    <td>{account.approval}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          );
+          case "agent":
+            return (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Account Number</th>
+                    <th>Member Number</th>
+                    <th>Member Name</th>
+                    <th>Account Type</th>
+                    <th>Opening Balance</th>
+                    <th>Current Balance</th>
+                    <th>Branch</th>
+                    <th>Email</th>
+                    <th>Approval</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAccounts.map((account) => (
+                    <tr key={account._id}>
+                      <td>{account.accountNumber}</td>
+                      <td>{account.memberNo}</td>
+                      <td>{account.memberName}</td>
+                      <td>{account.accountType}</td>
+                      <td>{account.openingBalance}</td>
+                      <td>{account.currentBalance}</td>
+                      <td>{account.branchName}</td>
+                      <td>{account.email}</td>
+                      <td>{account.approval}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            );      
+      // Add cases for other user types if needed
+      default:
+        return null; // If userType doesn't match any case, return null or handle accordingly
+    }
+  }
 
   return (
     <div className="body-div">
@@ -657,66 +845,7 @@ const Accounts = () => {
         hover
         className="mt-4 rounded-lg overflow-hidden"
       >
-        <thead>
-          <tr>
-            <th>Account Number</th>
-            <th>Member Number</th>
-            <th>Member Name</th>
-            <th>Account Type</th>
-            <th>Opening Balance</th>
-            <th>Current Balance</th>
-            <th>Branch</th>
-            <th>Email</th>
-            <th>Action</th>
-            <th>Approval</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAccounts.map((account) => (
-            <tr key={account._id}>
-              <td>{account.accountNumber}</td>
-              <td>{account.memberNo}</td>
-              <td>{account.memberName}</td>
-              <td>{account.accountType}</td>
-              <td>{account.openingBalance}</td>
-              <td>{account.currentBalance}</td>
-              <td>{account.branchName}</td>
-              <td>{account.email}</td>
-              <td>
-                <Dropdown>
-                  <Dropdown.Toggle
-                    className="btn-secondary"
-                    variant="primary"
-                    id={`dropdown-${account._id}`}
-                  >
-                    Action
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item
-                      onClick={() => handleOpenEditModal(account._id)}
-                    >
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleDelete(account._id)}>
-                      Delete
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleAccountApproval(account._id)}
-                    >
-                      Approve
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleAccountCancel(account._id)}
-                    >
-                      Reject
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              </td>
-              <td>{account.approval}</td>
-            </tr>
-          ))}
-        </tbody>
+        {renderTableForUserType(filteredAccounts)}
       </Table>
     </div>
   );

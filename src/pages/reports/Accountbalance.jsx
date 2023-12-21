@@ -5,7 +5,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 export default function AccountBalance() {
   const [tableData, setTableData] = useState([]);
@@ -23,7 +23,7 @@ export default function AccountBalance() {
       );
       setTableData([response.data]); // Set the fetched data to the state
     } catch (error) {
-      // console.error("Error fetching data:", error);
+      // // console.error("Error fetching data:", error);
       setTableData([]); // Clear any previous data
     }
   };

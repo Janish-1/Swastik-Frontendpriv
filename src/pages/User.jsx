@@ -4,7 +4,7 @@ import { Modal, Button, Form, Table, Badge, Row, Col } from "react-bootstrap";
 import AgentForm from "./AgentForm";
 import { FaEdit, FaTrash } from "react-icons/fa";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 const User = () => {
   const [showModal, setShowModal] = useState(false);
@@ -60,7 +60,7 @@ const User = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/all-users/${id}`);
       const agentdata = response.data;
-      console.log(agentdata);
+      // console.log(agentdata);
       // Set the fetched data with image URLs into the state
       setagentForm({
         ...agentdata,
@@ -72,7 +72,7 @@ const User = () => {
 
       setagentmodalopen(true);
     } catch (error) {
-      console.error("Error fetching user details:", error);
+      // console.error("Error fetching user details:", error);
       // Handle the error, such as displaying an error message to the user
     }
   };
@@ -161,7 +161,7 @@ const User = () => {
 
       const agentId = agentformdata.agentId;
       // Data Correctly Coming
-      console.log("Agent Data: ", updatedAgentData);
+      // console.log("Agent Data: ", updatedAgentData);
       const updateResponse = await axios.put(
         `${API_BASE_URL}/updateagent/${agentId}`,
         updatedAgentData // Send updatedAgentData to update the agent details
@@ -176,7 +176,7 @@ const User = () => {
       }
     } catch (error) {
       // Handle Error
-      console.error("Error:", error);
+      // console.error("Error:", error);
       // Perform error handling like displaying an error message
     }
   };
@@ -218,7 +218,7 @@ const User = () => {
       });
       setShowEditModal(true);
     } catch (error) {
-      // console.error('Error fetching user data for edit:', error);
+      // // console.error('Error fetching user data for edit:', error);
       // Handle error or display an error message to the user
     }
   };
@@ -269,10 +269,10 @@ const User = () => {
               image: responseImage.data.url,
             };
           } else {
-            console.error("Image upload failed");
+            // console.error("Image upload failed");
           }
         } catch (imageUploadError) {
-          console.error("Error uploading image:", imageUploadError);
+          // console.error("Error uploading image:", imageUploadError);
           // Continue even if image upload fails
         }
       }
@@ -291,7 +291,7 @@ const User = () => {
       handleCloseeditModal();
       fetchData();
     } catch (error) {
-      console.error("Error updating user:", error);
+      // console.error("Error updating user:", error);
       // Handle error - display an error message or perform necessary actions
     }
   };
@@ -368,7 +368,7 @@ const User = () => {
       fetchData();
     } catch (error) {
       // Handle error or display an error message to the user
-      console.error("Error:", error);
+      // console.error("Error:", error);
     }
   };
 
@@ -391,7 +391,7 @@ const User = () => {
       const memberNumbers = membersResponse.data.data;
       setmemberNumbers(memberNumbers);
     } catch (error) {
-      // console.error('Error fetching users:', error);
+      // // console.error('Error fetching users:', error);
       // Handle error or display an error message to the user
     }
   };
@@ -408,7 +408,7 @@ const User = () => {
       );
       fetchData();
     } catch (error) {
-      // console.error("Error:", error);
+      // // console.error("Error:", error);
       // Handle error or display an error message to the user
     }
   };

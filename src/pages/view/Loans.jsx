@@ -8,7 +8,7 @@ const Loans = ({ id, memberData }) => {
   const [loading, setLoading] = useState(true);
 
   const memberNo = memberData.memberNo;
-  console.log(id, memberData);
+  // console.log(id, memberData);
 
   useEffect(() => {
     let isMounted = true;
@@ -23,12 +23,12 @@ const Loans = ({ id, memberData }) => {
             setMemberDetails(data);
             setLoading(false);
           } else {
-            console.error('Error: Response data is not an array');
+            // console.error('Error: Response data is not an array');
             setLoading(false);
           }
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        // console.error('Error fetching data:', error);
         if (isMounted) {
           setLoading(false);
         }

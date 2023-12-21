@@ -8,14 +8,14 @@ const Details = ({ id, memberData }) => {
   const [memberDetails, setMemberDetails] = useState({});
   const [loading, setLoading] = useState(true);
 
-  console.log(id,memberData);
+  // console.log(id,memberData);
   
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/getmember/${id}`);
         const data = response.data; // Assuming data is an object
-        console.log(data);
+        // console.log(data);
         const newData = {
           "Profile": data.photo,
           "Member ID":data.memberNo,
@@ -27,7 +27,7 @@ const Details = ({ id, memberData }) => {
         setMemberDetails(newData);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        // console.error('Error fetching data:', error);
         setLoading(false);
       }
     };

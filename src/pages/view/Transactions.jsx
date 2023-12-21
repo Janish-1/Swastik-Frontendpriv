@@ -7,7 +7,7 @@ const Transactions = ({ id }) => {
   const [transactions, settransactions] = useState({});
   const [loading, setLoading] = useState(true);
 
-  console.log(id);
+  // console.log(id);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,7 +23,7 @@ const Transactions = ({ id }) => {
         settransactions(newresponse);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        // console.error('Error fetching data:', error);
         setLoading(false);
       }
     };

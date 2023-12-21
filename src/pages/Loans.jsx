@@ -9,7 +9,7 @@ import { parseISO } from "date-fns";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import Objectionloan from "./Objectionloan";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 const Loans = () => {
   const [showModal, setShowModal] = useState(false);
@@ -36,6 +36,7 @@ const Loans = () => {
   const [selectedLoanForApproval, setSelectedLoanForApproval] = useState(null);
   const [showObjectionModal, setShowObjectionModal] = useState(false);
   const [selectedLoanId, setSelectedLoanId] = useState(null);
+  const [userType,setusertype]=useState("");
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
@@ -65,7 +66,6 @@ const Loans = () => {
     }));
   };
 
-  
   const handleOpenEditModal = async (id) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/loans/${id}`);
@@ -112,7 +112,7 @@ const Loans = () => {
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
       // Handle error or display an error message to the user
-      // console.error("Error fetching loan data:", error);
+      // // console.error("Error fetching loan data:", error);
     }
   };
 
@@ -123,11 +123,11 @@ const Loans = () => {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(`${API_BASE_URL}/deleteloan/${id}`);
-      // console.log(response);
+      // // console.log(response);
       // alert('Delete Success');
       fetchData(); // Refetch data after deletion
     } catch (error) {
-      // console.log('Failed Delete');
+      // // console.log('Failed Delete');
       // alert('Delete Failed');
     }
   };
@@ -163,7 +163,7 @@ const Loans = () => {
       // Handle the retrieved details accordingly
     } catch (error) {
       // Handle error or display an error message
-      // console.error("Error fetching details:", error);
+      // // console.error("Error fetching details:", error);
     }
   };
 
@@ -218,7 +218,7 @@ const Loans = () => {
       fetchData(); // Refetch data after submission
     } catch (error) {
       // Handle errors appropriately, such as displaying an error message
-      // console.error('Error:', error);
+      // // console.error('Error:', error);
     }
   };
 
@@ -243,7 +243,7 @@ const Loans = () => {
       fetchData(); // Refetch data after update
     } catch (error) {
       // alert('Failed to update loan. Please check the data fields.');
-      // console.error('Error:', error);
+      // // console.error('Error:', error);
       // handleCloseEditModal();
     }
   };
@@ -256,7 +256,7 @@ const Loans = () => {
   //       fetchData();
   //     }
   //   } catch (error) {
-  //     console.error("Failed to approve loan.");
+  //     // console.error("Failed to approve loan.");
   //   } finally {
   //     setSelectedLoanForApproval(null);
   //   }
@@ -265,13 +265,13 @@ const Loans = () => {
   const handleApproveLoan = async (loanId) => {
     // Implement approve loan logic
     const response = await axios.put(`${API_BASE_URL}/approveLoan/${loanId}`);
-    // console.log(response);
+    // // console.log(response);
     fetchData();
   };
 
   const handleCancelLoan = async (loanId) => {
     const response = await axios.put(`${API_BASE_URL}/cancelLoan/${loanId}`);
-    // console.log(response);
+    // // console.log(response);
     fetchData();
   };
 
@@ -282,14 +282,14 @@ const Loans = () => {
 
   const handleObjectionSubmit = async (reason) => {
     // Implement logic to handle objection submission
-    // console.log(
+    // // console.log(
     //   `Objection submitted for loan ${selectedLoanId} with reason: ${reason}`
     // );
     const response = await axios.put(
       `${API_BASE_URL}/objection/${selectedLoanId}`,
       { reason }
     );
-    // console.log(response);
+    // // console.log(response);
     fetchData();
     // Reset state or perform other actions as needed
     setShowObjectionModal(false);
@@ -314,21 +314,31 @@ const Loans = () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/accountids`);
         setAccountIds(response.data.data);
-        // console.log(response);
+        // // console.log(response);
       } catch (error) {
         // Error Catching
       }
       const memberresponse = await axios.get(`${API_BASE_URL}/readmembersname`);
       const names = memberresponse.data.data.map((member) => member.name);
-      console.log(memberresponse);
+      // console.log(memberresponse);
       setMemberNames(names);
 
       const uniqueloanresponse = await axios.get(
         `${API_BASE_URL}/randomgenLoanId`
       );
       setuniqueloanid(uniqueloanresponse.data.uniqueid);
+      const token = localStorage.getItem("token");
+      if (token) {
+        const tokenParts = token.split(".");
+        const encodedPayload = tokenParts[1];
+        const decodedPayload = atob(encodedPayload);
+        const payload = JSON.parse(decodedPayload);
+        const userRole = payload.role; // Assuming 'role' contains the user's rol
+        setusertype(userRole);
+        // console.log(userType);
+      }
     } catch (error) {
-      // console.error('Error fetching data:', error);
+      // // console.error('Error fetching data:', error);
       // Handle error or display an error message
     }
   };
@@ -354,6 +364,88 @@ const Loans = () => {
 
     setFilteredLoans(filteredLoans);
   }, [searchTerm, loansData]);
+
+  function showdropdownfortype(loanId) {
+    switch (userType) {
+      case 'admin':
+        return (        
+        <Dropdown>
+          <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
+            Actions
+          </Dropdown.Toggle>
+          <Dropdown.Menu style={{ zIndex: 9999 }}>
+            <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
+              Edit
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleDelete(loanId)}>
+              Delete
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleApproveLoan(loanId)}>
+              Approve
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleCancelLoan(loanId)}>
+              Cancel
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleObjection(loanId)}>
+              Objection
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+        );
+      case 'manager':
+        return (        
+        <Dropdown>
+          <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
+            Actions
+          </Dropdown.Toggle>
+          <Dropdown.Menu style={{ zIndex: 9999 }}>
+            <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
+              Edit
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleDelete(loanId)}>
+              Delete
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleApproveLoan(loanId)}>
+              Approve
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleCancelLoan(loanId)}>
+              Cancel
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleObjection(loanId)}>
+              Objection
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+        );
+      case 'agent':
+        return (        
+        <Dropdown>
+          <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
+            Actions
+          </Dropdown.Toggle>
+          <Dropdown.Menu style={{ zIndex: 9999 }}>
+            <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
+              Edit
+            </Dropdown.Item>
+            {/* <Dropdown.Item onClick={() => handleDelete(loanId)}>
+            Delete
+          </Dropdown.Item> */}
+            <Dropdown.Item onClick={() => handleApproveLoan(loanId)}>
+              Approve
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleCancelLoan(loanId)}>
+              Cancel
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleObjection(loanId)}>
+              Objection
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+          );     
+        default:
+        return null
+    }
+  }
 
   return (
     <div className="body-div">
@@ -736,30 +828,7 @@ const Loans = () => {
               <td>{loan.durationMonths || "-"}</td>
               <td>{loan.objections}</td>
               <td>
-                <Dropdown>
-                  <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
-                    Actions
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu style={{ zIndex: 9999 }}>
-                    <Dropdown.Item
-                      onClick={() => handleOpenEditModal(loan._id)}
-                    >
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleDelete(loan._id)}>
-                      Delete
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleApproveLoan(loan._id)}>
-                      Approve
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleCancelLoan(loan._id)}>
-                      Cancel
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleObjection(loan._id)}>
-                      Objection
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+                {showdropdownfortype(loan._id)}
               </td>
             </tr>
           ))}

@@ -5,7 +5,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 export default function Transaction() {
   const [transactions, setTransactions] = useState([]);
@@ -56,7 +56,7 @@ export default function Transaction() {
       });
       setTransactions(response.data);
     } catch (error) {
-      // console.error("Error fetching transaction data:", error);
+      // // console.error("Error fetching transaction data:", error);
       // Handle error (display an error message, etc.)
     }
   };

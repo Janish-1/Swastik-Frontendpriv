@@ -5,7 +5,7 @@ import axios from "axios";
 import { Form, Button, Container } from "react-bootstrap";
 import "./depositform.css";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 const Transaction = () => {
   const [formData, setFormData] = useState({
@@ -26,15 +26,15 @@ const Transaction = () => {
     try {
       const memberResponse = await axios.get(`${API_BASE_URL}/readmemberids`);
       setMembers(memberResponse.data.data);
-      // console.log('Member IDs Status:', memberResponse);
+      // // console.log('Member IDs Status:', memberResponse);
 
       const accountResponse = await axios.get(
         `${API_BASE_URL}/readaccountnumbers`
       );
       setAccounts(accountResponse.data);
-      // console.log('Account Numbers Status:', accountResponse);
+      // // console.log('Account Numbers Status:', accountResponse);
     } catch (error) {
-      // console.error('Error fetching data:', error);
+      // // console.error('Error fetching data:', error);
     }
   };
 
@@ -49,7 +49,7 @@ const Transaction = () => {
   //     const data = await response.json();
   //     setTransactionTypes(data); // Assuming data is an array of transaction types
   //   } catch (error) {
-  //     console.error('Error fetching transaction types:', error);
+  //     // console.error('Error fetching transaction types:', error);
   //   }
   // };
 
@@ -90,7 +90,7 @@ const Transaction = () => {
       // Handle the retrieved details accordingly
     } catch (error) {
       // Handle error or display an error message
-      // console.error("Error fetching details:", error);
+      // // console.error("Error fetching details:", error);
     }
   };
 
@@ -107,7 +107,7 @@ const Transaction = () => {
         `${API_BASE_URL}/transactions`,
         formData
       );
-      // console.log(response);
+      // // console.log(response);
 
       // Reset form fields after successful submission if needed
       setFormData({
@@ -121,9 +121,9 @@ const Transaction = () => {
       });
       fetchData();
     } catch (error) {
-      // console.error('Error creating transaction:', error);
+      // // console.error('Error creating transaction:', error);
     }
-    // console.log(formData);
+    // // console.log(formData);
   };
 
   return (

@@ -33,7 +33,7 @@ const Branches = () => {
   const [presetpassword, setPassword] = useState("");
 
   const API_BASE_URL = process.env.REACT_APP_API_URL;
-  // console.log("Api URL:", API_BASE_URL);
+  // // console.log("Api URL:", API_BASE_URL);
 
   // useEffect(async () => {
   //   const token = localStorage.getItem("token");
@@ -52,12 +52,12 @@ const Branches = () => {
   //       }
   //         .then((response) => response.json())
   //         .then((data) => {
-  //           console.log("Username:", data.username);
+  //           // console.log("Username:", data.username);
   //           setEmail(data.email);
   //           setPassword(data.password);
   //         })
   //         .catch((error) => {
-  //           console.error("Error:", error);
+  //           // console.error("Error:", error);
   //           // Handle errors that occurred during the request
   //         });
   //   }
@@ -77,7 +77,7 @@ const Branches = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/getbranch/${id}`);
       const selectedMemberData = response.data; // Assuming response.data contains the member data
-      // console.log(selectedMemberData);
+      // // console.log(selectedMemberData);
       // Set the form data to the retrieved member's data
       // Set the form data to the retrieved member's data
       setFormData({
@@ -86,7 +86,7 @@ const Branches = () => {
       });
       setShowEditModal(true); // Open the edit modal
     } catch (error) {
-      // console.error("Error fetching member data:", error);
+      // // console.error("Error fetching member data:", error);
       // Handle error or display an error message to the user
     }
   };
@@ -116,7 +116,7 @@ const Branches = () => {
       setShowAlert(true);
     }
     // Handle success of user creation
-    // console.log("Manager User Created:", responseUser.data);
+    // // console.log("Manager User Created:", responseUser.data);
     setFormData({
       branchName: "",
       name: "",
@@ -131,15 +131,15 @@ const Branches = () => {
 
   const handleUpdate = async (e, id) => {
     e.preventDefault();
-    // console.log(id);
+    // // console.log(id);
     try {
       // Update member
-      // console.log(formData);
+      // // console.log(formData);
       const response = await axios.put(
         `${API_BASE_URL}/updatebranch/${formData._id}`,
         formData
       );
-      // console.log(response.data);
+      // // console.log(response.data);
       // Close the edit modal
       handleCloseEditModal();
 
@@ -154,7 +154,7 @@ const Branches = () => {
       });
       fetchData();
     } catch (error) {
-      // console.error("Error updating data:", error);
+      // // console.error("Error updating data:", error);
       // Show failure alert for update
     }
   };
@@ -162,11 +162,11 @@ const Branches = () => {
   const handleDelete = async (id) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/deletebranch/${id}`);
-      // console.log(response.data);
+      // // console.log(response.data);
       // Show success alert for delete
       fetchData();
     } catch (error) {
-      // console.error("Error in deleting data:", error);
+      // // console.error("Error in deleting data:", error);
 
       // Show error alert for delete
       alert("failed");
@@ -190,7 +190,7 @@ const Branches = () => {
       // Update filteredMembers state with the filtered data
       setFilteredMembers(filteredData);
     } catch (error) {
-      // console.error("Error while fetching data:", error);
+      // // console.error("Error while fetching data:", error);
       // Handle the error or show an error message to the user
     }
   };

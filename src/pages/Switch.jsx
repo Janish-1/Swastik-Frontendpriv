@@ -34,7 +34,7 @@ const Switch = () => {
               dbs = response.data.databases;
               dbs.push("admindatabase"); // Adding "admindatabase" as an additional option
             } catch (error) {
-              console.error("Error fetching admin databases:", error);
+              // console.error("Error fetching admin databases:", error);
             }
             break;
           case "manager":
@@ -48,10 +48,10 @@ const Switch = () => {
                 );
                 dbs = response.data.databases;
               } catch (error) {
-                console.error("Error fetching branch databases:", error);
+                // console.error("Error fetching branch databases:", error);
               }
             } else {
-              console.log("Invalid format or no ObjectID found");
+              // console.log("Invalid format or no ObjectID found");
               // Handle invalid format or no ObjectID found
             }
             break;
@@ -69,7 +69,7 @@ const Switch = () => {
             );
             dbs[i] = { db: databaseName, ...tableResponse.data }; // Attach fetched data to database object
           } catch (error) {
-            console.error(`Error fetching data for ${databaseName}:`, error);
+            // console.error(`Error fetching data for ${databaseName}:`, error);
             dbs[i] = { db: databaseName, username: "", email: "" }; // Set defaults if fetch fails
           }
         }
@@ -80,7 +80,7 @@ const Switch = () => {
           );
           setBranchNames(branchNamesResponse.data.data);
         } catch (error) {
-          console.error("Error fetching branch names:", error);
+          // console.error("Error fetching branch names:", error);
         }
 
         setDatabases(dbs);
@@ -111,11 +111,11 @@ const Switch = () => {
 
   const handleSwitch = async (databaseName) => {
     // Handle switching logic for the selected database
-    console.log(`Switching to database: ${databaseName}`);
+    // console.log(`Switching to database: ${databaseName}`);
     const response = await axios.get(
       `${API_BASE_URL}/switch-database/${databaseName}`
     );
-    console.log(response);
+    // console.log(response);
   };
 
   const handleFormSubmit = (event) => {

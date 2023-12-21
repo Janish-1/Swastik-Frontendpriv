@@ -14,7 +14,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 const mongoose = require("mongoose");
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-console.log("Api URL:", API_BASE_URL);
+// console.log("Api URL:", API_BASE_URL);
 
 const NavButton = ({ title, customFunc, icon, color, dotColor }) => (
   <TooltipComponent content={title} position="BottomCenter">
@@ -82,21 +82,21 @@ const Navbar = () => {
   //     .then(() => {
   //       // Event handling for successful connection
   //       mongoose.connection.on("connected", () => {
-  //         console.log("Connected to MongoDB",dbName);
+  //         // console.log("Connected to MongoDB",dbName);
   //       });
 
   //       // Event handling for disconnection
   //       mongoose.connection.on("disconnected", () => {
-  //         console.log("Disconnected from MongoDB",dbName);
+  //         // console.log("Disconnected from MongoDB",dbName);
   //       });
 
   //       // Event handling for error
   //       mongoose.connection.on("error", (err) => {
-  //         console.error("Connection error:", err);
+  //         // console.error("Connection error:", err);
   //       });
   //     })
   //     .catch((err) => {
-  //       console.error("Error:", err);
+  //       // console.error("Error:", err);
   //     });
   //   // Reload the page to reflect the changes
   //   window.location.reload();
@@ -113,13 +113,13 @@ const Navbar = () => {
       setUsername(payload.username);
       const urole = payload.role; // Extract user role from the token payload
       setUserRole(urole); // Set the user's role in the state
-      // console.log(payload);
+      // // console.log(payload);
       // Based on the user's role, set dropdown options accordingly
       // let options = [];
       // switch (urole) {
       //   case "admin":
       //     const response = await axios.get(`${API_BASE_URL}/admin-databases`);
-      //     console.log(response.data.databases);
+      //     // console.log(response.data.databases);
       //     options = response.data.databases;
       //     options.push("admindatabase"); // Adding "admindatabase" as an additional option
       //     break;
@@ -128,15 +128,15 @@ const Navbar = () => {
       //     const parts = x.split("_");
       //     if (parts.length > 1) {
       //       const objectIdPart = parts[1]; // Accessing the second part after the split
-      //       console.log("(Manager)ObjectID:", objectIdPart);
+      //       // console.log("(Manager)ObjectID:", objectIdPart);
       //       // Getting the Options
       //       const response = await axios.get(
       //         `${API_BASE_URL}/branch-databases/${objectIdPart}`
       //       );
-      //       console.log(response.data.databases);
+      //       // console.log(response.data.databases);
       //       options = response.data.databases;
       //     } else {
-      //       console.log("Invalid format or no ObjectID found");
+      //       // console.log("Invalid format or no ObjectID found");
       //       // options = ["Option A", "Option B", "Option C"]; // Example options for manager
       //     }
       //     break;
@@ -147,7 +147,7 @@ const Navbar = () => {
       //     options = []; // Default empty options if role doesn't match
       // }
       // setDropdownOptions(options);
-      // console.log(options);
+      // // console.log(options);
     }
   }, []); // Empty dependency array ensures this runs only once on mount/reload
 

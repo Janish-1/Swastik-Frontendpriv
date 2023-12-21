@@ -28,7 +28,7 @@ import axios from "axios";
 // dotenv.config({ path: envPath });
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 const DropDown = ({ currentMode }) => (
   <div className="w-28 border-1 border-color px-2 py-1 rounded-md">
@@ -69,11 +69,11 @@ const AgentDash = () => {
     const payload = JSON.parse(decodedPayload);
 
     // Log the token and its payload
-    // console.log("Token:", token);
-    // console.log("Payload:", payload);
-    // console.log("Role: ", payload.role);
+    // // console.log("Token:", token);
+    // // console.log("Payload:", payload);
+    // // console.log("Role: ", payload.role);
   } else {
-    // console.log("Token not found in localStorage");
+    // // console.log("Token not found in localStorage");
   }
 
   // Fetch data for total members, deposit requests, withdraw requests, and pending loans
@@ -81,26 +81,15 @@ const AgentDash = () => {
     try {
       const membersResponse = await axios.get(`${API_BASE_URL}/countMembers`);
       setTotalMembers(membersResponse.data.count);
-
-      const totalLoanAmount = await axios.get(
-        `${API_BASE_URL}/totalLoanAmount`
-      );
-      setTotalLoanAmount(totalLoanAmount.data.totalLoanAmount);
-
-      const totalCurrentBalance = await axios.get(
-        `${API_BASE_URL}/totalCurrentBalance`
-      );
-      settotalCurrentBalance(totalCurrentBalance.data.totalCurrentBalance);
-
-      const loansResponse = await axios.get(`${API_BASE_URL}/pendingLoans`);
-      setPendingLoans(loansResponse.data.data.length);
-
-      const transactionsResponse = await axios.get(
-        `${API_BASE_URL}/transactions`
-      );
-      setTransactions(transactionsResponse.data.data);
+      const loansResponse = await axios.get(`${API_BASE_URL}/totalLoans`);
+      setPendingLoans(loansResponse.data.totalLoans);
+      const response = await axios.get(`${API_BASE_URL}/totals-this-month`);
+      setTotalLoanAmount(response.data.totalAmountPaidThisMonth);
+      settotalCurrentBalance(response.data.totalDueAmountThisMonth);
+      const responsedata = await axios.get(`${API_BASE_URL}/recentCollection`);
+      setTransactions(responsedata.data.RecentCollection);
     } catch (error) {
-      // console.error("Error fetching data:", error);
+      // // console.error("Error fetching data:", error);
     }
   };
 
@@ -213,19 +202,17 @@ const AgentDash = () => {
               <th>Member Name</th>
               <th>Account Number</th>
               <th>Amount</th>
-              <th>Debit/Credit</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {transactions.slice(0, 10).map((transaction, index) => (
+          {transactions.map((transaction, index) => (
               <tr key={index}>
-                <td>{new Date(transaction.date).toLocaleString()}</td>
-                <td>{transaction.member}</td>
-                <td>{transaction.accountNumber}</td>
-                <td>{transaction.transactionAmount}</td>
-                <td>{transaction.debitOrCredit}</td>
-                <td>{transaction.status}</td>
+                <td>{transaction.Date}</td>
+                <td>{transaction["Member Name"]}</td>
+                <td>{transaction["Account Number"]}</td>
+                <td>{transaction.Amount}</td>
+                <td>{transaction.Status}</td>
               </tr>
             ))}
           </tbody>

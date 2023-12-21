@@ -49,7 +49,7 @@ export default function AgentForm() {
 
   const handleSubmit = async (e) => {
     // Handle form submission logic here
-    console.log(formData);
+    // console.log(formData);
 
     e.preventDefault();
     try {
@@ -119,7 +119,7 @@ export default function AgentForm() {
         );
         setBranchNames(branchNamesResponse.data.data);  
         } catch (error) {
-        // console.error('Error fetching users:', error);
+        // // console.error('Error fetching users:', error);
         // Handle error or display an error message to the user
       }
     };

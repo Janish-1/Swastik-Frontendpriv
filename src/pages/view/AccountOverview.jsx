@@ -24,7 +24,7 @@ const AccountOverview = ({ id }) => {
         setMemberDetails(newData);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        // console.error('Error fetching data:', error);
         setLoading(false);
       }
     };

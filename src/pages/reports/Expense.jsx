@@ -5,7 +5,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 export default function Expense() {
   const [expenses, setExpenses] = useState([]);
@@ -53,7 +53,7 @@ export default function Expense() {
         const expensesResponse = await axios.get(fullUrl);
         setExpenses(expensesResponse.data);
       } catch (error) {
-        // console.error("Error fetching data:", error);
+        // // console.error("Error fetching data:", error);
       }
     };
 

@@ -5,7 +5,7 @@ import Reports from "../Reports";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// console.log("Api URL:", API_BASE_URL);
+// // console.log("Api URL:", API_BASE_URL);
 
 export default function Loanreport() {
   const [memberNumbers, setmemberNumbers] = useState([]);
@@ -38,7 +38,7 @@ export default function Loanreport() {
       const memberNumbers = membersResponse.data.data;
       setmemberNumbers(memberNumbers);
     } catch (error) {
-      // console.error('Error fetching data:', error);
+      // // console.error('Error fetching data:', error);
       // Handle error or display an error message
     }
   };
@@ -58,9 +58,9 @@ export default function Loanreport() {
     try {
       const response = await axios.post(`${API_BASE_URL}/loanreport`, formData);
       setLoanData(response.data);
-      // console.log(response);
+      // // console.log(response);
     } catch (error) {
-      // console.error("Error fetching loan data:", error);
+      // // console.error("Error fetching loan data:", error);
       // Handle error (display an error message, etc.)
     }
   };
