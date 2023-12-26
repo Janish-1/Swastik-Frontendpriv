@@ -250,7 +250,7 @@ const User = () => {
   
       if (updated.image) {
         const imageFormData = new FormData();
-        imageFormData.append("image", updated.image);
+        imageFormData.append("imageone", updated.image);
   
         try {
           const responseImage = await axios.post(
@@ -269,11 +269,10 @@ const User = () => {
               image: responseImage.data.url,
             };
           } else {
-            // console.error("Image upload failed");
+            // Handle image upload failure
           }
         } catch (imageUploadError) {
-          // console.error("Error uploading image:", imageUploadError);
-          // Continue even if image upload fails
+          // Handle image upload error
         }
       }
   
@@ -282,20 +281,19 @@ const User = () => {
         updatedForm,
         {
           headers: {
-            "Content-Type": "application/json", // Ensure correct content type based on server expectations
+            "Content-Type": "application/json",
           },
         }
       );
-      
+  
       // Rest of your logic
       handleCloseeditModal();
       fetchData();
     } catch (error) {
-      // console.error("Error updating user:", error);
-      // Handle error - display an error message or perform necessary actions
+      // Handle error
     }
   };
-  
+    
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -314,7 +312,7 @@ const User = () => {
 
   const handleImageChange = (e) => {
     const imageFile = e.target.files[0];
-    setFormData((prevData) => ({
+    setupdatedFormData((prevData) => ({
       ...prevData,
       image: imageFile,
     }));

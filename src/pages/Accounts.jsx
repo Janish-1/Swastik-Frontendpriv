@@ -101,7 +101,7 @@ const Accounts = () => {
         accountType: accountData.accountType,
         openingBalance: accountData.openingBalance,
         currentBalance: accountData.currentBalance,
-        photo: accountData.photo,
+        photo: null,
         fatherName: accountData.fatherName,
         gender: accountData.gender,
         maritalStatus: accountData.maritalStatus,
@@ -109,7 +109,7 @@ const Accounts = () => {
         currentAddress: accountData.currentAddress,
         permanentAddress: accountData.permanentAddress,
         whatsAppNo: accountData.whatsAppNo,
-        idProof: accountData.idProof,
+        idProof: null,
         nomineeName: accountData.nomineeName,
         relationship: accountData.relationship,
         nomineeMobileNo: accountData.nomineeMobileNo,
@@ -126,41 +126,28 @@ const Accounts = () => {
   const handleCloseEditModal = () => {
     setShowEditModal(false);
   };
-
-  const handleUpdateChange = (event) => {
-    const { name, value } = event.target;
-
-    // Convert the member number to a number type before setting the state
-    if (name === "memberNo") {
-      setUpdateData({
-        ...updateData,
-        [name]: parseInt(value, 10), // Parse the input value to an integer
-      });
-    } else {
-      setUpdateData({
-        ...updateData,
-        [name]: value,
-      });
-    }
-  };
+  
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: name === "openingBalance" ? parseFloat(value) : value,
-    }));
-    setAccountFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-      [name]: name === "openingBalance" ? parseFloat(value) : value,
-    }));
-    setAccountFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
+    const { name, value, files } = e.target;
+  
+    if (files && files.length > 0) {
+      // If the input is a file type
+      const file = files[0]; // Get the first file from the input
+      // Handle the file here or store it in state as needed
+      setAccountFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: file,
+      }));
+    } else {
+      // For other input types
+      setAccountFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: value,
+      }));
+    }
   };
-
+    
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
@@ -178,25 +165,44 @@ const Accounts = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      // // console.log(formData);
-      await axios.put(
-        `${API_BASE_URL}/updateaccounts/${accountFormData._id}`,
-        accountFormData
+      const formDataWithImages = new FormData();
+      formDataWithImages.append("images", accountFormData.photo);
+      formDataWithImages.append("images", accountFormData.idProof);
+  
+      const responseUpload = await axios.post(
+        `${API_BASE_URL}/uploadmultiple`,
+        formDataWithImages,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
+  
+      const imageUrls = {
+        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
+        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+      };
+  
+      const updatedAccountData = {
+        ...accountFormData,
+        photo: imageUrls.imageUrl1,
+        idProof: imageUrls.imageUrl2,
+      };
+  
       await axios.put(
-        `${API_BASE_URL}/updateaccounts/${accountFormData._id}`,
-        accountFormData
+        `${API_BASE_URL}/updateaccounts/${updatedAccountData._id}`,
+        updatedAccountData
       );
-      // alert('Data Updated Successfully');
+  
       fetchData(); // Fetch data after successful update
       handleCloseEditModal();
     } catch (error) {
-      // alert('Failed to update account. Please check the data fields.');
-      // // console.error('Error:', error);
+      // Handle error
       handleCloseEditModal();
     }
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -690,7 +696,7 @@ const Accounts = () => {
                 type="file"
                 accept="image/*"
                 name="photo"
-                onChange={handleUpdateChange}
+                onChange={handleInputChange}
               />
             </Form.Group>
             {/* Father's Name */}
@@ -783,8 +789,8 @@ const Accounts = () => {
               <Form.Control
                 type="file"
                 accept="image/*"
-                name="photo"
-                onChange={handleUpdateChange}
+                name="idProof"
+                onChange={handleInputChange}
               />
             </Form.Group>
             {/* Nominee Name */}
