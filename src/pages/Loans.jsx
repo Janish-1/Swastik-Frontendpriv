@@ -8,6 +8,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { parseISO } from "date-fns";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import Objectionloan from "./Objectionloan";
+import LoanCalci from "./LoanCalci";
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // // console.log("Api URL:", API_BASE_URL);
 
@@ -790,7 +791,7 @@ const Loans = () => {
         striped
         bordered
         hover
-        className="mt-4 rounded-lg overflow-hidden"
+        className="mt-4 rounded-lg w-full min-w-full"
       >
         <thead>
           <tr>
@@ -840,6 +841,7 @@ const Loans = () => {
           />
         </tbody>
       </Table>
+      <LoanCalci/>
     </div>
   );
 };

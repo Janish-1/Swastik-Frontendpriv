@@ -11,9 +11,9 @@ import {
 } from "react-bootstrap";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
-
 const Branches = () => {
   const [showModal, setShowModal] = useState(false);
+  const [branchCodeunique, setbranchcodeunique] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
     branchName: "",
@@ -22,7 +22,19 @@ const Branches = () => {
     password: "",
     contactphone: "",
     branchaddress: "",
+    branchCode: 0,
   });
+
+  const [updatedformdata, setupdateformdata] = useState({
+    branchName: "",
+    name: "",
+    email: "",
+    password: "",
+    contactphone: "",
+    branchaddress: "",
+    branchCode: branchCodeunique,
+  });
+
   const [membersData, setMembersData] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [alertVariant, setAlertVariant] = useState("success"); // or 'danger' for an error alert
@@ -64,6 +76,7 @@ const Branches = () => {
   // }, []);
 
   const handleOpenModal = () => {
+    fetchData();
     setShowModal(true);
     // Reset alert when modal is opened
     setShowAlert(false);
@@ -106,27 +119,36 @@ const Branches = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Assume you set branchCode dynamically based on certain conditions
+    const newBranchCode = branchCodeunique;
+
+    const updatedFormData = {
+      ...formData,
+      branchCode: newBranchCode,
+    };
+
     try {
       const response = await axios.post(
         `${API_BASE_URL}/createbranch`,
-        formData
+        updatedFormData
       );
       fetchData();
+      // Handle success of user creation
+      // console.log("Manager User Created:", responseUser.data);
+      setFormData({
+        branchName: "",
+        name: "",
+        email: "",
+        password: "",
+        contactphone: "",
+        branchaddress: "",
+        branchCode: 0,
+      });
+      handleCloseModal();
     } catch (error) {
       setShowAlert(true);
     }
-    // Handle success of user creation
-    // // console.log("Manager User Created:", responseUser.data);
-    setFormData({
-      branchName: "",
-      name: "",
-      email: "",
-      password: "",
-      contactphone: "",
-      branchaddress: "",
-    });
-
-    handleCloseModal();
   };
 
   const handleUpdate = async (e, id) => {
@@ -151,6 +173,7 @@ const Branches = () => {
         password: "",
         contactphone: "",
         branchaddress: "",
+        branchCode: 0,
       });
       fetchData();
     } catch (error) {
@@ -172,13 +195,16 @@ const Branches = () => {
       alert("failed");
     }
   };
-  
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
   const fetchData = async () => {
     try {
+      const resp = await axios.get(`${API_BASE_URL}/randomgenbranchCode`);
+      setbranchcodeunique(resp.data.uniqueid);
+
       const response = await axios.get(`${API_BASE_URL}/readbranch`);
       const { data } = response.data; // Extract 'data' array from the response
 
@@ -237,6 +263,16 @@ const Branches = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="branchCode">
+              <Form.Label>Branch Code</Form.Label>
+              <Form.Control
+                type="number"
+                name="branchCode"
+                value={branchCodeunique}
+                onChange={handleInputChange}
+                readonly
+              />
+            </Form.Group>
             <Form.Group controlId="formName">
               <Form.Label>Name</Form.Label>
               <Form.Control
@@ -320,8 +356,19 @@ const Branches = () => {
                 value={formData.branchId}
                 onChange={handleInputChange}
                 readOnly
-                style={{ display: 'none' }}
-                />
+                style={{ display: "none" }}
+              />
+            </Form.Group>
+            <Form.Group controlId="branchCode">
+              <Form.Label>Branch Code</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter name"
+                name="branchCode"
+                value={branchCodeunique}
+                onChange={handleInputChange}
+                readonly
+              />
             </Form.Group>
             <Form.Group controlId="formName">
               <Form.Label>Name</Form.Label>
@@ -410,6 +457,7 @@ const Branches = () => {
       >
         <thead>
           <tr>
+            <th>Branch Code</th>
             <th>Name</th>
             <th>Manager Name</th>
             <th>Email</th>
@@ -421,6 +469,7 @@ const Branches = () => {
         <tbody>
           {filteredMembers.map((member) => (
             <tr>
+              <td>{member.branchCode}</td>
               <td>{member.branchName}</td>
               <td>{member.name}</td>
               <td>{member.email}</td>

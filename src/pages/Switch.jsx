@@ -140,7 +140,7 @@ const Switch = () => {
   };
 
   return (
-    <div>
+    <div className="body-div">
       {userRole === "admin" && (
         <Form onSubmit={handleFormSubmit}>
           <Row className="mb-3">

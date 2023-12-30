@@ -8,6 +8,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const User = () => {
   const [showModal, setShowModal] = useState(false);
+  const [userRoleu, setUserRole] = useState("");
   const [memberNumbers, setmemberNumbers] = useState([]);
   const [showeditModal, setShowEditModal] = useState(false);
   const [editUserId, setEditUserId] = useState(null);
@@ -247,11 +248,11 @@ const User = () => {
     e.preventDefault();
     try {
       let updatedForm = { ...updated };
-  
+
       if (updated.image) {
         const imageFormData = new FormData();
         imageFormData.append("imageone", updated.image);
-  
+
         try {
           const responseImage = await axios.post(
             `${API_BASE_URL}/uploadimage`,
@@ -262,7 +263,7 @@ const User = () => {
               },
             }
           );
-  
+
           if (responseImage.status === 200) {
             updatedForm = {
               ...updatedForm,
@@ -275,7 +276,7 @@ const User = () => {
           // Handle image upload error
         }
       }
-  
+
       const response = await axios.put(
         `${API_BASE_URL}/updateintuser/${editUserId}`,
         updatedForm,
@@ -285,7 +286,7 @@ const User = () => {
           },
         }
       );
-  
+
       // Rest of your logic
       handleCloseeditModal();
       fetchData();
@@ -293,7 +294,7 @@ const User = () => {
       // Handle error
     }
   };
-    
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -320,7 +321,7 @@ const User = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const formDataForApi = new FormData();
     formDataForApi.append("memberNo", formData.memberNo);
     formDataForApi.append("name", formData.name);
@@ -370,35 +371,55 @@ const User = () => {
     }
   };
 
-  // Function to fetch user data from the backend
   const fetchData = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/users`); // Replace with your API endpoint
-
-      // Filter usersData based on userType condition (e.g., "user", "agent", "admin")
-      const filteredUsers = response.data.filter((user) =>
-        ["user", "agent", "admin"].includes(user.userType)
-      );
-
-      setUsersData(filteredUsers); // Update usersData state with the filtered data
-      const branchNamesResponse = await axios.get(
-        `${API_BASE_URL}/branches/names`
-      );
-      setBranchNames(branchNamesResponse.data.data);
-      const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
-      const memberNumbers = membersResponse.data.data;
-      setmemberNumbers(memberNumbers);
-    } catch (error) {
-      // // console.error('Error fetching users:', error);
-      // Handle error or display an error message to the user
+    const token = localStorage.getItem("token");
+  
+    if (token) {
+      const tokenParts = token.split(".");
+      const encodedPayload = tokenParts[1];
+      const decodedPayload = atob(encodedPayload);
+      const payload = JSON.parse(decodedPayload);
+      const urole = payload.role; // Extract user role from the token payload
+      setUserRole(urole);
+  
+      try {
+        if (urole === "admin") {
+          const response = await axios.get(`${API_BASE_URL}/api/users`);
+          const filteredUsers = response.data.filter(
+            (user) => ["user", "agent", "admin"].includes(user.userType)
+          );
+          setUsersData(filteredUsers);
+        } else if (urole === "manager") {
+          const x = payload.db;
+          const parts = x.split("_");
+          if (parts.length > 1) {
+            const objectIdPart = parts[1];
+            const response = await axios.get(
+              `${API_BASE_URL}/branch-users/${objectIdPart}`
+            );
+            setUsersData(response.data.users);
+          }
+        }
+  
+        const branchNamesResponse = await axios.get(
+          `${API_BASE_URL}/branches/names`
+        );
+        setBranchNames(branchNamesResponse.data.data);
+  
+        const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
+        const memberNumbers = membersResponse.data.data;
+        setmemberNumbers(memberNumbers);
+      } catch (error) {
+        // Handle error or display an error message to the user
+        console.error("Error fetching data:", error);
+      }
     }
   };
-
+  
   useEffect(() => {
-    // Call the function to fetch user data when the component mounts
     fetchData();
   }, []); // Run once on component mount
-
+  
   const handleDelete = async (userId) => {
     try {
       const response = await axios.delete(

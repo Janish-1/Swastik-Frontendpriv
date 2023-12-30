@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form, Table } from "react-bootstrap";
+import { Modal, Button, Form, Table,Row, Col } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
@@ -8,15 +8,19 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const Expense = () => {
   const [showModal, setShowModal] = useState(false);
+  const [branchNames, setBranchNames] = useState([]);
   const [formData, setFormData] = useState({
     date: new Date(),
     category: "",
     amount: "",
     reference: "",
     note: "",
+    branchName: "",
   });
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [selectedBranch, setSelectedBranch] = useState("All");
+  const [filteredData, setFilteredData] = useState([]); // State for filtered data
   const [newCategory, setNewCategory] = useState("");
 
   useEffect(() => {
@@ -30,6 +34,11 @@ const Expense = () => {
 
       const expensesResponse = await axios.get(`${API_BASE_URL}/expenses`);
       setExpenses(expensesResponse.data); // Assuming the response data contains an array of expenses
+
+      const branchNamesResponse = await axios.get(
+        `${API_BASE_URL}/branches/names`
+      );
+      setBranchNames(branchNamesResponse.data.data);
     } catch (error) {
       // console.error("Error fetching data:", error);
     }
@@ -77,6 +86,7 @@ const Expense = () => {
       amount: "",
       reference: "",
       note: "",
+      branchName: "",
     });
   };
 
@@ -90,12 +100,17 @@ const Expense = () => {
         amount: "",
         reference: "",
         note: "",
+        branchName: "",
       });
       fetchData();
     } catch (error) {
       // console.error("Error creating Expense:", error);
     }
     handleModalClose();
+  };
+  
+  const handleBranchSelect = (event) => {
+    setSelectedBranch(event.target.value);
   };
 
   return (
@@ -104,6 +119,29 @@ const Expense = () => {
         <Button variant="primary" onClick={handleModalShow}>
           Add Expense
         </Button>
+        <Form onSubmit={handleBranchSelect}>
+          <Row className="mb-3">
+            <Col xs={6} md={3}>
+              <Form.Select
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="custom-select"
+              >
+                <option value="All">All Branches</option>
+                {branchNames.map((branch, index) => (
+                  <option key={index} value={branch}>
+                    {branch}
+                  </option>
+                ))}
+              </Form.Select>
+            </Col>
+            <Col xs={6} md={3}>
+              <Button type="submit" variant="primary">
+                Filter
+              </Button>
+            </Col>
+          </Row>
+        </Form>
       </div>
       <br />
       <Modal show={showModal} onHide={handleModalClose}>
@@ -112,6 +150,23 @@ const Expense = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
+          <Form.Group controlId="formBranch">
+                  <Form.Label>Branch</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="branchName"
+                    value={formData.branchName}
+                    onChange={handleInputChange}
+                    as="select"
+                  >
+                    <option value="">Select Branch</option>
+                    {branchNames.map((branch, index) => (
+                      <option key={index} value={branch}>
+                        {branch}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>{" "}
             <Form.Group controlId="date">
               <Form.Label>Date</Form.Label>
               <Form.Control
@@ -206,16 +261,20 @@ const Expense = () => {
             <th>Amount</th>
             <th>Reference</th>
             <th>Note</th>
+            <th>Branch Name</th>
           </tr>
         </thead>
         <tbody>
-          {expenses.map((expense, index) => (
+        {expenses
+          .filter((expense) => selectedBranch === "All" || expense.branchName === selectedBranch)
+          .map((expense, index) => (
             <tr key={index}>
               <td>{new Date(expense.date).toISOString().split("T")[0]}</td>
               <td>{expense.category}</td>
               <td>{expense.amount}</td>
               <td>{expense.reference}</td>
               <td>{expense.note}</td>
+              <td>{expense.branchName}</td>
             </tr>
           ))}
         </tbody>

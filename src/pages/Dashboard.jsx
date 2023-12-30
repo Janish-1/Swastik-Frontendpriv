@@ -287,9 +287,9 @@ const Ecommerce = () => {
         </div>
       </div>
       {/* 4th card end */}
-
+      
       <div className="flex flex-wrap justify-center mt-10 mb-10">
-        <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-4 rounded-2xl md:w-960 w-full shadow-lg mt-8">
+        <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-4 rounded-2xl md:w-760 w-90 shadow-lg mt-8">
           <div className="flex justify-between">
             <p className="font-semibold text-xl">Expense Overview</p>
           </div>
@@ -301,7 +301,7 @@ const Ecommerce = () => {
               marginTop: "10px",
             }}
           >
-            <div style={{ margin: "0 10px" }}>
+            {/* <div style={{ margin: "0 10px" }}>
               Expense Per Year
               <div style={{ width: "350px", height: "300px" }}>
                 <PieChart width={350} height={300}>
@@ -320,7 +320,6 @@ const Ecommerce = () => {
                     fill="#8884d8"
                     labelLine={false}
                   />
-                  {/* Legend code remains unchanged */}
                   <Legend
                     align="left"
                     verticalAlign="middle"
@@ -335,7 +334,7 @@ const Ecommerce = () => {
                   />
                 </PieChart>
               </div>
-            </div>
+            </div> */}
             <div style={{ margin: "0 10px" }}>
               Earnings Per Year
               <div
@@ -370,7 +369,12 @@ const Ecommerce = () => {
         <h1 className="text-3xl m-2 text-cyan-500 font-medium">
           Recent Transaction
         </h1>
-        <Table className="table text-center bg-info text-white rounded-lg overflow-hidden ">
+        <Table
+          bordered
+          hover
+          responsive
+          className="text-center text-white rounded-lg overflow-hidden"
+        >
           <thead>
             <tr className="table-secondary">
               <th>Date</th>

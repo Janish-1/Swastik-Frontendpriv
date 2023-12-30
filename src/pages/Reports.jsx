@@ -52,7 +52,7 @@ const Reports = () => {
                 activeClassName="active"
                 className="nav-link"
               >
-                Account Balance
+                Account Balance/Overview
               </Nav.Link>
               <Nav.Link
                 as={NavLink}
@@ -131,7 +131,7 @@ case "manager":
             activeClassName="active"
             className="nav-link"
           >
-            Account Balance
+            Account Balance/Overview
           </Nav.Link>
           <Nav.Link
             as={NavLink}
@@ -210,7 +210,7 @@ case "agent":
             activeClassName="active"
             className="nav-link"
           >
-            Account Balance
+            Account Balance/Overview
           </Nav.Link>
           <Nav.Link
             as={NavLink}

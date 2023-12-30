@@ -18,7 +18,7 @@ const Details = ({ id, memberData }) => {
         // console.log(data);
         const newData = {
           "Profile": data.photo,
-          "Member ID":data.memberNo,
+          "Membership":data.memberNo,
           "Name":data.fullName,
           "Email":data.email,
           "Branch":data.branchName,
@@ -40,7 +40,7 @@ const Details = ({ id, memberData }) => {
   }
 
   // Specify the fields you want to display
-  const fieldsToDisplay = ['Member ID', 'Name', 'Email', 'Branch'];
+  const fieldsToDisplay = ['Membership', 'Name', 'Email', 'Branch'];
   
   // Specify the fields that are images
   const imageFields = ['Profile','ID Proof'];

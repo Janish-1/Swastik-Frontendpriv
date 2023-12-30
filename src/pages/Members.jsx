@@ -580,18 +580,18 @@ const Members = () => {
 
   return (
     <div className="body-div">
-      <Button onClick={handleModalShow}>Add New Member</Button>
+      <Button onClick={handleModalShow}>Add New Membership</Button>
 
       <Modal show={showModal} onHide={handleModalClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>New Member Form</Modal.Title>
+          <Modal.Title>New Membership Form</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group controlId="formMemberNo">
-                  <Form.Label>Member Number</Form.Label>
+                  <Form.Label>Membership</Form.Label>
                   <Form.Control
                     type="number"
                     name="memberNo"
@@ -1285,6 +1285,8 @@ const Members = () => {
                 <option value="">Select an account type</option>
                 <option value="Savings">Savings</option>
                 <option value="Loan">Loan</option>
+                <option value="FD">FD</option>
+                <option value="DD">DD</option>
               </Form.Select>
             </Form.Group>
 
@@ -1306,14 +1308,14 @@ const Members = () => {
           </Form>
         </Modal.Body>
       </Modal>
-
+      <div className="overflow-x-auto">
       <Table
         responsive
         striped
         bordered
         hover
-        className="mt-4 rounded-lg overflow-hidden "
-      >
+        className="min-w-full mt-4 rounded-lg table-auto" // Removed overflow-hidden
+        >
         <thead>
           <tr>
             <th>Profile Pic</th>
@@ -1326,7 +1328,7 @@ const Members = () => {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="relative z-10 min-h-[12rem]"> {/* Adjusted z-index */}
           {membersData.map((member) => (
             <tr key={member._id}>
               <td>
@@ -1348,13 +1350,14 @@ const Members = () => {
               <td>{member.nomineeName}</td>
               <td>{member.whatsAppNo}</td>
               {/* <td>{member.accountType}</td> */}
-              <td>
+              <td className="relative"> 
                   {renderDropdownForUserType(member._id)}
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+    </div>
     </div>
   );
 };
