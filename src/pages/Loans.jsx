@@ -1,6 +1,6 @@
 // Loans.jsx
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form, Table, FormControl } from "react-bootstrap";
+import { Modal, Button, Form, Table, FormControl, Tab, Nav } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
@@ -20,6 +20,8 @@ const Loans = () => {
     memberName: "",
     memberNo: "",
     releaseDate: new Date(), // Default date
+    pan: null,
+    aadhar: null,
     appliedAmount: "",
     status: "Pending",
     endDate: new Date(),
@@ -37,7 +39,22 @@ const Loans = () => {
   const [selectedLoanForApproval, setSelectedLoanForApproval] = useState(null);
   const [showObjectionModal, setShowObjectionModal] = useState(false);
   const [selectedLoanId, setSelectedLoanId] = useState(null);
-  const [userType,setusertype]=useState("");
+  const [userType, setusertype] = useState("");
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewMemberData, setViewMemberData] = useState(0);
+
+  const handleOpenViewModal = (id) => {
+    // console.log(id);
+    fetchData();
+    const selectedMember = loansData.find((loan) => loan._id === id);
+    setViewMemberData(selectedMember);
+    setShowViewModal(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+    setViewMemberData(true);
+  };
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
@@ -80,6 +97,8 @@ const Loans = () => {
         loanProduct,
         memberName,
         memberNo,
+        pan,
+        aadhar,
         releaseDate,
         appliedAmount,
         status,
@@ -101,6 +120,8 @@ const Loans = () => {
         loanProduct,
         memberName,
         memberNo,
+        pan: null,
+        aadhar: null,
         releaseDate: formattedReleaseDate,
         appliedAmount,
         status,
@@ -175,6 +196,24 @@ const Loans = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formDataWithImages = new FormData();
+    formDataWithImages.append("images", formData.pan);
+    formDataWithImages.append("images", formData.aadhar);
+
+    const responseUpload = await axios.post(
+      `${API_BASE_URL}/uploadmultiple`,
+      formDataWithImages,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    const imageUrls = {
+      imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
+      imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+    };
     try {
       const {
         loanId,
@@ -182,6 +221,8 @@ const Loans = () => {
         loanProduct,
         memberName,
         memberNo,
+        pan,
+        aadhar,
         releaseDate,
         appliedAmount,
         status,
@@ -197,6 +238,8 @@ const Loans = () => {
         memberNo,
         releaseDate,
         appliedAmount,
+        pan:imageUrls.imageUrl1,
+        aadhar:imageUrls.imageUrl2,
         status,
         account, // Include accountId in the POST request
         endDate,
@@ -210,6 +253,8 @@ const Loans = () => {
         loanProduct: "",
         memberName: "",
         memberNo: "",
+        pan: null,
+        aadhar: null,
         releaseDate: new Date(),
         appliedAmount: "",
         status: "",
@@ -225,14 +270,41 @@ const Loans = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const formDataWithImages = new FormData();
+    formDataWithImages.append("images", formData.pan);
+    formDataWithImages.append("images", formData.aadhar);
+
+    const responseUpload = await axios.post(
+      `${API_BASE_URL}/uploadmultiple`,
+      formDataWithImages,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    const imageUrls = {
+      imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
+      imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+    };
     try {
-      await axios.put(`${API_BASE_URL}/updateloan/${formData.id}`, formData);
+      const response = await axios.put(
+        `${API_BASE_URL}/updateloan/${formData.id}`,
+        {
+          ...formData,
+          pan: imageUrls.imageUrl1,
+          aadhar: imageUrls.imageUrl2,
+        }
+      );    
       setFormData({
         loanId: "",
         account: "",
         loanProduct: "",
         memberName: "",
         memberNo: "",
+        pan: null,
+        aadhar: null,
         releaseDate: new Date(),
         appliedAmount: "",
         status: "",
@@ -281,18 +353,20 @@ const Loans = () => {
     setShowObjectionModal(true);
   };
 
+  const handleFileChange = (event) => {
+    const { name, files } = event.target;
+    setFormData({
+      ...formData,
+      [name]: files[0],
+    });
+  };
+
   const handleObjectionSubmit = async (reason) => {
-    // Implement logic to handle objection submission
-    // // console.log(
-    //   `Objection submitted for loan ${selectedLoanId} with reason: ${reason}`
-    // );
     const response = await axios.put(
       `${API_BASE_URL}/objection/${selectedLoanId}`,
       { reason }
     );
-    // // console.log(response);
     fetchData();
-    // Reset state or perform other actions as needed
     setShowObjectionModal(false);
     setSelectedLoanId(null);
   };
@@ -348,7 +422,31 @@ const Loans = () => {
     // Fetch data initially on component mount
     fetchData();
   }, []);
-
+  const LoanDetailsTab = ({ data }) => {
+    return (
+      <div>
+        <h4>Loan ID: {data.loanId}</h4>
+        <p>Loan Product: {data.loanProduct}</p>
+        <p>Member Name: {data.memberName}</p>
+        <p>Member Number: {data.memberNo}</p>
+        <p>Account: {data.account}</p>
+        <p>Status: {data.status}</p>
+        <p>Applied Amount: {data.appliedAmount}</p>
+        <p>Duration in Months: {data.durationMonths}</p>
+        <p>Release Date: {new Date(data.releaseDate).toLocaleDateString()}</p>
+        <p>End Date: {new Date(data.endDate).toLocaleDateString()}</p>
+        <div>
+          <p>PAN Image:</p>
+          <img src={data.pan} alt="PAN Image" width={"300px"} height={"300px"}/>
+        </div>
+        <div>
+          <p>Aadhar Image:</p>
+          <img src={data.aadhar} alt="Aadhar Image" width={"300px"} height={"300px"}/>
+        </div>
+      </div>
+    );
+  };
+  
   useEffect(() => {
     // Filter loans based on search term in 'memberNo' and 'borrowerNumber' columns
     const filteredLoans = loansData.filter((loan) => {
@@ -368,83 +466,92 @@ const Loans = () => {
 
   function showdropdownfortype(loanId) {
     switch (userType) {
-      case 'admin':
-        return (        
-        <Dropdown>
-          <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
-            Actions
-          </Dropdown.Toggle>
-          <Dropdown.Menu style={{ zIndex: 9999 }}>
-            <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
-              Edit
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleDelete(loanId)}>
-              Delete
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleApproveLoan(loanId)}>
-              Approve
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleCancelLoan(loanId)}>
-              Cancel
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleObjection(loanId)}>
-              Objection
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+      case "admin":
+        return (
+          <Dropdown>
+            <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
+              Actions
+            </Dropdown.Toggle>
+            <Dropdown.Menu style={{ zIndex: 9999 }}>
+              <Dropdown.Item onClick={() => handleOpenViewModal(loanId)}>
+                View
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
+                Edit
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleDelete(loanId)}>
+                Delete
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleApproveLoan(loanId)}>
+                Approve
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleCancelLoan(loanId)}>
+                Cancel
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleObjection(loanId)}>
+                Objection
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         );
-      case 'manager':
-        return (        
-        <Dropdown>
-          <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
-            Actions
-          </Dropdown.Toggle>
-          <Dropdown.Menu style={{ zIndex: 9999 }}>
-            <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
-              Edit
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleDelete(loanId)}>
-              Delete
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleApproveLoan(loanId)}>
-              Approve
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleCancelLoan(loanId)}>
-              Cancel
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleObjection(loanId)}>
-              Objection
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+      case "manager":
+        return (
+          <Dropdown>
+            <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
+              Actions
+            </Dropdown.Toggle>
+            <Dropdown.Menu style={{ zIndex: 9999 }}>
+            <Dropdown.Item onClick={() => handleOpenViewModal(loanId)}>
+                View
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
+                Edit
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleDelete(loanId)}>
+                Delete
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleApproveLoan(loanId)}>
+                Approve
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleCancelLoan(loanId)}>
+                Cancel
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleObjection(loanId)}>
+                Objection
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         );
-      case 'agent':
-        return (        
-        <Dropdown>
-          <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
-            Actions
-          </Dropdown.Toggle>
-          <Dropdown.Menu style={{ zIndex: 9999 }}>
-            <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
-              Edit
-            </Dropdown.Item>
-            {/* <Dropdown.Item onClick={() => handleDelete(loanId)}>
+      case "agent":
+        return (
+          <Dropdown>
+            <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
+              Actions
+            </Dropdown.Toggle>
+            <Dropdown.Menu style={{ zIndex: 9999 }}>
+            <Dropdown.Item onClick={() => handleOpenViewModal(loanId)}>
+                View
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
+                Edit
+              </Dropdown.Item>
+              {/* <Dropdown.Item onClick={() => handleDelete(loanId)}>
             Delete
           </Dropdown.Item> */}
-            <Dropdown.Item onClick={() => handleApproveLoan(loanId)}>
-              Approve
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleCancelLoan(loanId)}>
-              Cancel
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleObjection(loanId)}>
-              Objection
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-          );     
-        default:
-        return null
+              <Dropdown.Item onClick={() => handleApproveLoan(loanId)}>
+                Approve
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleCancelLoan(loanId)}>
+                Cancel
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleObjection(loanId)}>
+                Objection
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        );
+      default:
+        return null;
     }
   }
 
@@ -547,6 +654,24 @@ const Loans = () => {
                   </option>
                 ))}
               </Form.Control>
+            </Form.Group>
+            <Form.Group controlId="formPAN">
+              <Form.Label>Pan (Browse file)</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                name="pan"
+                onChange={handleFileChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formAadhar">
+              <Form.Label>Aadhar (Browse file)</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                name="aadhar"
+                onChange={handleFileChange}
+              />
             </Form.Group>
             <Form.Group controlId="formReleaseDate">
               <Form.Label>Release Date</Form.Label>
@@ -716,6 +841,24 @@ const Loans = () => {
                 dateFormat="MM/dd/yyyy"
               />
             </Form.Group>
+            <Form.Group controlId="formPAN">
+              <Form.Label>Pan (Browse file)</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                name="pan"
+                onChange={handleFileChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formAadhar">
+              <Form.Label>Aadhar (Browse file)</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                name="aadhar"
+                onChange={handleFileChange}
+              />
+            </Form.Group>
             <Form.Group controlId="formAppliedAmount">
               <Form.Label>Applied Amount</Form.Label>
               <Form.Control
@@ -780,6 +923,39 @@ const Loans = () => {
           </Form>
         </Modal.Body>
       </Modal>
+
+      <Modal
+        show={showViewModal}
+        onHide={handleCloseViewModal}
+        size="lg"
+        centered
+        dialogClassName="w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2"
+      >
+        <Modal.Header closeButton className="bg-cyan-800 text-white">
+          <Modal.Title className="text-xl font-semibold">
+            View Loan Details
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+        <Tab.Container id="loan-details-tabs" defaultActiveKey="details">
+          <Nav variant="tabs" className="mb-6">
+            <Nav.Item>
+              <Nav.Link eventKey="details">Details</Nav.Link>
+            </Nav.Item>
+            {/* Add more Nav.Item components as needed */}
+          </Nav>
+
+          <Tab.Content>
+            <Tab.Pane eventKey="details">
+              <LoanDetailsTab data={viewMemberData} />
+            </Tab.Pane>
+            {/* Add more Tab.Pane components as needed */}
+          </Tab.Content>
+        </Tab.Container>
+      </Modal.Body>
+      </Modal>
+
       {selectedLoanForApproval && (
         <Button variant="success" onClick={handleApprove}>
           Approve Loan
@@ -828,9 +1004,7 @@ const Loans = () => {
               </td>
               <td>{loan.durationMonths || "-"}</td>
               <td>{loan.objections}</td>
-              <td>
-                {showdropdownfortype(loan._id)}
-              </td>
+              <td>{showdropdownfortype(loan._id)}</td>
             </tr>
           ))}
           {/* Objection Modal */}
@@ -841,7 +1015,7 @@ const Loans = () => {
           />
         </tbody>
       </Table>
-      <LoanCalci/>
+      <LoanCalci />
     </div>
   );
 };

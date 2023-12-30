@@ -83,7 +83,6 @@ const Members = () => {
   const [viewMemberData, setViewMemberData] = useState(0);
 
   const handleOpenViewModal = (id) => {
-    // console.log(id);
     fetchData();
     const selectedMember = membersData.find((member) => member._id === id);
     setViewMemberData(selectedMember);
