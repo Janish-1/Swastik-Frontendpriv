@@ -402,6 +402,7 @@ const Loans = () => {
         `${API_BASE_URL}/randomgenLoanId`
       );
       setuniqueloanid(uniqueloanresponse.data.uniqueid);
+      
       const token = localStorage.getItem("token");
       if (token) {
         const tokenParts = token.split(".");
@@ -468,7 +469,7 @@ const Loans = () => {
     switch (userType) {
       case "admin":
         return (
-          <Dropdown>
+          <Dropdown drop="end">
             <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
               Actions
             </Dropdown.Toggle>
@@ -496,7 +497,7 @@ const Loans = () => {
         );
       case "manager":
         return (
-          <Dropdown>
+          <Dropdown drop="end">
             <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
               Actions
             </Dropdown.Toggle>
@@ -524,7 +525,7 @@ const Loans = () => {
         );
       case "agent":
         return (
-          <Dropdown>
+          <Dropdown drop="end">
             <Dropdown.Toggle variant="primary" id="loanActionsDropdown">
               Actions
             </Dropdown.Toggle>
@@ -967,7 +968,7 @@ const Loans = () => {
         striped
         bordered
         hover
-        className="mt-4 rounded-lg w-full min-w-full"
+        className="min-w-full mt-4 rounded-lg table-auto" // Removed overflow-hidden
       >
         <thead>
           <tr>
@@ -986,7 +987,7 @@ const Loans = () => {
           </tr>
         </thead>
 
-        <tbody>
+        <tbody className="relative z-10 min-h-[12rem]">
           {filteredLoans.map((loan) => (
             <tr key={loan._id}>
               <td>{loan.loanId}</td>

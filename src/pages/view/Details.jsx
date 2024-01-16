@@ -23,6 +23,7 @@ const Details = ({ id, memberData }) => {
           "Email":data.email,
           "Branch":data.branchName,
           "ID Proof":data.idProof,
+          "Signature":data.signature
         }
         setMemberDetails(newData);
         setLoading(false);
@@ -43,7 +44,7 @@ const Details = ({ id, memberData }) => {
   const fieldsToDisplay = ['Membership', 'Name', 'Email', 'Branch'];
   
   // Specify the fields that are images
-  const imageFields = ['Profile','ID Proof'];
+  const imageFields = ['Profile','ID Proof','Signature'];
 
   return (
     <div>

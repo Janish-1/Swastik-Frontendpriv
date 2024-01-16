@@ -328,7 +328,7 @@ const Accounts = () => {
                 <th>Approval</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="relative z-10 min-h-[12rem]">
               {filteredAccounts.map((account) => (
                 <tr key={account._id}>
                   <td>{account.accountNumber}</td>
@@ -340,7 +340,7 @@ const Accounts = () => {
                   <td>{account.branchName}</td>
                   <td>{account.email}</td>
                   <td>
-                    <Dropdown>
+                    <Dropdown drop="end">
                       <Dropdown.Toggle
                         className="btn-secondary"
                         variant="primary"
@@ -395,7 +395,7 @@ const Accounts = () => {
                   <th>Approval</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="relative z-10 min-h-[12rem]">
                 {filteredAccounts.map((account) => (
                   <tr key={account._id}>
                     <td>{account.accountNumber}</td>
@@ -461,7 +461,7 @@ const Accounts = () => {
                     <th>Approval</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="relative z-10 min-h-[12rem]">
                   {filteredAccounts.map((account) => (
                     <tr key={account._id}>
                       <td>{account.accountNumber}</td>
@@ -849,7 +849,7 @@ const Accounts = () => {
         responsive
         bordered
         hover
-        className="mt-4 rounded-lg overflow-hidden"
+        className="min-w-full mt-4 rounded-lg table-auto" // Removed overflow-hidden
       >
         {renderTableForUserType(filteredAccounts)}
       </Table>

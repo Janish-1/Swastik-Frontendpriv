@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   Modal,
   Button,
@@ -8,6 +8,7 @@ import {
   Tab,
   Row,
   Col,
+  CloseButton,
 } from "react-bootstrap";
 import axios from "axios";
 import { Dropdown } from "react-bootstrap";
@@ -15,6 +16,7 @@ import AccountOverview from "./view/AccountOverview";
 import Details from "./view/Details";
 import Loans from "./view/Loans";
 import Transactions from "./view/Transactions";
+import SignatureCanvas from "react-signature-canvas";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // // console.log("Api URL:", API_BASE_URL);
@@ -42,6 +44,7 @@ const Members = () => {
     nomineeDateOfBirth: "",
     walletId: 0,
     numberOfShares: 0,
+    signature: null,
   });
   const [updateData, setUpdateData] = useState({
     id: "",
@@ -64,6 +67,7 @@ const Members = () => {
     nomineeDateOfBirth: "",
     walletId: 0,
     numberOfShares: 0,
+    signature: null,
   });
 
   const [membersData, setMembersData] = useState([]);
@@ -71,16 +75,15 @@ const Members = () => {
   const [uniquememberid, setuniquememberid] = useState(0);
   const [branchNames, setBranchNames] = useState([]);
   const [uniqueaccountid, setuniqueaccountid] = useState(0);
-  const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const [walletId, setWalletId] = useState(0);
   const [numberOfShares, setNumberOfShares] = useState(0);
   const [amount, setAmount] = useState(0);
-  const [userType,setusertype] = useState("");
-  const handleModalShow = () => setShowModal(true);
+  const [userType, setusertype] = useState("");
   const handleModalClose = () => setShowModal(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewMemberData, setViewMemberData] = useState(0);
+  const [branchnamedata, setbranchnamedata] = useState("");
 
   const handleOpenViewModal = (id) => {
     fetchData();
@@ -92,6 +95,14 @@ const Members = () => {
   const handleCloseViewModal = () => {
     setShowViewModal(false);
     setViewMemberData(true);
+  };
+
+  const handleModalShow = () => {
+    // Call fetchData function here
+    fetchData();
+
+    // Set the state to show the modal
+    setShowModal(true);
   };
 
   const handleInputChange = (e) => {
@@ -166,6 +177,14 @@ const Members = () => {
     nomineeDateOfBirth: "",
   });
 
+  // Assuming you have a list of agents
+  const agents = [
+    { id: 1, name: "Agent 1" },
+    { id: 2, name: "Agent 2" },
+    { id: 3, name: "Agent 3" },
+    // Add more agents as needed
+  ];
+
   const handleOpenAccountModal = async (id) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/getMember/${id}`);
@@ -229,6 +248,7 @@ const Members = () => {
       relationship: "",
       nomineeMobileNo: "",
       nomineeDateOfBirth: "",
+      signature: null,
     }));
   };
 
@@ -321,22 +341,47 @@ const Members = () => {
 
   const fetchData = async () => {
     try {
-      const branchNamesResponse = await axios.get(
-        `${API_BASE_URL}/branches/names`
-      );
-      setBranchNames(branchNamesResponse.data.data);
+      const token = localStorage.getItem("token");
+      if (token) {
+        const tokenParts = token.split(".");
+        const encodedPayload = tokenParts[1];
+        const decodedPayload = atob(encodedPayload);
+        const payload = JSON.parse(decodedPayload);
+        const userRole = payload.role; // Assuming 'role' contains the user's role
+        const branch = payload.branch;
+        setusertype(userRole);
+        setbranchnamedata(branch);
+      }
+
+      if (userType === "manager" || userType === "agent") {
+        const userBranchName = branchnamedata; // Assuming 'branchName' contains the branch name
+        console.log(userBranchName);
+        if (userBranchName) {
+          // Set the branch name to branchNames array
+          formData.append("branchName", userBranchName);
+        }
+      }
+
+      if (userType === "admin") {
+        const branchNamesResponse = await axios.get(
+          `${API_BASE_URL}/branches/names`
+        );
+        setBranchNames(branchNamesResponse.data.data);
+      }
 
       const membersResponse = await axios.get(`${API_BASE_URL}/readmembers`);
       const { data } = membersResponse.data;
 
       if (Array.isArray(data)) {
         setMembersData(data);
-      } else if (typeof data === "object") {
+      } else if (typeof data === "object" && data !== null) {
         const dataArray = [data];
         setMembersData(dataArray);
       } else {
-        // // console.error('Invalid format for members data:', data);
+        // Handle the case when data is neither an array nor an object
+        // console.error('Invalid format for members data:', data);
       }
+
       const uniquememberresponse = await axios.get(
         `${API_BASE_URL}/randomgenMemberId`
       );
@@ -349,18 +394,9 @@ const Members = () => {
         `${API_BASE_URL}/randomgenWalletId`
       );
       setWalletId(uniquewalletresponse.data.uniqueWalletId);
-      const token = localStorage.getItem('token');
-      if (token){
-        const tokenParts = token.split(".");
-        const encodedPayload = tokenParts[1];
-        const decodedPayload = atob(encodedPayload);
-        const payload = JSON.parse(decodedPayload);
-        const userRole = payload.role; // Assuming 'role' contains the user's rol
-        setusertype(userRole);
-        // console.log(typeof(userType));
-      }
     } catch (error) {
-      // // console.error('Error fetching data:', error);
+      // Handle the error in a meaningful way (e.g., logging or displaying an error message)
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -370,13 +406,13 @@ const Members = () => {
 
   function renderDropdownForUserType(memberId) {
     switch (userType) {
-      case 'admin':
+      case "admin":
         return (
-          <Dropdown>
+          <Dropdown drop="end">
             <Dropdown.Toggle variant="info" id="dropdown-basic">
               Actions
             </Dropdown.Toggle>
-  
+
             <Dropdown.Menu>
               <Dropdown.Item onClick={() => handleOpenEditModal(memberId)}>
                 Edit
@@ -393,56 +429,56 @@ const Members = () => {
             </Dropdown.Menu>
           </Dropdown>
         );
-        case 'manager':
-          return (
-            <Dropdown>
-              <Dropdown.Toggle variant="info" id="dropdown-basic">
-                Actions
-              </Dropdown.Toggle>
-    
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={() => handleOpenEditModal(memberId)}>
-                  Edit
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleDelete(memberId)}>
-                  Delete
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleOpenViewModal(memberId)}>
-                  View
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleOpenAccountModal(memberId)}>
-                  Create Account
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          );
-          case 'agent':
-            return (
-              <Dropdown>
-                <Dropdown.Toggle variant="info" id="dropdown-basic">
-                  Actions
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  {/* <Dropdown.Item onClick={() => handleOpenEditModal(memberId)}>
+      case "manager":
+        return (
+          <Dropdown drop="end">
+          <Dropdown.Toggle variant="info" id="dropdown-basic">
+              Actions
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => handleOpenEditModal(memberId)}>
+                Edit
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleDelete(memberId)}>
+                Delete
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleOpenViewModal(memberId)}>
+                View
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleOpenAccountModal(memberId)}>
+                Create Account
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        );
+      case "agent":
+        return (
+          <Dropdown drop="end">
+            <Dropdown.Toggle variant="info" id="dropdown-basic">
+              Actions
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              {/* <Dropdown.Item onClick={() => handleOpenEditModal(memberId)}>
                     Edit
                   </Dropdown.Item>
                   <Dropdown.Item onClick={() => handleDelete(memberId)}>
                     Delete
                   </Dropdown.Item> */}
-                  <Dropdown.Item onClick={() => handleOpenViewModal(memberId)}>
-                    View
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleOpenAccountModal(memberId)}>
-                    Create Account
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            );    
-        default:
+              <Dropdown.Item onClick={() => handleOpenViewModal(memberId)}>
+                View
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleOpenAccountModal(memberId)}>
+                Create Account
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        );
+      default:
         return null; // If userType doesn't match any case, don't render the Dropdown
     }
   }
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -466,14 +502,24 @@ const Members = () => {
         imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
         imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
       };
-      await axios.post(`${API_BASE_URL}/createmember`, {
-        ...formData,
-        memberNo: parseInt(formData.memberNo, 10),
-        photo: imageUrls.imageUrl1,
-        idProof: imageUrls.imageUrl2,
-        walletId: walletId,
-        memberNo: uniquememberid,
-      });
+      if (userType === "admin") {
+        await axios.post(`${API_BASE_URL}/createmember`, {
+          ...formData,
+          memberNo: uniquememberid,
+          photo: imageUrls.imageUrl1,
+          idProof: imageUrls.imageUrl2,
+          walletId: walletId,
+        });
+      } else {
+        await axios.post(`${API_BASE_URL}/createmember`, {
+          ...formData,
+          memberNo: uniquememberid,
+          photo: imageUrls.imageUrl1,
+          idProof: imageUrls.imageUrl2,
+          walletId: walletId,
+          branchName: branchnamedata,
+        });
+      }
 
       setFormData({
         memberNo: 0,
@@ -495,6 +541,7 @@ const Members = () => {
         nomineeDateOfBirth: "",
         walletId: 0,
         numberofShares: 0,
+        signature: null,
       });
 
       handleCloseModal();
@@ -577,6 +624,45 @@ const Members = () => {
     }
   };
 
+  const signatureRef = useRef();
+
+  const handleClear = () => {
+    signatureRef.current.clear();
+  };
+
+  const handleSave = async () => {
+    const signatureCanvas = signatureRef.current; // Assuming signatureRef is a reference to a canvas element
+
+    try {
+      // Get the base64 representation of the canvas content
+      const imageData = signatureCanvas.toDataURL("image/png");
+
+      const response = await axios.post(
+        `${API_BASE_URL}/uploadsignature`,
+        { imageData }, // Sending the base64 data in the 'imageData' field
+        {
+          headers: {
+            "Content-Type": "application/json", // Use 'application/json' for JSON data
+          },
+        }
+      );
+
+      const signatureImageUrl = response.data.url;
+
+      // Assuming you have a field named `signatureUrl` in your state object
+      // Update the state with the signature image URL
+      setFormData({
+        ...formData,
+        signature: signatureImageUrl,
+      });
+
+      // Perform any additional actions here if needed
+    } catch (error) {
+      // Handle error if the image upload fails
+      console.error("Error uploading signature:", error);
+    }
+  };
+
   return (
     <div className="body-div">
       <Button onClick={handleModalShow}>Add New Membership</Button>
@@ -619,21 +705,31 @@ const Members = () => {
               <Col md={6}>
                 <Form.Group controlId="formBranch">
                   <Form.Label>Branch</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="branchName"
-                    value={formData.branchName}
-                    onChange={handleInputChange}
-                    as="select"
-                  >
-                    <option value="">Select Branch</option>
-                    {branchNames.map((branch, index) => (
-                      <option key={index} value={branch}>
-                        {branch}
-                      </option>
-                    ))}
-                  </Form.Control>
-                </Form.Group>{" "}
+                  {userType === "admin" ? (
+                    <Form.Control
+                      type="text"
+                      name="branchName"
+                      value={formData.branchName}
+                      onChange={handleInputChange}
+                      as="select"
+                    >
+                      <option value="">Select Branch</option>
+                      {branchNames.map((branch, index) => (
+                        <option key={index} value={branch}>
+                          {branch}
+                        </option>
+                      ))}
+                    </Form.Control>
+                  ) : (
+                    <Form.Control
+                      type="text"
+                      name="branchName"
+                      value={branchnamedata} // Use the variable set for the manager's branch
+                      onChange={handleInputChange}
+                      readOnly // Make the input read-only for managers
+                    />
+                  )}
+                </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group controlId="formPhoto">
@@ -709,6 +805,26 @@ const Members = () => {
                       onChange={handleInputChange}
                     />
                   </div>
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} controlId="formAgent">
+                <Form.Label column md={3}>
+                  Agent:
+                </Form.Label>
+                <Col md={9}>
+                  <Form.Control
+                    as="select"
+                    name="agent"
+                    value={formData.agent}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select an agent</option>
+                    {agents.map((agent) => (
+                      <option key={agent.id} value={agent.name}>
+                        {agent.name}
+                      </option>
+                    ))}
+                  </Form.Control>
                 </Col>
               </Form.Group>
             </Row>
@@ -902,6 +1018,20 @@ const Members = () => {
                 </Form.Group>
               </Col>
             </Row>
+            <Form.Label>Signature: </Form.Label>
+            <SignatureCanvas
+              ref={signatureRef}
+              penColor="black"
+              canvasProps={{
+                width: 500,
+                height: 200,
+                className: "signature-canvas",
+              }}
+            />
+            <div>
+              <Button onClick={handleClear}>Clear</Button>
+              <Button onClick={handleSave}>Save</Button>
+            </div>
             <br />
             <Button variant="primary" type="submit">
               Submit
@@ -1191,6 +1321,20 @@ const Members = () => {
                 </Form.Group>
               </Col>
             </Row>
+            <Form.Label>Signature: </Form.Label>
+            <SignatureCanvas
+              ref={signatureRef}
+              penColor="black"
+              canvasProps={{
+                width: 500,
+                height: 200,
+                className: "signature-canvas",
+              }}
+            />
+            <div>
+              <Button onClick={handleClear}>Clear</Button>
+              <Button onClick={handleSave}>Save</Button>
+            </div>
             <br />
             <Button variant="primary" type="submit">
               Edit
@@ -1308,55 +1452,59 @@ const Members = () => {
         </Modal.Body>
       </Modal>
       <div className="overflow-x-auto">
-      <Table
-        responsive
-        striped
-        bordered
-        hover
-        className="min-w-full mt-4 rounded-lg table-auto" // Removed overflow-hidden
+        <Table
+          responsive
+          striped
+          bordered
+          hover
+          className="min-w-full mt-4 rounded-lg table-auto" // Removed overflow-hidden
         >
-        <thead>
-          <tr>
-            <th>Profile Pic</th>
-            <th>Name</th>
-            <th>branchName</th>
-            <th>Email</th>
-            <th>Nominee</th>
-            <th>WhatsApp</th>
-            {/* <th>Account Type</th> */}
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody className="relative z-10 min-h-[12rem]"> {/* Adjusted z-index */}
-          {membersData.map((member) => (
-            <tr key={member._id}>
-              <td>
-                {" "}
-                {member.photo ? (
-                  <img
-                    src={member.photo}
-                    alt="Profile"
-                    width="40"
-                    height="40"
-                  />
-                ) : (
-                  "No Image"
-                )}
-              </td>
-              <td>{member.fullName}</td>
-              <td>{member.branchName}</td>
-              <td>{member.email}</td>
-              <td>{member.nomineeName}</td>
-              <td>{member.whatsAppNo}</td>
-              {/* <td>{member.accountType}</td> */}
-              <td className="relative"> 
-                  {renderDropdownForUserType(member._id)}
-              </td>
+          <thead>
+            <tr>
+              <th>Profile Pic</th>
+              <th>Name</th>
+              <th>branchName</th>
+              <th>Email</th>
+              <th>Nominee</th>
+              <th>WhatsApp</th>
+              {/* <th>Account Type</th> */}
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
-    </div>
+          </thead>
+          <tbody className="relative z-10 min-h-[12rem]">
+            {" "}
+            {/* Adjusted z-index */}
+            {membersData.map((member) => (
+              <tr key={member._id}>
+                <td>
+                  {" "}
+                  {member.photo ? (
+                    <img
+                      src={member.photo}
+                      alt="Profile"
+                      width="40"
+                      height="40"
+                    />
+                  ) : (
+                    "No Image"
+                  )}
+                </td>
+                <td>{member.fullName}</td>
+                <td>{member.branchName}</td>
+                <td>{member.email}</td>
+                <td>{member.nomineeName}</td>
+                <td>{member.whatsAppNo}</td>
+                {/* <td>{member.accountType}</td> */}
+                <td className="relative">
+                  <div className="position-relative">
+                    {renderDropdownForUserType(member._id)}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
     </div>
   );
 };

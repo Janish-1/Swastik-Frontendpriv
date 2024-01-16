@@ -16,6 +16,7 @@ const Branches = () => {
   const [branchCodeunique, setbranchcodeunique] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
+    branchCode: 0,
     branchName: "",
     name: "",
     email: "",
@@ -26,6 +27,7 @@ const Branches = () => {
   });
 
   const [updatedformdata, setupdateformdata] = useState({
+    branchCode: 0,
     branchName: "",
     name: "",
     email: "",
@@ -120,18 +122,10 @@ const Branches = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Assume you set branchCode dynamically based on certain conditions
-    const newBranchCode = branchCodeunique;
-
-    const updatedFormData = {
-      ...formData,
-      branchCode: newBranchCode,
-    };
-
     try {
       const response = await axios.post(
         `${API_BASE_URL}/createbranch`,
-        updatedFormData
+        formData
       );
       fetchData();
       // Handle success of user creation
@@ -202,8 +196,8 @@ const Branches = () => {
 
   const fetchData = async () => {
     try {
-      const resp = await axios.get(`${API_BASE_URL}/randomgenbranchCode`);
-      setbranchcodeunique(resp.data.uniqueid);
+      // const resp = await axios.get(`${API_BASE_URL}/randomgenbranchCode`);
+      // setbranchcodeunique(resp.data.uniqueid);
 
       const response = await axios.get(`${API_BASE_URL}/readbranch`);
       const { data } = response.data; // Extract 'data' array from the response
@@ -268,9 +262,8 @@ const Branches = () => {
               <Form.Control
                 type="number"
                 name="branchCode"
-                value={branchCodeunique}
+                value={formData.branchCode}
                 onChange={handleInputChange}
-                readonly
               />
             </Form.Group>
             <Form.Group controlId="formName">
@@ -365,9 +358,8 @@ const Branches = () => {
                 type="number"
                 placeholder="Enter name"
                 name="branchCode"
-                value={branchCodeunique}
+                value={formData.branchCode}
                 onChange={handleInputChange}
-                readonly
               />
             </Form.Group>
             <Form.Group controlId="formName">
