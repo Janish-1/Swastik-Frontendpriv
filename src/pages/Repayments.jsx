@@ -82,7 +82,7 @@ const Repayments = () => {
       // Handle error or display an error message to the user
     }
     try {
-      const response = await axios.get(`${API_BASE_URL}/approvedLoans`);
+      const response = await axios.get(`${API_BASE_URL}/approvedLoansNotInRepayment`);
       const data = response.data.data;
       setApprovedLoanIds(data);
       // // console.log('Approved Loan Id',data);

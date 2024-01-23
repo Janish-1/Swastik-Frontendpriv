@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import moment from 'moment';
 import {
   Modal,
   Button,
@@ -108,7 +109,19 @@ const Members = () => {
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
 
-    if (name === "photo" || name === "idProof") {
+    if (name === "whatsAppNo" || name === "nomineeMobileNo") {
+      // Ensure that only numeric characters are allowed
+      const numericValue = value.replace(/\D/g, '');
+
+      // Limit the value to 10 characters
+      const limitedValue = numericValue.slice(0, 10);
+
+      // Update the state
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: limitedValue,
+      }));
+    } else if (name === "photo" || name === "idProof") {
       setFormData((prevData) => ({
         ...prevData,
         [name]: files[0],
@@ -140,7 +153,20 @@ const Members = () => {
     const { name, value } = event.target;
 
     // Convert the member number to a number type before setting the state
-    if (name === "memberNo") {
+    if (name === "whatsAppNo" || name === "nomineeMobileNo") {
+      // Ensure that only numeric characters are allowed
+      const numericValue = value.replace(/\D/g, '');
+
+      // Limit the value to 10 characters
+      const limitedValue = numericValue.slice(0, 10);
+
+      // Update the state
+      setUpdateData((prevData) => ({
+        ...prevData,
+        [name]: limitedValue,
+      }));
+    }
+    else if (name === "memberNo") {
       setUpdateData({
         ...updateData,
         [name]: parseInt(value, 10), // Parse the input value to an integer
@@ -152,6 +178,7 @@ const Members = () => {
       });
     }
   };
+
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [accountFormData, setAccountFormData] = useState({
     memberNo: 0,
@@ -314,7 +341,7 @@ const Members = () => {
         fatherName: memberData.fatherName,
         gender: memberData.gender,
         maritalStatus: memberData.maritalStatus,
-        dateOfBirth: memberData.dateOfBirth,
+        dateOfBirth: memberData.dateOfBirth ? moment(memberData.dateOfBirth).format('YYYY-MM-DD') : '',
         currentAddress: memberData.currentAddress,
         permanentAddress: memberData.permanentAddress,
         whatsAppNo: memberData.whatsAppNo,
@@ -322,7 +349,7 @@ const Members = () => {
         nomineeName: memberData.nomineeName,
         relationship: memberData.relationship,
         nomineeMobileNo: memberData.nomineeMobileNo,
-        nomineeDateOfBirth: memberData.nomineeDateOfBirth,
+        nomineeDateOfBirth: memberData.nomineeDateOfBirth ? moment(memberData.nomineeDateOfBirth).format('YYYY-MM-DD') : '',
         walletId: memberData.walletId,
         numberofShares: memberData.numberOfShares,
       });
@@ -432,7 +459,7 @@ const Members = () => {
       case "manager":
         return (
           <Dropdown drop="end">
-          <Dropdown.Toggle variant="info" id="dropdown-basic">
+            <Dropdown.Toggle variant="info" id="dropdown-basic">
               Actions
             </Dropdown.Toggle>
 
@@ -502,6 +529,22 @@ const Members = () => {
         imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
         imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
       };
+
+      // Validate and format the date of birth
+      const formattedDateOfBirth = moment(formData.dateOfBirth, 'YYYY-MM-DD', true);
+      const formattednomineedateofbirth = moment(formData.nomineeDateOfBirth, 'YYYY-MM-DD', true);
+
+      if (!formattedDateOfBirth.isValid()) {
+        // Handle the case where the date of birth is not in the expected format
+        console.error('Invalid date of birth format');
+        return;
+      }
+
+      if (!formattednomineedateofbirth.isValid()) {
+        console.error('Invalid Date of Birth Format')
+        return;
+      }
+
       if (userType === "admin") {
         await axios.post(`${API_BASE_URL}/createmember`, {
           ...formData,
@@ -518,6 +561,8 @@ const Members = () => {
           idProof: imageUrls.imageUrl2,
           walletId: walletId,
           branchName: branchnamedata,
+          dateOfBirth: formattedDateOfBirth.format('YYYY-MM-DD'),
+          nomineeDateOfBirth: formattednomineedateofbirth.format('YYYY-MM-DD'),
         });
       }
 
@@ -591,12 +636,28 @@ const Members = () => {
 
         idProofUrl = responseIdProof.data.url;
       }
+      // Validate and format the date of birth
+      const formattedDateOfBirth = moment(updatedData.dateOfBirth, 'YYYY-MM-DD', true);
+      const formattednomineedateofbirth = moment(updatedData.nomineeDateOfBirth, 'YYYY-MM-DD', true);
+
+      if (!formattedDateOfBirth.isValid()) {
+        // Handle the case where the date of birth is not in the expected format
+        console.error('Invalid date of birth format');
+        return;
+      }
+
+      if (!formattednomineedateofbirth.isValid()) {
+        console.error('Invalid Date of Birth Format')
+        return;
+      }
 
       // Prepare the updated member data with image URLs
       const updatedData = {
         ...updateData,
         photo: photoUrl,
         idProof: idProofUrl,
+        dateOfBirth: formattedDateOfBirth.format('YYYY-MM-DD'),
+        nomineeDateOfBirth: formattednomineedateofbirth.format('YYYY-MM-DD'),
       };
 
       // Send the updated member data to the backend for updating
@@ -678,7 +739,7 @@ const Members = () => {
                 <Form.Group controlId="formMemberNo">
                   <Form.Label>Membership</Form.Label>
                   <Form.Control
-                    type="number"
+                    type="integer"
                     name="memberNo"
                     value={uniquememberid}
                     placeholder=""
@@ -807,7 +868,7 @@ const Members = () => {
                   </div>
                 </Col>
               </Form.Group>
-              <Form.Group as={Row} controlId="formAgent">
+              {/* <Form.Group as={Row} controlId="formAgent">
                 <Form.Label column md={3}>
                   Agent:
                 </Form.Label>
@@ -826,7 +887,7 @@ const Members = () => {
                     ))}
                   </Form.Control>
                 </Col>
-              </Form.Group>
+              </Form.Group> */}
             </Row>
 
             {/* Marital Status and Date of Birth */}
@@ -896,12 +957,18 @@ const Members = () => {
                 <Form.Group controlId="formWhatsappNo">
                   <Form.Label>WhatsApp No.</Form.Label>
                   <Form.Control
-                    type="number"
+                    type="integer"
                     placeholder="Enter WhatsApp number"
                     name="whatsAppNo"
                     value={formData.whatsAppNo}
                     onChange={handleInputChange}
+                    minLength={10}
+                    maxLength={10}
                   />
+                  {formData.whatsAppNo && formData.whatsAppNo.length !== 10 && (<Form.Text className="text-danger">
+                    Phone number must be 10 digits.
+                  </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -924,7 +991,7 @@ const Members = () => {
                 <Form.Group controlId="formWalletId">
                   <Form.Label>Wallet ID</Form.Label>
                   <Form.Control
-                    type="number"
+                    type="integer"
                     placeholder=""
                     name="walletId"
                     value={walletId}
@@ -938,7 +1005,7 @@ const Members = () => {
                 <Form.Group controlId="formNumberOfShares">
                   <Form.Label>No. of Shares</Form.Label>
                   <Form.Control
-                    type="number"
+                    type="integer"
                     placeholder="Enter number of shares"
                     name="numberOfShares"
                     value={numberOfShares}
@@ -1002,7 +1069,13 @@ const Members = () => {
                     name="nomineeMobileNo"
                     value={formData.nomineeMobileNo}
                     onChange={handleInputChange}
+                    maxLength={10}
+                    minLength={10}
                   />
+                  {formData.nomineeMobileNo && formData.nomineeMobileNo.length !== 10 && (<Form.Text className="text-danger">
+                    Phone number must be 10 digits.
+                  </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
 
@@ -1051,7 +1124,7 @@ const Members = () => {
                 <Form.Group controlId="formMemberNo">
                   <Form.Label>Member Number</Form.Label>
                   <Form.Control
-                    type="number"
+                    type="integer"
                     name="memberNo"
                     value={updateData.memberNo}
                     placeholder=""
@@ -1240,12 +1313,18 @@ const Members = () => {
                 <Form.Group controlId="formWhatsappNo">
                   <Form.Label>WhatsApp No.</Form.Label>
                   <Form.Control
-                    type="number"
+                    type="integer"
                     placeholder="Enter WhatsApp number"
                     name="whatsAppNo"
                     value={updateData.whatsAppNo}
                     onChange={handleUpdateChange}
+                    maxLength={10}
+                    minLength={10}
                   />
+                  {updateData.whatsAppNo && updateData.whatsAppNo.length !== 10 && (<Form.Text className="text-danger">
+                    Phone number must be 10 digits.
+                  </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -1305,7 +1384,13 @@ const Members = () => {
                     name="nomineeMobileNo"
                     value={updateData.nomineeMobileNo}
                     onChange={handleUpdateChange}
+                    maxLength={10}
+                    minLength={10}
                   />
+                  {updateData.nomineeMobileNo && updateData.nomineeMobileNo.length !== 10 && (<Form.Text className="text-danger">
+                    Phone number must be 10 digits.
+                  </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
 

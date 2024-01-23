@@ -191,7 +191,7 @@ const Transaction = () => {
             </Form.Label>
             <Form.Control
               className="custom-form-control"
-              type="number"
+              type="integer"
               name="transactionAmount"
               value={formData.transactionAmount}
               onChange={handleInputChange}

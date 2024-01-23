@@ -566,7 +566,7 @@ const Accounts = () => {
             <Form.Group controlId="formOpeningBalance">
               <Form.Label>Opening Balance</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 placeholder="Enter opening balance"
                 name="openingBalance"
                 value={formData.openingBalance}
@@ -673,7 +673,7 @@ const Accounts = () => {
             <Form.Group controlId="formOpeningBalance">
               <Form.Label>Opening Balance</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 placeholder="Enter opening balance"
                 name="openingBalance"
                 value={accountFormData.openingBalance}
@@ -683,7 +683,7 @@ const Accounts = () => {
             <Form.Group controlId="formOpeningBalance">
               <Form.Label>Current Balance</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 placeholder="Enter Current balance"
                 name="currentBalance"
                 value={accountFormData.currentBalance}

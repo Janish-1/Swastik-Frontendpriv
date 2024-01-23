@@ -387,7 +387,7 @@ const Loans = () => {
       setmemberNumbers(memberNumbers);
 
       try {
-        const response = await axios.get(`${API_BASE_URL}/accountids`);
+        const response = await axios.get(`${API_BASE_URL}/approvedaccountids`);
         setAccountIds(response.data.data);
         // // console.log(response);
       } catch (error) {
@@ -585,7 +585,7 @@ const Loans = () => {
             <Form.Group controlId="formLoanId">
               <Form.Label>Loan ID</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 placeholder="Enter loan ID"
                 name="loanId"
                 value={uniqueloanid}
@@ -734,7 +734,7 @@ const Loans = () => {
             <Form.Group controlId="formdurationMonths">
               <Form.Label>Duration in Months</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 placeholder="Enter duration"
                 name="durationMonths"
                 value={formData.durationMonths}
@@ -911,7 +911,7 @@ const Loans = () => {
             <Form.Group controlId="formdurationMonths">
               <Form.Label>Duration in Months</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 placeholder="Enter duration"
                 name="durationMonths"
                 value={formData.durationMonths}

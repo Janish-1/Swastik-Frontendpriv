@@ -196,7 +196,7 @@ export default function AgentForm() {
                 <Form.Group controlId="formMobile">
                   <Form.Label>Mobile</Form.Label>
                   <Form.Control
-                    type="number"
+                    type="integer"
                     name="mobile"
                     value={formData.mobile}
                     onChange={handleChange}

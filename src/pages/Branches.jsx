@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from "axios";
 import {
   Modal,
@@ -113,10 +114,25 @@ const Branches = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    // Validate only for the contactphone field
+    if (name === 'contactphone') {
+      // Ensure that only numeric characters are allowed
+      const numericValue = value.replace(/\D/g, '');
+
+      // Limit the value to 10 characters
+      const limitedValue = numericValue.slice(0, 10);
+
+      // Update the state
+      setFormData({
+        ...formData,
+        [name]: limitedValue,
+      });
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -219,6 +235,12 @@ const Branches = () => {
     fetchData(); // Call fetchData initially when the component mounts
   }, [searchTerm]);
 
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="body-div">
       {/* <Button onClick={handleOpenModal}>Add New</Button>
@@ -260,10 +282,11 @@ const Branches = () => {
             <Form.Group controlId="branchCode">
               <Form.Label>Branch Code</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 name="branchCode"
                 value={formData.branchCode}
                 onChange={handleInputChange}
+                inputMode="numeric"  // Add this line to remove up and down arrows
               />
             </Form.Group>
             <Form.Group controlId="formName">
@@ -297,26 +320,41 @@ const Branches = () => {
               />
             </Form.Group>
             <Form.Group controlId="formpassword">
-              <Form.Label>Password </Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Enter Password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-              />
+              <Form.Label>Password</Form.Label>
+              <div className="d-flex">
+                <Form.Control
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter Password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                />
+                <Button
+                  variant="outline-secondary"
+                  onClick={handleTogglePasswordVisibility}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </Button>
+              </div>
             </Form.Group>
+
             <Form.Group controlId="formPhone">
               <Form.Label>Phone </Form.Label>
               <Form.Control
-                type="number"
+                type="tel"  // Use type="tel" for phone numbers
                 placeholder="Enter phone number"
                 name="contactphone"
                 value={formData.contactphone}
                 onChange={handleInputChange}
+                maxLength={10}
+                minLength={10}
               />
+              {formData.contactphone && formData.contactphone.length !== 10 && (<Form.Text className="text-danger">
+                Phone number must be 10 digits.
+              </Form.Text>
+              )}
             </Form.Group>
-            <Form.Group controlId="formAddress">
+            <Form.Group controlId="formAddress" className="mb-3">
               <Form.Label> Address</Form.Label>
               <Form.Control
                 type="textarea"
@@ -355,11 +393,12 @@ const Branches = () => {
             <Form.Group controlId="branchCode">
               <Form.Label>Branch Code</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 placeholder="Enter name"
                 name="branchCode"
                 value={formData.branchCode}
                 onChange={handleInputChange}
+                inputMode="numeric"  // Add this line to remove up and down arrows
               />
             </Form.Group>
             <Form.Group controlId="formName">
@@ -393,26 +432,40 @@ const Branches = () => {
               />
             </Form.Group>
             <Form.Group controlId="formpassword">
-              <Form.Label>Password </Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Enter Password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-              />
+              <Form.Label>Password</Form.Label>
+              <div className="d-flex">
+                <Form.Control
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter Password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                />
+                <Button
+                  variant="outline-secondary"
+                  onClick={handleTogglePasswordVisibility}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </Button>
+              </div>
             </Form.Group>
             <Form.Group controlId="formPhone">
               <Form.Label>Phone </Form.Label>
               <Form.Control
-                type="number"
+                type="tel"  // Use type="tel" for phone numbers
                 placeholder="Enter phone number"
                 name="contactphone"
                 value={formData.contactphone}
                 onChange={handleInputChange}
+                maxLength={10}
+                minLength={10}
               />
+              {formData.contactphone && formData.contactphone.length !== 10 && (<Form.Text className="text-danger">
+                Phone number must be 10 digits.
+              </Form.Text>
+              )}
             </Form.Group>
-            <Form.Group controlId="formAddress">
+            <Form.Group controlId="formAddress" className="mb-3"> 
               <Form.Label> Address</Form.Label>
               <Form.Control
                 type="textarea"
@@ -422,6 +475,7 @@ const Branches = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
+            
             <Button variant="primary" type="submit">
               Update
             </Button>

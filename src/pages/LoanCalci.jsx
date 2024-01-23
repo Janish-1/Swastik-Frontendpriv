@@ -50,7 +50,7 @@ function LoanCalci() {
             <Form.Group className="mb-3">
               <Form.Label>Amount (₹)</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter loan amount"
@@ -59,7 +59,7 @@ function LoanCalci() {
             <Form.Group className="mb-3">
               <Form.Label>Interest Rate (%)</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 value={interestRate}
                 onChange={(e) => setInterestRate(e.target.value)}
                 placeholder="Enter interest rate"
@@ -68,7 +68,7 @@ function LoanCalci() {
             <Form.Group className="mb-3">
               <Form.Label>Tenure</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 value={tenure}
                 onChange={(e) => setTenure(e.target.value)}
                 placeholder="Enter tenure in months"

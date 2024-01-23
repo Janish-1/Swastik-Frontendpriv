@@ -219,7 +219,7 @@ const Expense = () => {
             <Form.Group controlId="amount">
               <Form.Label>Amount</Form.Label>
               <Form.Control
-                type="number"
+                type="integer"
                 name="amount"
                 value={formData.amount}
                 onChange={handleInputChange}
