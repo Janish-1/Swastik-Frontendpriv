@@ -46,37 +46,10 @@ const Branches = () => {
   const [filteredMembers, setFilteredMembers] = useState([]); // State to hold filtered members
   const [presetemail, setEmail] = useState("");
   const [presetpassword, setPassword] = useState("");
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const API_BASE_URL = process.env.REACT_APP_API_URL;
-  // // console.log("Api URL:", API_BASE_URL);
-
-  // useEffect(async () => {
-  //   const token = localStorage.getItem("token");
-  //   if (token) {
-  //     (response = await axios.post(
-  //       "${API_BASE_URL}/getuseremailpassword"
-  //     )),
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           token,
-  //         }),
-  //       }
-  //         .then((response) => response.json())
-  //         .then((data) => {
-  //           // console.log("Username:", data.username);
-  //           setEmail(data.email);
-  //           setPassword(data.password);
-  //         })
-  //         .catch((error) => {
-  //           // console.error("Error:", error);
-  //           // Handle errors that occurred during the request
-  //         });
-  //   }
-  // }, []);
 
   const handleOpenModal = () => {
     fetchData();
@@ -139,13 +112,9 @@ const Branches = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/createbranch`,
-        formData
-      );
+      const response = await axios.post(`${API_BASE_URL}/createbranch`, formData);
       fetchData();
-      // Handle success of user creation
-      // console.log("Manager User Created:", responseUser.data);
+      setValidationErrors([]);
       setFormData({
         branchName: "",
         name: "",
@@ -157,25 +126,24 @@ const Branches = () => {
       });
       handleCloseModal();
     } catch (error) {
-      setShowAlert(true);
+      if (error.response && error.response.status === 400) {
+        setValidationErrors(error.response.data.errors);
+      } else {
+        console.error("Error saving user data:", error);
+        setErrorMessage("Error saving user data");
+      }
     }
   };
 
   const handleUpdate = async (e, id) => {
     e.preventDefault();
-    // // console.log(id);
+
     try {
-      // Update member
-      // // console.log(formData);
       const response = await axios.put(
-        `${API_BASE_URL}/updatebranch/${formData._id}`,
+        `${API_BASE_URL}/updatebranch/${formData.branchId}`,
         formData
       );
-      // // console.log(response.data);
-      // Close the edit modal
       handleCloseEditModal();
-
-      // Reset form data
       setFormData({
         branchName: "",
         name: "",
@@ -187,11 +155,15 @@ const Branches = () => {
       });
       fetchData();
     } catch (error) {
-      // // console.error("Error updating data:", error);
-      // Show failure alert for update
+      if (error.response && error.response.status === 400) {
+        setValidationErrors(error.response.data.errors);
+      } else {
+        console.error("Error updating data:", error);
+        setErrorMessage("Error updating data");
+      }
     }
   };
-
+  
   const handleDelete = async (id) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/deletebranch/${id}`);

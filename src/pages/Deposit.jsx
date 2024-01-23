@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Form, Button, Container, Alert,Table } from "react-bootstrap";
+import { Form, Button, Container, Alert, Table } from "react-bootstrap";
 import "./depositform.css"; // Import the custom CSS file
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
@@ -156,7 +156,7 @@ const Deposit = () => {
                 handleInputChange(e);
                 fetchDetails(e.target.value, "member");
               }}
-            required
+              required
             >
               <option value="">Select Member</option>
               {members.map((member) => (
@@ -179,7 +179,7 @@ const Deposit = () => {
                 handleInputChange(e);
                 fetchDetails(e.target.value, "account");
               }}
-            required
+              required
             >
               <option value="">Select Account</option>
               {accounts.map((accountNumber) => (
@@ -260,7 +260,7 @@ const Deposit = () => {
               .slice(0, 10)
               .map((transaction, index) => (
                 <tr key={index}>
-                  <td>{new Date(transaction.date).toLocaleString()}</td>
+                  <td>{new Date(transaction.date).toLocaleDateString()}</td>
                   <td>{transaction.member}</td>
                   <td>{transaction.accountNumber}</td>
                   <td>{transaction.transactionAmount}</td>

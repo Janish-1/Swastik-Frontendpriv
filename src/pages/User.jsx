@@ -86,6 +86,14 @@ const User = () => {
     });
   };
 
+  const handleFileChangeu = (event) => {
+    const { name, files } = event.target;
+    setFormData({
+      ...formData,
+      [name]: files[0],
+    });
+  };
+
   const agentmodalclose = () => {
     // Reset form data and close modal
     setagentForm({
@@ -329,7 +337,6 @@ const User = () => {
     formDataForApi.append("password", formData.password);
     formDataForApi.append("userType", formData.userType);
     formDataForApi.append("image", formData.image);
-    formDataForApi.append("MemberNo", formData.memberNo);
 
     try {
       const responseUpload = await axios.post(
@@ -351,7 +358,6 @@ const User = () => {
         password: formData.password,
         userType: formData.userType,
         imageUrl: imageUrl, // Send the received image URL to the backend
-        mebmerNo: formData.memberNo,
       });
 
       // Clear form data and perform necessary actions after successful submission
@@ -528,8 +534,8 @@ const User = () => {
               <Form.Control
                 type="file"
                 accept="image/*"
-                name="file"
-                onChange={handleFileChange}
+                name="image"
+                onChange={handleFileChangeu}
               />
             </Form.Group>
             <Button variant="primary" type="submit">
@@ -621,8 +627,8 @@ const User = () => {
               <Form.Control
                 type="file"
                 accept="image/*"
-                name="file"
-                onChange={handleImageChange}
+                name="image"
+                onChange={handleFileChangeu}
               />
             </Form.Group>
             <Button variant="primary" type="submit">

@@ -204,13 +204,13 @@ const Members = () => {
     nomineeDateOfBirth: "",
   });
 
-  // Assuming you have a list of agents
-  const agents = [
-    { id: 1, name: "Agent 1" },
-    { id: 2, name: "Agent 2" },
-    { id: 3, name: "Agent 3" },
-    // Add more agents as needed
-  ];
+  // // Assuming you have a list of agents
+  // const agents = [
+  //   { id: 1, name: "Agent 1" },
+  //   { id: 2, name: "Agent 2" },
+  //   { id: 3, name: "Agent 3" },
+  //   // Add more agents as needed
+  // ];
 
   const handleOpenAccountModal = async (id) => {
     try {

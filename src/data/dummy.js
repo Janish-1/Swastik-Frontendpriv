@@ -126,10 +126,10 @@ export const filterLinksByRole = (userRole) => {
               name: "Reports",
               icon: <GoReport />,
             },
-            // {
-            //   name: "System Settings",
-            //   icon: <IoMdSettings />,
-            // },
+            {
+              name: "Logout",
+              icon: <IoMdSettings />,
+            },
           ],
         },
       ];
@@ -194,10 +194,10 @@ export const filterLinksByRole = (userRole) => {
               name: "Reports",
               icon: <GoReport />,
             },
-            // {
-            //   name: "System Settings",
-            //   icon: <IoMdSettings />,
-            // },
+            {
+              name: "Logout",
+              icon: <IoMdSettings />,
+            },
           ],
         },
       ];
@@ -238,13 +238,13 @@ export const filterLinksByRole = (userRole) => {
               name: "Deposit",
               icon: <GiMoneyStack />,
             },
-            // {
-            //   name: "Transaction",
-            //   icon: <GrTransaction />,
-            // },
             {
               name: "Reports",
               icon: <GoReport />,
+            },
+            {
+              name: "Logout",
+              icon: <IoMdSettings />,
             },
           ],
         },

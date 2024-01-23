@@ -77,7 +77,7 @@ const Repayments = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/repayments`);
       setRepaymentsData(response.data.data);
-      // console.log(response);
+      console.log("Response Data repayments:",response);
     } catch (error) {
       // Handle error or display an error message to the user
     }
@@ -160,13 +160,20 @@ const Repayments = () => {
   }, []);
 
   useEffect(() => {
-    const filteredRepayments = repaymentsData.filter((repayment) =>
-      repayment.loanId.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
+    const filteredRepayments = repaymentsData.filter((repayment) => {
+      const loanId = repayment.loanId;
+  
+      // Check if loanId is a non-null integer before filtering
+      if (Number.isInteger(loanId) && loanId.toString().includes(searchTerm.toString())) {
+        return true;
+      }
+  
+      return false;
+    });
+  
     setFilteredRepayments(filteredRepayments);
   }, [searchTerm, repaymentsData]);
-
+    
   return (
     <div className="body-div">
       <div className="d-flex mb-2">

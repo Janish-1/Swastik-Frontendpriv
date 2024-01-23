@@ -36,6 +36,7 @@ import RevenueReport from "./pages/reports/Revenue";
 import AccountStatement from "./pages/reports/Accountstatement";
 import AgentDash from "./pages/AgentDash";
 import Switch from "./pages/Switch";
+import Logout from "./components/Logout";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // console.log("Api URL:", API_BASE_URL);
@@ -165,6 +166,7 @@ const AuthenticatedRoutes = ({ userRole }) => {
                   />
                   <Route path="/ExpenseReport" element={<ExpenseReport />} />
                   <Route path="/RevenueReport" element={<RevenueReport />} />
+                  <Route path="/logout" element={<Logout />} />
                 </Routes>
               </div>
               <Footer />
@@ -232,6 +234,7 @@ const AuthenticatedRoutes = ({ userRole }) => {
                   />
                   <Route path="/ExpenseReport" element={<ExpenseReport />} />
                   <Route path="/RevenueReport" element={<RevenueReport />} />
+                  <Route path="/logout" element={<Logout />} />
                 </Routes>
               </div>
               <Footer />
@@ -279,25 +282,14 @@ const AuthenticatedRoutes = ({ userRole }) => {
                   <Route path="/repayments" element={<Repayments />} />
                   <Route path="/loans" element={<Loans />} />
                   <Route path="/deposit" element={<Deposit />} />
-                  {/* <Route path="/withdraw" element={<Withdraw />} />
-                  <Route path="/transaction" element={<Transaction />} /> */}
-                  {/* <Route path="/expense" element={<Expense />} />
-                  <Route path="/user" element={<User />} /> */}
                   <Route path="/reports" element={<AccountStatement />} />
                   <Route
                     path="/accountstatement"
                     element={<Accountstatement />}
                   />
                   <Route path="/accountbalance" element={<Accountbalance />} />
-                  {/* <Route path="/loandue" element={<Loandue />} /> */}
                   <Route path="/loanreport" element={<Loanreport />} />
-                  {/* <Route path="/loandue" element={<Loandue />} />
-                  <Route
-                    path="/Transactionreport"
-                    element={<TransactionReport />}
-                  />
-                  <Route path="/ExpenseReport" element={<ExpenseReport />} />
-                  <Route path="/RevenueReport" element={<RevenueReport />} /> */}
+                  <Route path="/logout" element={<Logout />} />
                 </Routes>
               </div>
               <Footer />
