@@ -48,15 +48,12 @@ export default function AgentForm() {
   };
 
   const handleSubmit = async (e) => {
-    // Handle form submission logic here
-    // console.log(formData);
-
     e.preventDefault();
     try {
       const formDataWithImages = new FormData();
       formDataWithImages.append("images", formData.image);
       formDataWithImages.append("images", formData.photo);
-
+  
       const responseUpload = await axios.post(
         `${API_BASE_URL}/uploadmultiple`,
         formDataWithImages,
@@ -66,68 +63,74 @@ export default function AgentForm() {
           },
         }
       );
-
+  
       const imageUrls = {
         imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
         imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
       };
-
-      await axios.post(`${API_BASE_URL}/createagent`, {
+  
+      const responseCreateAgent = await axios.post(`${API_BASE_URL}/createagent`, {
         ...formData,
         image: imageUrls.imageUrl1,
         photo: imageUrls.imageUrl2,
       });
-
-      // Reset form data and close modal
-      setFormData({
-        memberNo: 0,
-        name: "",
-        qualification: "",
-        image: null,
-        photo: null,
-        fatherName: "",
-        maritalStatus: "",
-        dob: "",
-        age: "",
-        aadhar: "",
-        panCard: "",
-        address: "",
-        permanentAddress: "",
-        email: "",
-        mobile: "",
-        nomineeName: "",
-        nomineeRelationship: "",
-        nomineeDob: "",
-        nomineeMobile: "",
-        password: "",
-        branchName: "",
-      });
-      handleCloseModal();
+  
+      if (responseCreateAgent.status === 200) {
+        window.alert("Agent created successfully");
+        // Reset form data and close modal
+        setFormData({
+          memberNo: 0,
+          name: "",
+          qualification: "",
+          image: null,
+          photo: null,
+          fatherName: "",
+          maritalStatus: "",
+          dob: "",
+          age: "",
+          aadhar: "",
+          panCard: "",
+          address: "",
+          permanentAddress: "",
+          email: "",
+          mobile: "",
+          nomineeName: "",
+          nomineeRelationship: "",
+          nomineeDob: "",
+          nomineeMobile: "",
+          password: "",
+          branchName: "",
+        });
+        handleCloseModal();
+      } else {
+        window.alert("Failed to create agent. Please check your input.");
+      }
     } catch (error) {
+      window.alert("Error creating agent. Please try again.");
       // Handle Error
     }
   };
-
-    // Function to fetch user data from the backend
-    const fetchData = async () => {
-      try {  
-        const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
-        const memberNumbers = membersResponse.data.data;
-        setmemberNumbers(memberNumbers);
-        const branchNamesResponse = await axios.get(
-          `${API_BASE_URL}/branches/names`
-        );
-        setBranchNames(branchNamesResponse.data.data);  
-        } catch (error) {
-        // // console.error('Error fetching users:', error);
-        // Handle error or display an error message to the user
-      }
-    };
   
-    useEffect(() => {
-      // Call the function to fetch user data when the component mounts
-      fetchData();
-    }, []); // Run once on component mount  
+  // Function to fetch user data from the backend
+  const fetchData = async () => {
+    try {
+      const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
+      const memberNumbers = membersResponse.data.data;
+      setmemberNumbers(memberNumbers);
+      const branchNamesResponse = await axios.get(
+        `${API_BASE_URL}/branches/names`
+      );
+      setBranchNames(branchNamesResponse.data.data);
+    } catch (error) {
+      // // console.error('Error fetching users:', error);
+      // Handle error or display an error message to the user
+    }
+  };
+
+  useEffect(() => {
+    // Call the function to fetch user data when the component mounts
+    fetchData();
+  }, []); // Run once on component mount
 
   return (
     <div>
@@ -139,26 +142,26 @@ export default function AgentForm() {
         </Modal.Header>
         <Modal.Body>
           <Form>
-          <Row className="mb-3">
-            <Col md={6}>
-            <Form.Group controlId="formMemberNo">
-              <Form.Label>Member No</Form.Label>
-              <Form.Control
-                as="select"
-                name="memberNo"
-                value={formData.memberNo}
-                onChange={handleChange}
-              >
-                <option value="">Select Member No</option>
-                {memberNumbers.map((memberNo) => (
-                  <option key={memberNo} value={memberNo}>
-                    {memberNo}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-            </Col>
-            <Col md={6}>
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formMemberNo">
+                  <Form.Label>Member No</Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="memberNo"
+                    value={formData.memberNo}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select Member No</option>
+                    {memberNumbers.map((memberNo) => (
+                      <option key={memberNo} value={memberNo}>
+                        {memberNo}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
                 <Form.Group controlId="formBranch">
                   <Form.Label>Branch</Form.Label>
                   <Form.Control
@@ -200,7 +203,14 @@ export default function AgentForm() {
                     name="mobile"
                     value={formData.mobile}
                     onChange={handleChange}
+                    minLength={10}
+                    maxLength={10}
                   />
+                  {formData.mobile && formData.mobile.length !== 10 && (
+                    <Form.Text className="text-danger">
+                      Phone number must be 10 digits.
+                    </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
             </Row>
@@ -264,7 +274,8 @@ export default function AgentForm() {
                     name="maritalStatus"
                     value={formData.maritalStatus}
                     onChange={handleChange}
-                  ><option value="">Please Select an Option</option>
+                  >
+                    <option value="">Please Select an Option</option>
                     <option value="single">Single</option>
                     <option value="married">Married</option>
                     <option value="married">Widowed</option>
@@ -308,7 +319,14 @@ export default function AgentForm() {
                     name="panCard"
                     value={formData.panCard}
                     onChange={handleChange}
+                    minLength={10}
+                    maxLength={10}
                   />
+                  {formData.panCard && formData.panCard.length !== 10 && (
+                    <Form.Text className="text-danger">
+                      PAN Card Number must be 10 digits.
+                    </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
 
@@ -316,11 +334,18 @@ export default function AgentForm() {
                 <Form.Group controlId="formAadhar">
                   <Form.Label>Aadhar</Form.Label>
                   <Form.Control
-                    type="text"
+                    type="integer"
                     name="aadhar"
                     value={formData.aadhar}
                     onChange={handleChange}
+                    minLength={12}
+                    maxLength={12}
                   />
+                  {formData.aadhar && formData.aadhar.length !== 12 && (
+                    <Form.Text className="text-danger">
+                      Aadhar Card Number must be 12 digits.
+                    </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
             </Row>
@@ -432,7 +457,14 @@ export default function AgentForm() {
                     name="nomineeMobile"
                     value={formData.nomineeMobile}
                     onChange={handleChange}
+                    minLength={10}
+                    maxLength={10}
                   />
+                  {formData.nomineeMobile && formData.nomineeMobile.length !== 10 && (
+                    <Form.Text className="text-danger">
+                      Nominee Mobile No. must be 10 digits.
+                    </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
             </Row>

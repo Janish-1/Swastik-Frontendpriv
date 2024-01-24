@@ -54,7 +54,8 @@ const Repayments = () => {
     e.preventDefault();
     try {
       const response = await axios.post(`${API_BASE_URL}/repayments`, formData);
-      // // console.log('Data Successfully entered in Backend Server', response.data.data);
+    // Show success alert for form submission
+    window.alert("Repayment data submitted successfully");
       fetchData();
       handleCloseModal();
       setFormData({
@@ -68,10 +69,11 @@ const Repayments = () => {
         totalAmount: 0,
       });
     } catch (error) {
-      // // console.error('Some Error in submitting the form data to backend:', error);
+      // Handle error and show error alert
+      window.alert("Error submitting repayment data. Please try again.");
       handleCloseModal();
     }
-  };
+    };
 
   const fetchData = async () => {
     try {
@@ -127,6 +129,8 @@ const Repayments = () => {
           )
         );
         // console.log("Repayment data exists for the current month.");
+              // Show success alert for payment
+      window.alert("Repayment marked as paid successfully.");
       } else {
         const createResponse = await axios.post(
           `${API_BASE_URL}/api/updatePaymentAndCreateDetails/${repaymentId}`
@@ -140,19 +144,17 @@ const Repayments = () => {
                 : repayment
             )
           );
-          // // console.log(
-          //   "Repayment data created for the current month:",
-          //   createResponse.data.repaymentData
-          // );
-        } else {
-          // // console.log("Failed to create repayment data for the current month.");
-          // Handle failure to create repayment data
+        // Show success alert for payment and data creation
+        window.alert("Repayment marked as paid, and data created for the current month.");
+      } else {
+        // Handle failure to create repayment data and show error alert
+        window.alert("Failed to create repayment data for the current month.");
         }
       }
     } catch (error) {
-      // // console.error("Error handling payment:", error);
       // Handle errors or display a message to the user
-    }
+      window.alert("Error handling payment. Please try again.");
+      }
   };
 
   useEffect(() => {
@@ -210,22 +212,6 @@ const Repayments = () => {
                 ))}
               </Form.Control>
             </Form.Group>
-            {/* <Form.Group controlId="formPaymentDate">
-              <Form.Label>Payment Date</Form.Label>
-              <Form.Control
-                type="date"
-                name="paymentDate"
-                value={formData.paymentDate.toISOString().split("T")[0]}
-                onChange={(e) => {
-                  const date = new Date(e.target.value);
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    paymentDate: date,
-                  }));
-                }}
-              />
-            </Form.Group> */}
-
             <Form.Group controlId="formDueDate">
               <Form.Label>Due Date</Form.Label>
               <Form.Control
@@ -281,7 +267,7 @@ const Repayments = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group controlId="formTotalAmount">
+            <Form.Group controlId="formTotalAmount" className="mb-3">
               <Form.Label>Total Amount</Form.Label>
               <Form.Control
                 type="number"

@@ -180,12 +180,14 @@ const User = () => {
         // Update successful, perform any necessary actions
         fetchData(); // Refresh data or update UI after successful update
         agentmodalclose(); // Close the modal or perform relevant action
+        window.alert("Agent updated successfully");
       } else {
         throw new Error("Agent update failed");
       }
     } catch (error) {
       // Handle Error
-      // console.error("Error:", error);
+      console.error("Error:", error);
+      window.alert("Failed to update agent. Please try again.");
       // Perform error handling like displaying an error message
     }
   };
@@ -279,9 +281,13 @@ const User = () => {
             };
           } else {
             // Handle image upload failure
+            window.alert("Failed to upload image. Please try again.");
+            return; // Stop execution if image upload fails
           }
         } catch (imageUploadError) {
           // Handle image upload error
+          window.alert("Failed to upload image. Please try again.");
+          return; // Stop execution if image upload errors
         }
       }
 
@@ -295,11 +301,19 @@ const User = () => {
         }
       );
 
-      // Rest of your logic
+      // Handle success or failure using alerts
+      if (response.data.success) {
+        window.alert("User profile updated successfully");
+      } else {
+        window.alert("Failed to update user profile. Please try again.");
+      }
+
       handleCloseeditModal();
       fetchData();
     } catch (error) {
       // Handle error
+      console.error("Error:", error);
+      window.alert("An error occurred. Please try again.");
     }
   };
 
@@ -360,6 +374,9 @@ const User = () => {
         imageUrl: imageUrl, // Send the received image URL to the backend
       });
 
+      // Show success alert
+      window.alert("User created successfully");
+
       // Clear form data and perform necessary actions after successful submission
       setFormData({
         memberNo: "",
@@ -372,6 +389,9 @@ const User = () => {
       handleCloseModal();
       fetchData();
     } catch (error) {
+      // Show error alert
+      window.alert("Failed to create user. Please try again.");
+
       // Handle error or display an error message to the user
       // console.error("Error:", error);
     }
@@ -379,7 +399,7 @@ const User = () => {
 
   const fetchData = async () => {
     const token = localStorage.getItem("token");
-  
+
     if (token) {
       const tokenParts = token.split(".");
       const encodedPayload = tokenParts[1];
@@ -387,12 +407,12 @@ const User = () => {
       const payload = JSON.parse(decodedPayload);
       const urole = payload.role; // Extract user role from the token payload
       setUserRole(urole);
-  
+
       try {
         if (urole === "admin") {
           const response = await axios.get(`${API_BASE_URL}/api/users`);
-          const filteredUsers = response.data.filter(
-            (user) => ["user", "agent", "admin"].includes(user.userType)
+          const filteredUsers = response.data.filter((user) =>
+            ["user", "agent", "admin"].includes(user.userType)
           );
           setUsersData(filteredUsers);
         } else if (urole === "manager") {
@@ -406,12 +426,12 @@ const User = () => {
             setUsersData(response.data.users);
           }
         }
-  
+
         const branchNamesResponse = await axios.get(
           `${API_BASE_URL}/branches/names`
         );
         setBranchNames(branchNamesResponse.data.data);
-  
+
         const membersResponse = await axios.get(`${API_BASE_URL}/loanmembers`);
         const memberNumbers = membersResponse.data.data;
         setmemberNumbers(memberNumbers);
@@ -421,20 +441,37 @@ const User = () => {
       }
     }
   };
-  
+
   useEffect(() => {
     fetchData();
   }, []); // Run once on component mount
-  
+
   const handleDelete = async (userId) => {
-    try {
-      const response = await axios.delete(
-        `${API_BASE_URL}/api/users/${userId}`
-      );
-      fetchData();
-    } catch (error) {
-      // // console.error("Error:", error);
-      // Handle error or display an error message to the user
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this user?"
+    );
+
+    if (isConfirmed) {
+      try {
+        const response = await axios.delete(
+          `${API_BASE_URL}/api/users/${userId}`
+        );
+
+        // Show success alert for delete
+        window.alert("User successfully deleted");
+
+        fetchData();
+      } catch (error) {
+        // Handle error
+        console.error("Error:", error);
+
+        // Show error alert for delete
+        window.alert("Failed to delete user. Please try again.");
+      }
+    } else {
+      // User canceled the deletion
+      // Optionally provide feedback to the user
+      window.alert("Deletion canceled");
     }
   };
 
@@ -529,7 +566,7 @@ const User = () => {
               </Form.Control>
             </Form.Group> */}
 
-            <Form.Group controlId="formImage">
+            <Form.Group controlId="formImage" className="mb-3">
               <Form.Label>Image</Form.Label>
               <Form.Control
                 type="file"
@@ -622,7 +659,7 @@ const User = () => {
               </Form.Control>
             </Form.Group> */}
 
-            <Form.Group controlId="formImage">
+            <Form.Group controlId="formImage" className="mb-3">
               <Form.Label>Image</Form.Label>
               <Form.Control
                 type="file"
@@ -694,11 +731,19 @@ const User = () => {
                 <Form.Group controlId="formMobile">
                   <Form.Label>Mobile</Form.Label>
                   <Form.Control
-                    type="number"
+                    type="tel"
                     name="mobile"
                     value={agentformdata.mobile}
                     onChange={handleChange}
+                    minLength={10}
+                    maxLength={10}
                   />
+                  {agentformdata.mobile &&
+                    agentformdata.mobile.length !== 10 && (
+                      <Form.Text className="text-danger">
+                        Phone number must be 10 digits.
+                      </Form.Text>
+                    )}
                 </Form.Group>
               </Col>
             </Row>
@@ -807,7 +852,15 @@ const User = () => {
                     name="panCard"
                     value={agentformdata.panCard}
                     onChange={handleChange}
+                    minLength={10}
+                    maxLength={10}
                   />
+                  {agentformdata.panCard &&
+                    agentformdata.panCard.length !== 10 && (
+                      <Form.Text className="text-danger">
+                        PAN Card must be 10 digits.
+                      </Form.Text>
+                    )}
                 </Form.Group>
               </Col>
 
@@ -815,11 +868,19 @@ const User = () => {
                 <Form.Group controlId="formAadhar">
                   <Form.Label>Aadhar</Form.Label>
                   <Form.Control
-                    type="text"
+                    type="integer"
                     name="aadhar"
                     value={agentformdata.aadhar}
                     onChange={handleChange}
+                    minLength={10}
+                    maxLength={10}
                   />
+                  {agentformdata.aadhar &&
+                    agentformdata.aadhar.length !== 12 && (
+                      <Form.Text className="text-danger">
+                        Aadhar Card Number must be 12 digits.
+                      </Form.Text>
+                    )}
                 </Form.Group>
               </Col>
             </Row>
@@ -931,7 +992,15 @@ const User = () => {
                     name="nomineeMobile"
                     value={agentformdata.nomineeMobile}
                     onChange={handleChange}
+                    minLength={10}
+                    maxLength={10}
                   />
+                  {agentformdata.nomineeMobile &&
+                    agentformdata.nomineeMobile.length !== 10 && (
+                      <Form.Text className="text-danger">
+                        Nominee's phone number must be 10 digits.
+                      </Form.Text>
+                    )}
                 </Form.Group>
               </Col>
             </Row>

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import moment from 'moment';
+import moment from "moment";
 import {
   Modal,
   Button,
@@ -111,7 +111,7 @@ const Members = () => {
 
     if (name === "whatsAppNo" || name === "nomineeMobileNo") {
       // Ensure that only numeric characters are allowed
-      const numericValue = value.replace(/\D/g, '');
+      const numericValue = value.replace(/\D/g, "");
 
       // Limit the value to 10 characters
       const limitedValue = numericValue.slice(0, 10);
@@ -155,7 +155,7 @@ const Members = () => {
     // Convert the member number to a number type before setting the state
     if (name === "whatsAppNo" || name === "nomineeMobileNo") {
       // Ensure that only numeric characters are allowed
-      const numericValue = value.replace(/\D/g, '');
+      const numericValue = value.replace(/\D/g, "");
 
       // Limit the value to 10 characters
       const limitedValue = numericValue.slice(0, 10);
@@ -165,8 +165,7 @@ const Members = () => {
         ...prevData,
         [name]: limitedValue,
       }));
-    }
-    else if (name === "memberNo") {
+    } else if (name === "memberNo") {
       setUpdateData({
         ...updateData,
         [name]: parseInt(value, 10), // Parse the input value to an integer
@@ -300,10 +299,13 @@ const Members = () => {
       );
       // Handle the response or perform any necessary actions upon successful submission
       // // console.log("Account submitted successfully:", response.data);
+      window.alert("Successfully Created Account");
       handleCloseAccountModal();
     } catch (error) {
       // Handle errors if the request fails
-      // // console.error("Error submitting account:", error);
+      console.error("Error submitting account:", error);
+
+      window.alert("Account Creating Failed. Try Again");
     }
   };
 
@@ -341,7 +343,9 @@ const Members = () => {
         fatherName: memberData.fatherName,
         gender: memberData.gender,
         maritalStatus: memberData.maritalStatus,
-        dateOfBirth: memberData.dateOfBirth ? moment(memberData.dateOfBirth).format('YYYY-MM-DD') : '',
+        dateOfBirth: memberData.dateOfBirth
+          ? moment(memberData.dateOfBirth).format("YYYY-MM-DD")
+          : "",
         currentAddress: memberData.currentAddress,
         permanentAddress: memberData.permanentAddress,
         whatsAppNo: memberData.whatsAppNo,
@@ -349,7 +353,9 @@ const Members = () => {
         nomineeName: memberData.nomineeName,
         relationship: memberData.relationship,
         nomineeMobileNo: memberData.nomineeMobileNo,
-        nomineeDateOfBirth: memberData.nomineeDateOfBirth ? moment(memberData.nomineeDateOfBirth).format('YYYY-MM-DD') : '',
+        nomineeDateOfBirth: memberData.nomineeDateOfBirth
+          ? moment(memberData.nomineeDateOfBirth).format("YYYY-MM-DD")
+          : "",
         walletId: memberData.walletId,
         numberofShares: memberData.numberOfShares,
       });
@@ -508,43 +514,52 @@ const Members = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // console.log(walletId);
+    const formDataWithImages = new FormData();
+    formDataWithImages.append("images", formData.photo);
+    formDataWithImages.append("images", formData.idProof);
+    // console.log(formDataWithImages);
+
+    const responseUpload = await axios.post(
+      `${API_BASE_URL}/uploadmultiple`,
+      formDataWithImages,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    const imageUrls = {
+      imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
+      imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+    };
+
+    // Validate and format the date of birth
+    const formattedDateOfBirth = moment(
+      formData.dateOfBirth,
+      "YYYY-MM-DD",
+      true
+    );
+    const formattednomineedateofbirth = moment(
+      formData.nomineeDateOfBirth,
+      "YYYY-MM-DD",
+      true
+    );
+
+    if (!formattedDateOfBirth.isValid()) {
+      // Handle the case where the date of birth is not in the expected format
+      console.error("Invalid date of birth format");
+      return;
+    }
+
+    if (!formattednomineedateofbirth.isValid()) {
+      console.error("Invalid Date of Birth Format");
+      return;
+    }
+
+    // Create member
     try {
-      // console.log(walletId);
-      const formDataWithImages = new FormData();
-      formDataWithImages.append("images", formData.photo);
-      formDataWithImages.append("images", formData.idProof);
-      // console.log(formDataWithImages);
-
-      const responseUpload = await axios.post(
-        `${API_BASE_URL}/uploadmultiple`,
-        formDataWithImages,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      const imageUrls = {
-        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
-        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
-      };
-
-      // Validate and format the date of birth
-      const formattedDateOfBirth = moment(formData.dateOfBirth, 'YYYY-MM-DD', true);
-      const formattednomineedateofbirth = moment(formData.nomineeDateOfBirth, 'YYYY-MM-DD', true);
-
-      if (!formattedDateOfBirth.isValid()) {
-        // Handle the case where the date of birth is not in the expected format
-        console.error('Invalid date of birth format');
-        return;
-      }
-
-      if (!formattednomineedateofbirth.isValid()) {
-        console.error('Invalid Date of Birth Format')
-        return;
-      }
-
       if (userType === "admin") {
         await axios.post(`${API_BASE_URL}/createmember`, {
           ...formData,
@@ -561,10 +576,13 @@ const Members = () => {
           idProof: imageUrls.imageUrl2,
           walletId: walletId,
           branchName: branchnamedata,
-          dateOfBirth: formattedDateOfBirth.format('YYYY-MM-DD'),
-          nomineeDateOfBirth: formattednomineedateofbirth.format('YYYY-MM-DD'),
+          dateOfBirth: formattedDateOfBirth.format("YYYY-MM-DD"),
+          nomineeDateOfBirth: formattednomineedateofbirth.format("YYYY-MM-DD"),
         });
       }
+
+      // Show success alert for create
+      window.alert("Member successfully created");
 
       setFormData({
         memberNo: 0,
@@ -592,7 +610,11 @@ const Members = () => {
       handleCloseModal();
       fetchData();
     } catch (error) {
-      // console.error("Error:", error);
+      // Handle error
+      console.error("Error:", error);
+
+      // Show error alert for create
+      window.alert("Failed to create member. Please try again.");
     }
   };
 
@@ -637,17 +659,25 @@ const Members = () => {
         idProofUrl = responseIdProof.data.url;
       }
       // Validate and format the date of birth
-      const formattedDateOfBirth = moment(updatedData.dateOfBirth, 'YYYY-MM-DD', true);
-      const formattednomineedateofbirth = moment(updatedData.nomineeDateOfBirth, 'YYYY-MM-DD', true);
+      const formattedDateOfBirth = moment(
+        updatedData.dateOfBirth,
+        "YYYY-MM-DD",
+        true
+      );
+      const formattednomineedateofbirth = moment(
+        updatedData.nomineeDateOfBirth,
+        "YYYY-MM-DD",
+        true
+      );
 
       if (!formattedDateOfBirth.isValid()) {
         // Handle the case where the date of birth is not in the expected format
-        console.error('Invalid date of birth format');
+        console.error("Invalid date of birth format");
         return;
       }
 
       if (!formattednomineedateofbirth.isValid()) {
-        console.error('Invalid Date of Birth Format')
+        console.error("Invalid Date of Birth Format");
         return;
       }
 
@@ -656,8 +686,8 @@ const Members = () => {
         ...updateData,
         photo: photoUrl,
         idProof: idProofUrl,
-        dateOfBirth: formattedDateOfBirth.format('YYYY-MM-DD'),
-        nomineeDateOfBirth: formattednomineedateofbirth.format('YYYY-MM-DD'),
+        dateOfBirth: formattedDateOfBirth.format("YYYY-MM-DD"),
+        nomineeDateOfBirth: formattednomineedateofbirth.format("YYYY-MM-DD"),
       };
 
       // Send the updated member data to the backend for updating
@@ -665,23 +695,44 @@ const Members = () => {
         `${API_BASE_URL}/updatemember/${updateData.id}`,
         updatedData
       );
+      // Show success alert for update
+      window.alert("Member successfully updated");
 
       handleCloseEditModal();
       fetchData();
     } catch (error) {
       // Handle error
+      console.error("Error:", error);
+
+      // Show error alert for update
+      window.alert("Failed to update member. Please try again.");
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      const response = axios.post(`${API_BASE_URL}/deletemember/${id}`);
-      // // console.log(response);
-      // alert('Delete Success');
-      fetchData();
+      // Ask for confirmation
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this member?"
+      );
+
+      if (confirmed) {
+        const response = await axios.post(`${API_BASE_URL}/deletemember/${id}`);
+
+        // Show success alert for delete
+        window.alert("Member successfully deleted");
+
+        fetchData();
+      } else {
+        // User canceled the deletion
+        window.alert("Deletion canceled");
+      }
     } catch (error) {
-      // // console.log('Failed Delete');
-      // alert('Delete Failed');
+      // Handle error
+      console.error("Failed to delete member:", error);
+
+      // Show error alert for delete
+      window.alert("Failed to delete member. Please try again.");
     }
   };
 
@@ -965,9 +1016,10 @@ const Members = () => {
                     minLength={10}
                     maxLength={10}
                   />
-                  {formData.whatsAppNo && formData.whatsAppNo.length !== 10 && (<Form.Text className="text-danger">
-                    Phone number must be 10 digits.
-                  </Form.Text>
+                  {formData.whatsAppNo && formData.whatsAppNo.length !== 10 && (
+                    <Form.Text className="text-danger">
+                      Phone number must be 10 digits.
+                    </Form.Text>
                   )}
                 </Form.Group>
               </Col>
@@ -1072,10 +1124,12 @@ const Members = () => {
                     maxLength={10}
                     minLength={10}
                   />
-                  {formData.nomineeMobileNo && formData.nomineeMobileNo.length !== 10 && (<Form.Text className="text-danger">
-                    Phone number must be 10 digits.
-                  </Form.Text>
-                  )}
+                  {formData.nomineeMobileNo &&
+                    formData.nomineeMobileNo.length !== 10 && (
+                      <Form.Text className="text-danger">
+                        Phone number must be 10 digits.
+                      </Form.Text>
+                    )}
                 </Form.Group>
               </Col>
 
@@ -1321,10 +1375,12 @@ const Members = () => {
                     maxLength={10}
                     minLength={10}
                   />
-                  {updateData.whatsAppNo && updateData.whatsAppNo.length !== 10 && (<Form.Text className="text-danger">
-                    Phone number must be 10 digits.
-                  </Form.Text>
-                  )}
+                  {updateData.whatsAppNo &&
+                    updateData.whatsAppNo.length !== 10 && (
+                      <Form.Text className="text-danger">
+                        Phone number must be 10 digits.
+                      </Form.Text>
+                    )}
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -1387,10 +1443,12 @@ const Members = () => {
                     maxLength={10}
                     minLength={10}
                   />
-                  {updateData.nomineeMobileNo && updateData.nomineeMobileNo.length !== 10 && (<Form.Text className="text-danger">
-                    Phone number must be 10 digits.
-                  </Form.Text>
-                  )}
+                  {updateData.nomineeMobileNo &&
+                    updateData.nomineeMobileNo.length !== 10 && (
+                      <Form.Text className="text-danger">
+                        Phone number must be 10 digits.
+                      </Form.Text>
+                    )}
                 </Form.Group>
               </Col>
 

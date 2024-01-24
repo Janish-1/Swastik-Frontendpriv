@@ -110,7 +110,7 @@ const Branches = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post(`${API_BASE_URL}/createbranch`, formData);
       fetchData();
@@ -125,6 +125,9 @@ const Branches = () => {
         branchCode: 0,
       });
       handleCloseModal();
+      
+      // Show success alert for create
+      window.alert("Successfully created branch");
     } catch (error) {
       if (error.response && error.response.status === 400) {
         setValidationErrors(error.response.data.errors);
@@ -132,12 +135,16 @@ const Branches = () => {
         console.error("Error saving user data:", error);
         setErrorMessage("Error saving user data");
       }
+      
+      // Show error alert for create
+      window.alert("Failed to create branch. Please Check Input Fields");
+      window.alert("Ensure the Email is Unique")
     }
   };
-
+  
   const handleUpdate = async (e, id) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.put(
         `${API_BASE_URL}/updatebranch/${formData.branchId}`,
@@ -154,6 +161,9 @@ const Branches = () => {
         branchCode: 0,
       });
       fetchData();
+  
+      // Show success alert for update
+      window.alert("Successfully updated branch");
     } catch (error) {
       if (error.response && error.response.status === 400) {
         setValidationErrors(error.response.data.errors);
@@ -161,23 +171,32 @@ const Branches = () => {
         console.error("Error updating data:", error);
         setErrorMessage("Error updating data");
       }
+  
+      // Show error alert for create
+      window.alert("Failed to create branch. Please Check Input Fields");
+      window.alert("Ensure the Email is Unique")
+    }
+  };
+    
+  const handleDelete = async (id) => {
+    try {
+      // Show a confirmation dialog
+      const confirmed = window.confirm("Are you sure you want to delete?");
+      
+      if (confirmed) {
+        const response = await axios.post(`${API_BASE_URL}/deletebranch/${id}`);
+        // Show success alert for delete
+        fetchData();
+      } else {
+        // User cancelled the deletion
+        alert("Deletion cancelled");
+      }
+    } catch (error) {
+      // Show error alert for delete
+      alert("Failed to delete");
     }
   };
   
-  const handleDelete = async (id) => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/deletebranch/${id}`);
-      // // console.log(response.data);
-      // Show success alert for delete
-      fetchData();
-    } catch (error) {
-      // // console.error("Error in deleting data:", error);
-
-      // Show error alert for delete
-      alert("failed");
-    }
-  };
-
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };

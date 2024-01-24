@@ -144,16 +144,34 @@ const Loans = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/deleteloan/${id}`);
-      // // console.log(response);
-      // alert('Delete Success');
-      fetchData(); // Refetch data after deletion
+      // Ask for confirmation
+      const confirmed = window.confirm("Are you sure you want to delete this loan?");
+  
+      if (confirmed) {
+        const response = await axios.delete(`${API_BASE_URL}/deleteloan/${id}`);
+  
+        // Check the HTTP status code for success (assumes a 2xx status code indicates success)
+        if (response.status >= 200 && response.status < 300) {
+          // Show success alert for delete
+          window.alert("Loan successfully deleted");
+          fetchData(); // Refetch data after deletion
+        } else {
+          // Show failed alert for delete due to non-success status code
+          window.alert("Failed to delete loan. Please try again.");
+        }
+      } else {
+        // User canceled the deletion
+        window.alert("Deletion canceled");
+      }
     } catch (error) {
-      // // console.log('Failed Delete');
-      // alert('Delete Failed');
+      // Handle error
+      console.error("Failed to delete loan:", error);
+  
+      // Show error alert for delete
+      window.alert("Failed to delete loan. Please try again.");
     }
   };
-
+  
   const fetchDetails = async (inputValue, type) => {
     try {
       let response;
@@ -199,22 +217,23 @@ const Loans = () => {
     const formDataWithImages = new FormData();
     formDataWithImages.append("images", formData.pan);
     formDataWithImages.append("images", formData.aadhar);
-
-    const responseUpload = await axios.post(
-      `${API_BASE_URL}/uploadmultiple`,
-      formDataWithImages,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    const imageUrls = {
-      imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
-      imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
-    };
+  
     try {
+      const responseUpload = await axios.post(
+        `${API_BASE_URL}/uploadmultiple`,
+        formDataWithImages,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      const imageUrls = {
+        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
+        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+      };
+  
       const {
         loanId,
         account,
@@ -230,7 +249,7 @@ const Loans = () => {
         durationMonths,
         objections,
       } = formData;
-
+  
       await axios.post(`${API_BASE_URL}/createloan`, {
         loanId: uniqueloanid,
         loanProduct,
@@ -238,14 +257,15 @@ const Loans = () => {
         memberNo,
         releaseDate,
         appliedAmount,
-        pan:imageUrls.imageUrl1,
-        aadhar:imageUrls.imageUrl2,
+        pan: imageUrls.imageUrl1,
+        aadhar: imageUrls.imageUrl2,
         status,
         account, // Include accountId in the POST request
         endDate,
         durationMonths,
         objections,
       });
+  
       handleCloseModal();
       setFormData({
         loanId: "",
@@ -261,34 +281,41 @@ const Loans = () => {
         endDate: new Date(),
         durationMonths: 0,
       });
+  
+      // Show success alert for create
+      window.alert("Loan successfully created");
+  
       fetchData(); // Refetch data after submission
     } catch (error) {
       // Handle errors appropriately, such as displaying an error message
-      // // console.error('Error:', error);
+      console.error('Error:', error);
+      // Show error alert for create
+      window.alert("Failed to create loan. Please try again.");
     }
   };
-
+  
   const handleUpdate = async (e) => {
     e.preventDefault();
     const formDataWithImages = new FormData();
     formDataWithImages.append("images", formData.pan);
     formDataWithImages.append("images", formData.aadhar);
-
-    const responseUpload = await axios.post(
-      `${API_BASE_URL}/uploadmultiple`,
-      formDataWithImages,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    const imageUrls = {
-      imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
-      imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
-    };
+  
     try {
+      const responseUpload = await axios.post(
+        `${API_BASE_URL}/uploadmultiple`,
+        formDataWithImages,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      const imageUrls = {
+        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
+        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+      };
+  
       const response = await axios.put(
         `${API_BASE_URL}/updateloan/${formData.id}`,
         {
@@ -297,6 +324,7 @@ const Loans = () => {
           aadhar: imageUrls.imageUrl2,
         }
       );    
+  
       setFormData({
         loanId: "",
         account: "",
@@ -311,29 +339,19 @@ const Loans = () => {
         endDate: new Date(),
         durationMonths: "",
       });
-      // alert('Data Updated Successfully');
+  
+      // Show success alert for update
+      window.alert("Loan successfully updated");
+  
       handleCloseEditModal();
       fetchData(); // Refetch data after update
     } catch (error) {
-      // alert('Failed to update loan. Please check the data fields.');
-      // // console.error('Error:', error);
+      // Show error alert for update
+      window.alert("Failed to update loan. Please check the data fields.");
+      console.error('Error:', error);
       // handleCloseEditModal();
     }
   };
-  // const handleApprove = async () => {
-  //   try {
-  //     if (selectedLoanForApproval) {
-  //       await axios.put(
-  //         `${API_BASE_URL}/approveLoan/${selectedLoanForApproval._id}`
-  //       );
-  //       fetchData();
-  //     }
-  //   } catch (error) {
-  //     // console.error("Failed to approve loan.");
-  //   } finally {
-  //     setSelectedLoanForApproval(null);
-  //   }
-  // };
 
   const handleApproveLoan = async (loanId) => {
     // Implement approve loan logic
@@ -731,7 +749,7 @@ const Loans = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group controlId="formdurationMonths">
+            <Form.Group controlId="formdurationMonths" className="mb-3">
               <Form.Label>Duration in Months</Form.Label>
               <Form.Control
                 type="integer"
@@ -908,7 +926,7 @@ const Loans = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group controlId="formdurationMonths">
+            <Form.Group controlId="formdurationMonths" className="mb-3">
               <Form.Label>Duration in Months</Form.Label>
               <Form.Control
                 type="integer"
@@ -918,7 +936,7 @@ const Loans = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" className="mb-3">
               Update
             </Button>
           </Form>

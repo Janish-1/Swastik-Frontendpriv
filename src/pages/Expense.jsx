@@ -116,7 +116,7 @@ const Expense = () => {
   return (
     <div className="body-div">
       <div style={{ marginBottom: "3px" }}>
-        <Button variant="primary" onClick={handleModalShow}>
+        <Button variant="primary" onClick={handleModalShow} className="mb-3">
           Add Expense
         </Button>
         <Form onSubmit={handleBranchSelect}>

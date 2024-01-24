@@ -103,29 +103,30 @@ const Transaction = () => {
     e.preventDefault();
     try {
       // Send form data to your API endpoint to create a transaction
-      const response = await axios.post(
-        `${API_BASE_URL}/transactions`,
-        formData
-      );
-      // // console.log(response);
-
-      // Reset form fields after successful submission if needed
-      setFormData({
-        date: new Date(),
-        member: "",
-        accountNumber: "",
-        transactionAmount: "",
-        debitOrCredit: "",
-        status: "",
-        description: "",
-      });
-      fetchData();
+      const response = await axios.post(`${API_BASE_URL}/transactions`, formData);
+  
+      if (response.status === 200) {
+        window.alert("Transaction created successfully");
+        // Reset form fields after successful submission if needed
+        setFormData({
+          date: new Date(),
+          member: "",
+          accountNumber: "",
+          transactionAmount: "",
+          debitOrCredit: "",
+          status: "",
+          description: "",
+        });
+        fetchData(); // Assuming fetchData is a function to fetch updated data
+      } else {
+        window.alert("Error creating transaction. Please check your input.");
+      }
     } catch (error) {
-      // // console.error('Error creating transaction:', error);
+      window.alert("Error creating transaction. Please try again.");
+      // console.error('Error creating transaction:', error);
     }
-    // // console.log(formData);
   };
-
+  
   return (
     <div className="body-div">
       <Container>

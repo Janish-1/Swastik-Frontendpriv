@@ -389,7 +389,7 @@ const Ecommerce = () => {
           <tbody>
             {transactions.slice(0, 10).map((transaction, index) => (
               <tr key={index}>
-                <td>{new Date(transaction.date).toLocaleString()}</td>
+                <td>{new Date(transaction.date).toLocaleDateString()}</td>
                 <td>{transaction.member}</td>
                 <td>{transaction.accountNumber}</td>
                 <td>{transaction.transactionAmount}</td>

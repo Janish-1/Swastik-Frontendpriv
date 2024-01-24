@@ -89,6 +89,7 @@ const Withdraw = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
       // Send form data to your API endpoint to create a transaction
       const response = await fetch(`${API_BASE_URL}/transactions`, {
@@ -98,27 +99,32 @@ const Withdraw = () => {
         },
         body: JSON.stringify(formData),
       });
-
-      const data = await response.json();
-      // // console.log('Transaction created:', data); // Log the response from the server
-
-      // Reset form fields after successful submission if needed
-      setFormData({
-        date: "",
-        member: "",
-        accountNumber: "",
-        transactionAmount: "",
-        debitOrCredit: "Debit",
-        status: "",
-        description: "",
-      });
-      fetchData();
+  
+      if (response.ok) {
+        const data = await response.json();
+        window.alert("Transaction created successfully");
+        // console.log('Transaction created:', data); // Log the response from the server
+  
+        // Reset form fields after successful submission if needed
+        setFormData({
+          date: "",
+          member: "",
+          accountNumber: "",
+          transactionAmount: "",
+          debitOrCredit: "Debit",
+          status: "",
+          description: "",
+        });
+        fetchData(); // Assuming fetchData is a function to fetch updated data
+      } else {
+        window.alert("Error creating transaction. Please check your input.");
+      }
     } catch (error) {
-      // // console.error('Error creating transaction:', error);
+      window.alert("Error creating transaction. Please try again.");
+      // console.error('Error creating transaction:', error);
     }
-    // // console.log(formData);
   };
-
+  
   return (
     <div className="body-div">
       <Container>

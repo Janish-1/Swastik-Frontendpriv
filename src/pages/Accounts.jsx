@@ -150,18 +150,23 @@ const Accounts = () => {
     
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(
-        `${API_BASE_URL}/deleteaccounts/${id}`
-      );
-      // // console.log(response);
-      // alert('Delete Success');
-      fetchData(); // Fetch data after successful deletion
+      // Ask for confirmation
+      const confirmed = window.confirm("Are you sure you want to delete this account?");
+      if (confirmed) {
+        const response = await axios.delete(`${API_BASE_URL}/deleteaccounts/${id}`);
+        // Show success alert for delete
+        window.alert("Account deleted successfully");
+        fetchData(); // Fetch data after successful deletion
+      } else {
+        // User canceled the deletion
+        window.alert("Deletion canceled");
+      }
     } catch (error) {
-      // // console.error('Failed Delete:', error);
-      // alert('Delete Failed');
+      // Handle error and show error alert for delete
+      window.alert("Failed to delete account. Please try again.");
     }
   };
-
+  
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -195,14 +200,17 @@ const Accounts = () => {
         updatedAccountData
       );
   
+      // Show success alert for update
+      window.alert("Account updated successfully");
       fetchData(); // Fetch data after successful update
       handleCloseEditModal();
     } catch (error) {
-      // Handle error
+      // Handle error and show error alert for update
+      window.alert("Failed to update account. Please try again.");
       handleCloseEditModal();
     }
   };
-  
+    
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -827,7 +835,7 @@ const Accounts = () => {
               />
             </Form.Group>
             {/* Nominee Date of Birth */}
-            <Form.Group controlId="formNomineeDateOfBirth">
+            <Form.Group controlId="formNomineeDateOfBirth" className="mb-3">
               <Form.Label>Nominee Date of Birth</Form.Label>
               <Form.Control
                 type="date"
