@@ -553,9 +553,11 @@ const Accounts = () => {
                 value={formData.accountType}
                 onChange={handleInputChange}
               >
-                <option value="">Select an option</option>
-                <option value="Savings">Savings Account</option>
-                <option value="Loan">Loan Account</option>
+                <option value="">Select an account type</option>
+                <option value="Savings">Savings</option>
+                <option value="Loan">Loan</option>
+                <option value="FD">FD</option>
+                <option value="DD">DD</option>
               </Form.Control>
             </Form.Group>
             {/* <Form.Group controlId="formStatus">

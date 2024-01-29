@@ -123,6 +123,20 @@ const User = () => {
   };
 
   const handleagentSubmit = async () => {
+    // Validate Pan Card format
+    if (!/^[A-Za-z]{5}\d{4}[A-Za-z]$/.test(agentformdata.panCard)) {
+      window.alert("Invalid Pan Card format. Please enter a valid Pan Card.");
+      return;
+    }
+
+    // Validate Aadhar Card format
+    if (!/^\d{12}$/.test(agentformdata.aadhar)) {
+      window.alert(
+        "Invalid Aadhar Card format. Please enter a valid Aadhar Card."
+      );
+      return;
+    }
+    
     try {
       let updatedAgentData = { ...agentformdata }; // Create a copy of agentformdata
 
@@ -194,6 +208,12 @@ const User = () => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
+    let inputValue;
+    if (name === "aadhar") {
+      // Allow only numeric input and limit to 12 characters
+      inputValue = value.replace(/\D/g, "").slice(0, 12);
+    }
 
     setagentForm((prevData) => {
       const updatedData = { ...prevData };

@@ -203,21 +203,12 @@ const Members = () => {
     nomineeDateOfBirth: "",
   });
 
-  // // Assuming you have a list of agents
-  // const agents = [
-  //   { id: 1, name: "Agent 1" },
-  //   { id: 2, name: "Agent 2" },
-  //   { id: 3, name: "Agent 3" },
-  //   // Add more agents as needed
-  // ];
-
   const handleOpenAccountModal = async (id) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/getMember/${id}`);
       const memberData = response.data; // Assuming response.data contains the member data
       fetchData();
-      // Verify the value retrieved for openingBalance from memberData
-      // // console.log("Opening Balance Retrieved:", memberData);
+
       setAccountFormData({
         memberNo: memberData.memberNo,
         memberName: memberData.fullName,
@@ -285,6 +276,7 @@ const Members = () => {
       [name]: value,
     }));
   };
+
   const handleAccountSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -623,7 +615,7 @@ const Members = () => {
     try {
       let photoUrl = "";
       let idProofUrl = "";
-
+  
       // Check if photo file is present
       if (formData.photo) {
         const photoFormData = new FormData();
@@ -637,15 +629,15 @@ const Members = () => {
             },
           }
         );
-
+  
         photoUrl = responsePhoto.data.url;
       }
-
+  
       // Check if idProof file is present
       if (formData.idProof) {
         const idProofFormData = new FormData();
         idProofFormData.append("imageone", formData.idProof);
-
+  
         const responseIdProof = await axios.post(
           `${API_BASE_URL}/uploadimage`,
           idProofFormData,
@@ -655,32 +647,25 @@ const Members = () => {
             },
           }
         );
-
+  
         idProofUrl = responseIdProof.data.url;
       }
+  
       // Validate and format the date of birth
-      const formattedDateOfBirth = moment(
-        updatedData.dateOfBirth,
-        "YYYY-MM-DD",
-        true
-      );
-      const formattednomineedateofbirth = moment(
-        updatedData.nomineeDateOfBirth,
-        "YYYY-MM-DD",
-        true
-      );
-
+      const formattedDateOfBirth = moment(updateData.dateOfBirth, "YYYY-MM-DD", true);
+      const formattednomineedateofbirth = moment(updateData.nomineeDateOfBirth, "YYYY-MM-DD", true);
+  
       if (!formattedDateOfBirth.isValid()) {
         // Handle the case where the date of birth is not in the expected format
         console.error("Invalid date of birth format");
         return;
       }
-
+  
       if (!formattednomineedateofbirth.isValid()) {
         console.error("Invalid Date of Birth Format");
         return;
       }
-
+  
       // Prepare the updated member data with image URLs
       const updatedData = {
         ...updateData,
@@ -689,7 +674,7 @@ const Members = () => {
         dateOfBirth: formattedDateOfBirth.format("YYYY-MM-DD"),
         nomineeDateOfBirth: formattednomineedateofbirth.format("YYYY-MM-DD"),
       };
-
+  
       // Send the updated member data to the backend for updating
       const responseUpdate = await axios.put(
         `${API_BASE_URL}/updatemember/${updateData.id}`,
@@ -697,18 +682,18 @@ const Members = () => {
       );
       // Show success alert for update
       window.alert("Member successfully updated");
-
+  
       handleCloseEditModal();
       fetchData();
     } catch (error) {
       // Handle error
       console.error("Error:", error);
-
+  
       // Show error alert for update
       window.alert("Failed to update member. Please try again.");
     }
   };
-
+    
   const handleDelete = async (id) => {
     try {
       // Ask for confirmation
@@ -1480,7 +1465,7 @@ const Members = () => {
             </div>
             <br />
             <Button variant="primary" type="submit">
-              Edit
+              Update
             </Button>
           </Form>
         </Modal.Body>

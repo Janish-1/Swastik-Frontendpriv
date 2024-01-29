@@ -41,19 +41,36 @@ export default function AgentForm() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
+    // Apply specific rules for "panCard" and "aadhar"
+    let inputValue;
+    if (name === "aadhar") {
+      // Allow only numeric input and limit to 12 characters
+      inputValue = value.replace(/\D/g, "").slice(0, 12);
+    } else {
+      // For other fields, directly use the value
+      inputValue = name === "image" || name === "photo" ? files[0] : value;
+    }
+
     setFormData((prevData) => ({
       ...prevData,
-      [name]: name === "image" || name === "photo" ? files[0] : value,
+      [name]: inputValue,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Validate Pan Card format
+    if (!/^[A-Za-z]{5}\d{4}[A-Za-z]$/.test(formData.panCard)) {
+      window.alert("Invalid Pan Card format. Please enter a valid Pan Card.");
+      return;
+    }
+
     try {
       const formDataWithImages = new FormData();
       formDataWithImages.append("images", formData.image);
       formDataWithImages.append("images", formData.photo);
-  
+
       const responseUpload = await axios.post(
         `${API_BASE_URL}/uploadmultiple`,
         formDataWithImages,
@@ -63,18 +80,21 @@ export default function AgentForm() {
           },
         }
       );
-  
+
       const imageUrls = {
         imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
         imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
       };
-  
-      const responseCreateAgent = await axios.post(`${API_BASE_URL}/createagent`, {
-        ...formData,
-        image: imageUrls.imageUrl1,
-        photo: imageUrls.imageUrl2,
-      });
-  
+
+      const responseCreateAgent = await axios.post(
+        `${API_BASE_URL}/createagent`,
+        {
+          ...formData,
+          image: imageUrls.imageUrl1,
+          photo: imageUrls.imageUrl2,
+        }
+      );
+
       if (responseCreateAgent.status === 200) {
         window.alert("Agent created successfully");
         // Reset form data and close modal
@@ -110,7 +130,7 @@ export default function AgentForm() {
       // Handle Error
     }
   };
-  
+
   // Function to fetch user data from the backend
   const fetchData = async () => {
     try {
@@ -460,11 +480,12 @@ export default function AgentForm() {
                     minLength={10}
                     maxLength={10}
                   />
-                  {formData.nomineeMobile && formData.nomineeMobile.length !== 10 && (
-                    <Form.Text className="text-danger">
-                      Nominee Mobile No. must be 10 digits.
-                    </Form.Text>
-                  )}
+                  {formData.nomineeMobile &&
+                    formData.nomineeMobile.length !== 10 && (
+                      <Form.Text className="text-danger">
+                        Nominee Mobile No. must be 10 digits.
+                      </Form.Text>
+                    )}
                 </Form.Group>
               </Col>
             </Row>

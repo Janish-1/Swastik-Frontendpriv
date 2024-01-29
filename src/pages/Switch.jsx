@@ -112,10 +112,16 @@ const Switch = () => {
   const handleSwitch = async (databaseName) => {
     // Handle switching logic for the selected database
     // console.log(`Switching to database: ${databaseName}`);
-    const response = await axios.get(
-      `${API_BASE_URL}/switch-database/${databaseName}`
-    );
-    // console.log(response);
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/switch-database/${databaseName}`
+      );
+      // console.log(response);
+      window.alert("Database Changed Successful");
+    } catch (error) {
+      console.error("Error Occured while Switching");
+      window.alert("Failed to Change Database");
+    };
   };
 
   const handleFormSubmit = (event) => {
@@ -176,23 +182,23 @@ const Switch = () => {
       )}
       {userRole === "manager" && (
         <Form onSubmit={handleFormSubmit}>
-        <Row className="mb-3">
-          <Col xs={6} md={3}>
-            <Form.Control
-              type="text"
-              placeholder="Search by Name or Email"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </Col>
-          <Col xs={6} md={3}>
-            <Button type="submit" variant="primary">
-              Filter
-            </Button>
-          </Col>
-        </Row>
-      </Form>
-    )}
+          <Row className="mb-3">
+            <Col xs={6} md={3}>
+              <Form.Control
+                type="text"
+                placeholder="Search by Name or Email"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </Col>
+            <Col xs={6} md={3}>
+              <Button type="submit" variant="primary">
+                Filter
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      )}
       <Table
         responsive
         striped
