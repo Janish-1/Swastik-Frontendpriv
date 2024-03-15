@@ -49,21 +49,19 @@ const Login = () => {
               style={{
                 width: "100%",
                 height: "100%",
-                backgroundImage:
-                  "url(https://wallpaperaccess.com/thumb/1374866.png)",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "white",
+                backgroundColor: "#c2004d",
                 fontWeight: "bold",
                 fontSize: "2rem",
                 borderTopLeftRadius: "10px", // Round the top left corner
                 borderBottomLeftRadius: "10px", // Round the bottom left corner
               }}
             >
-              Login
+            <img src={`${process.env.PUBLIC_URL}/banner_Logo.png`} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%" }} />
             </div>
           </Col>
 
