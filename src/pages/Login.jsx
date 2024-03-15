@@ -54,7 +54,7 @@ const Login = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "#c2004d",
+                backgroundColor: "#b3004d",
                 fontWeight: "bold",
                 fontSize: "2rem",
                 borderTopLeftRadius: "10px", // Round the top left corner

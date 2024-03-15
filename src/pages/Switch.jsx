@@ -117,7 +117,7 @@ const Switch = () => {
         `${API_BASE_URL}/switch-database/${databaseName}`
       );
       // console.log(response);
-      window.alert("Database Changed Successful");
+      window.alert("Branch Changed Successful");
     } catch (error) {
       console.error("Error Occured while Switching");
       window.alert("Failed to Change Database");

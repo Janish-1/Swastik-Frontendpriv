@@ -68,7 +68,6 @@ const Branches = () => {
       const selectedMemberData = response.data; // Assuming response.data contains the member data
       // // console.log(selectedMemberData);
       // Set the form data to the retrieved member's data
-      // Set the form data to the retrieved member's data
       setFormData({
         ...selectedMemberData,
         branchId: selectedMemberData._id, // Assigning the ID to the correct field in the form
@@ -110,7 +109,55 @@ const Branches = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
+    // Validation checks
+    if (
+      !formData.branchCode ||
+      !formData.branchName ||
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.contactphone
+    ) {
+      window.alert("Please fill in all fields.");
+      return;
+    }
+
+    // Branch code validation
+    const branchCodeRegex = /^\d+$/;
+    if (!branchCodeRegex.test(formData.branchCode) || parseInt(formData.branchCode) === 0) {
+      window.alert("Branch code must contain only digits.");
+      return;
+    }
+
+    // Name validation (assuming it should contain only alphabetic characters)
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!nameRegex.test(formData.branchName) || !nameRegex.test(formData.name)) {
+      window.alert("Name fields must contain only alphabetic characters.");
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      window.alert("Please enter a valid email address.");
+      return;
+    }
+
+    // Password validation (assuming "Strong" means it must contain at least 8 characters with at least one uppercase letter, one lowercase letter, one number, and one special character)
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      window.alert("Password must be strong (at least 8 characters including at least one uppercase letter, one lowercase letter, one number, and one special character).");
+      return;
+    }
+
+    // Contact phone validation
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(formData.contactphone)) {
+      window.alert("Phone number must be 10 digits.");
+      return;
+    }
+
     try {
       const response = await axios.post(`${API_BASE_URL}/createbranch`, formData);
       fetchData();
@@ -125,7 +172,7 @@ const Branches = () => {
         branchCode: 0,
       });
       handleCloseModal();
-      
+
       // Show success alert for create
       window.alert("Successfully created branch");
     } catch (error) {
@@ -135,16 +182,60 @@ const Branches = () => {
         console.error("Error saving user data:", error);
         setErrorMessage("Error saving user data");
       }
-      
-      // Show error alert for create
-      window.alert("Failed to create branch. Please Check Input Fields");
-      window.alert("Ensure the Email is Unique")
     }
   };
-  
+
   const handleUpdate = async (e, id) => {
     e.preventDefault();
-  
+
+    // Validation checks
+    if (
+      !formData.branchCode ||
+      !formData.branchName ||
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.contactphone
+    ) {
+      window.alert("Please fill in all fields.");
+      return;
+    }
+
+    // Branch code validation
+    const branchCodeRegex = /^\d+$/;
+    if (!branchCodeRegex.test(formData.branchCode) || parseInt(formData.branchCode) === 0) {
+      window.alert("Branch code must contain only digits.");
+      return;
+    }
+
+    // Name validation (assuming it should contain only alphabetic characters)
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!nameRegex.test(formData.branchName) || !nameRegex.test(formData.name)) {
+      window.alert("Name fields must contain only alphabetic characters.");
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      window.alert("Please enter a valid email address.");
+      return;
+    }
+
+    // Password validation (assuming "Strong" means it must contain at least 8 characters with at least one uppercase letter, one lowercase letter, one number, and one special character)
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      window.alert("Password must be strong (at least 8 characters including at least one uppercase letter, one lowercase letter, one number, and one special character).");
+      return;
+    }
+
+    // Contact phone validation
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(formData.contactphone)) {
+      window.alert("Phone number must be 10 digits.");
+      return;
+    }
+    
     try {
       const response = await axios.put(
         `${API_BASE_URL}/updatebranch/${formData.branchId}`,
@@ -161,7 +252,7 @@ const Branches = () => {
         branchCode: 0,
       });
       fetchData();
-  
+
       // Show success alert for update
       window.alert("Successfully updated branch");
     } catch (error) {
@@ -171,18 +262,18 @@ const Branches = () => {
         console.error("Error updating data:", error);
         setErrorMessage("Error updating data");
       }
-  
+
       // Show error alert for create
       window.alert("Failed to create branch. Please Check Input Fields");
       window.alert("Ensure the Email is Unique")
     }
   };
-    
+
   const handleDelete = async (id) => {
     try {
       // Show a confirmation dialog
       const confirmed = window.confirm("Are you sure you want to delete?");
-      
+
       if (confirmed) {
         const response = await axios.post(`${API_BASE_URL}/deletebranch/${id}`);
         // Show success alert for delete
@@ -196,7 +287,7 @@ const Branches = () => {
       alert("Failed to delete");
     }
   };
-  
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -234,16 +325,6 @@ const Branches = () => {
 
   return (
     <div className="body-div">
-      {/* <Button onClick={handleOpenModal}>Add New</Button>
-        <FormControl
-        className='custom-search-bar'
-          placeholder="Search..."
-          aria-label="Search"
-          aria-describedby="basic-addon2"
-          value={searchTerm}
-          onChange={handleSearch}
-        /> */}
-
       <div className="d-flex mb-2">
         <Button
           className="mr-2"
@@ -456,7 +537,7 @@ const Branches = () => {
               </Form.Text>
               )}
             </Form.Group>
-            <Form.Group controlId="formAddress" className="mb-3"> 
+            <Form.Group controlId="formAddress" className="mb-3">
               <Form.Label> Address</Form.Label>
               <Form.Control
                 type="textarea"
@@ -466,7 +547,7 @@ const Branches = () => {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            
+
             <Button variant="primary" type="submit">
               Update
             </Button>
