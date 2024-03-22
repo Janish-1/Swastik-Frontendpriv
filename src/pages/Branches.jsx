@@ -48,6 +48,7 @@ const Branches = () => {
   const [presetpassword, setPassword] = useState("");
   const [validationErrors, setValidationErrors] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const API_BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -106,6 +107,39 @@ const Branches = () => {
       }));
     }
   };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const fetchData = async () => {
+    try {
+      // const resp = await axios.get(`${API_BASE_URL}/randomgenbranchCode`);
+      // setbranchcodeunique(resp.data.uniqueid);
+
+      const response = await axios.get(`${API_BASE_URL}/readbranch`);
+      const { data } = response.data; // Extract 'data' array from the response
+
+      // Filter the 'data' array based on searchTerm
+      const filteredData = data.filter((member) =>
+        member.branchName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      // Update filteredMembers state with the filtered data
+      setFilteredMembers(filteredData);
+    } catch (error) {
+      // // console.error("Error while fetching data:", error);
+      // Handle the error or show an error message to the user
+    }
+  };
+
+  useEffect(() => {
+    fetchData(); // Call fetchData initially when the component mounts
+  }, [searchTerm]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -286,41 +320,6 @@ const Branches = () => {
       // Show error alert for delete
       alert("Failed to delete");
     }
-  };
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const fetchData = async () => {
-    try {
-      // const resp = await axios.get(`${API_BASE_URL}/randomgenbranchCode`);
-      // setbranchcodeunique(resp.data.uniqueid);
-
-      const response = await axios.get(`${API_BASE_URL}/readbranch`);
-      const { data } = response.data; // Extract 'data' array from the response
-
-      // Filter the 'data' array based on searchTerm
-      const filteredData = data.filter((member) =>
-        member.branchName.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-      // Update filteredMembers state with the filtered data
-      setFilteredMembers(filteredData);
-    } catch (error) {
-      // // console.error("Error while fetching data:", error);
-      // Handle the error or show an error message to the user
-    }
-  };
-
-  useEffect(() => {
-    fetchData(); // Call fetchData initially when the component mounts
-  }, [searchTerm]);
-
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (

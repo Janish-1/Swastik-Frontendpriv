@@ -8,7 +8,10 @@ import {
   Table,
   FormControl,
   Dropdown,
+  DropdownItem,
 } from "react-bootstrap";
+import jsPDF from 'jspdf';
+
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 // // console.log("Api URL:", API_BASE_URL);
 
@@ -30,10 +33,11 @@ const Accounts = () => {
   const [uniqueaccountid, setuniqueaccountid] = useState(0);
   const [branchNames, setBranchNames] = useState([]);
   const [userRole, setuserRole] = useState("");
+  const [memberDetails, setmemberDetails] = useState([]);
 
   const [accountFormData, setAccountFormData] = useState({
     _id: "",
-    memberNo: 0,
+    memberNo: "",
     memberName: "",
     email: "",
     branchName: "",
@@ -62,7 +66,7 @@ const Accounts = () => {
     setShowModal(false);
     setSelectedAccountIndex(null);
     setFormData({
-      memberNo: 0,
+      memberNo: "",
       memberName: "",
       email: "",
       branchName: "",
@@ -316,6 +320,75 @@ const Accounts = () => {
     fetchData();
   };
 
+  const handleAccountPrint = async (accountId) => {
+    const response = await axios.get(`${API_BASE_URL}/accounts/${accountId}`);
+    const memberDetails = response.data;
+
+    console.log("Member Data: ", memberDetails);
+
+    generateBankDocumentPDF(memberDetails);
+    fetchData();
+};
+
+const generateBankDocumentPDF = (memberDetails) => {
+    const doc = new jsPDF();
+
+    // Add Border around the whole document
+    doc.setLineWidth(1);
+    doc.rect(5, 5, 200, 280);
+
+    // Add Bank Name and Bank ID in the header
+    if (memberDetails["photo"]) {
+        doc.addImage(memberDetails["photo"], 'JPEG', 10, 10, 50, 50);
+    }
+    
+    doc.setFontSize(16);
+    doc.text("Swastik", 70, 20); // Adjusted position for Bank Name to avoid overlap
+    doc.setFontSize(12);
+    doc.text(memberDetails["branchName"], 70, 30); // Adjusted position for Bank ID to avoid overlap
+    doc.line(5, 60, 205, 60); // Line to separate header from content
+
+    // Personal Information Section
+    doc.text("Personal Information", 15, 68);
+    doc.line(5, 70, 205, 70); // Line to separate sections
+    doc.text(`Name: ${memberDetails["memberName"]}`, 15, 78);
+    doc.text(`Account Number: ${memberDetails["accountNumber"]}`, 15, 88);
+    doc.text(`Father Name: ${memberDetails["fatherName"]}`, 15, 98);
+    doc.text(`Gender: ${memberDetails["gender"]}`, 15, 108);
+    doc.text(`Martial Status: ${memberDetails["maritalStatus"]}`, 15, 118);
+    doc.text(`Date of Birth: ${new Date(memberDetails["dateOfBirth"]).toLocaleDateString()}`, 15, 128);
+    doc.text(`Current Address: ${memberDetails["currentAddress"]}`, 15, 138);
+    doc.text(`Permanent Address: ${memberDetails["permanentAddress"]}`, 15, 148);
+    doc.text(`WhatsApp Number: ${memberDetails["whatsAppNo"]}`, 15, 158);
+
+    // Nominee Information Section
+    doc.line(5, 162, 205, 162); // Line to separate sections
+    doc.text("Nominee Information", 15, 170);
+    doc.line(5, 172, 205, 172); // Line to separate sections
+    doc.text(`Nominee Name: ${memberDetails["nomineeName"]}`, 15, 180);
+    doc.text(`Nominee Relation: ${memberDetails["relationship"]}`, 15, 190);
+    doc.text(`Nominee Date Of Birth: ${new Date(memberDetails["nomineeDateOfBirth"]).toLocaleDateString()}`, 15, 200);
+
+    // Signature and Document Attached Section
+    doc.line(5, 204, 205, 204); // Line to separate sections
+    doc.text("Signature and Document Attached", 15, 212);
+    doc.line(5, 214, 205, 214); // Line to separate sections
+    if (memberDetails["idProof"]) {
+        doc.addImage(memberDetails["idProof"], "JPEG", 15, 222);
+    }
+    if (memberDetails["photo"]) {
+        doc.addImage(memberDetails["photo"], "JPEG", 120, 222);
+    }
+
+    // Additional Details
+    doc.text(`Email: ${memberDetails["email"]}`, 15, 232);
+    doc.text(`Account Type: ${memberDetails["accountType"]}`, 15, 242);
+    doc.text(`Opening Balance: ${memberDetails["openingBalance"]}`, 15, 252);
+    doc.text(`Current Balance: ${memberDetails["currentBalance"]}`, 15, 262);
+
+    doc.save('bank_document.pdf');
+  };
+
   // Function to render the entire table based on user type
   function renderTableForUserType(filteredAccounts) {
     switch (userRole) {
@@ -377,6 +450,10 @@ const Accounts = () => {
                         >
                           Reject
                         </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleAccountPrint(account._id)}>
+                            Print
+                          </Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
                   </td>

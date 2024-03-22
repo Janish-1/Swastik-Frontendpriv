@@ -17,6 +17,7 @@ import AccountOverview from "./view/AccountOverview";
 import Details from "./view/Details";
 import Loans from "./view/Loans";
 import Transactions from "./view/Transactions";
+import Print from "./view/Print";
 import SignatureCanvas from "react-signature-canvas";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -26,7 +27,7 @@ const Members = () => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
-    memberNo: 0,
+    memberNo: "",
     fullName: "",
     email: "",
     branchName: "",
@@ -49,7 +50,7 @@ const Members = () => {
   });
   const [updateData, setUpdateData] = useState({
     id: "",
-    memberNo: 0,
+    memberNo: "",
     fullName: "",
     email: "",
     branchName: "",
@@ -71,9 +72,35 @@ const Members = () => {
     signature: null,
   });
 
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const [accountFormData, setAccountFormData] = useState({
+    memberNo: "",
+    memberName: "",
+    email: "",
+    branchName: "",
+    photo: null,
+    accountNumber: "",
+    accountType: "",
+    openingBalance: 0,
+    currentBalance: 0,
+    fatherName: "",
+    gender: "",
+    maritalStatus: "",
+    dateOfBirth: "",
+    currentAddress: "",
+    permanentAddress: "",
+    whatsAppNo: "",
+    idProof: null,
+    nomineeName: "",
+    relationship: "",
+    nomineeMobileNo: "",
+    nomineeDateOfBirth: "",
+  });
+
+
   const [membersData, setMembersData] = useState([]);
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(null);
-  const [uniquememberid, setuniquememberid] = useState(0);
+  const [uniquememberid, setuniquememberid] = useState("");
   const [branchNames, setBranchNames] = useState([]);
   const [uniqueaccountid, setuniqueaccountid] = useState(0);
   const handleCloseModal = () => setShowModal(false);
@@ -85,6 +112,7 @@ const Members = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewMemberData, setViewMemberData] = useState(0);
   const [branchnamedata, setbranchnamedata] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleOpenViewModal = (id) => {
     fetchData();
@@ -178,31 +206,6 @@ const Members = () => {
     }
   };
 
-  const [showAccountModal, setShowAccountModal] = useState(false);
-  const [accountFormData, setAccountFormData] = useState({
-    memberNo: 0,
-    memberName: "",
-    email: "",
-    branchName: "",
-    photo: null,
-    accountNumber: "",
-    accountType: "",
-    openingBalance: 0,
-    currentBalance: 0,
-    fatherName: "",
-    gender: "",
-    maritalStatus: "",
-    dateOfBirth: "",
-    currentAddress: "",
-    permanentAddress: "",
-    whatsAppNo: "",
-    idProof: null,
-    nomineeName: "",
-    relationship: "",
-    nomineeMobileNo: "",
-    nomineeDateOfBirth: "",
-  });
-
   const handleOpenAccountModal = async (id) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/getMember/${id}`);
@@ -275,30 +278,6 @@ const Members = () => {
       ...prevData,
       [name]: value,
     }));
-  };
-
-  const handleAccountSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const formDataWithCurrentBalance = {
-        ...accountFormData,
-        currentBalance: accountFormData.openingBalance, // Assigning openingBalance to currentBalance
-      };
-
-      const response = await axios.post(
-        `${API_BASE_URL}/accounts-exp`,
-        formDataWithCurrentBalance
-      );
-      // Handle the response or perform any necessary actions upon successful submission
-      // // console.log("Account submitted successfully:", response.data);
-      window.alert("Successfully Created Account");
-      handleCloseAccountModal();
-    } catch (error) {
-      // Handle errors if the request fails
-      console.error("Error submitting account:", error);
-
-      window.alert("Account Creating Failed. Try Again");
-    }
   };
 
   const handleImageChange = (e) => {
@@ -504,13 +483,41 @@ const Members = () => {
     }
   }
 
+  const signatureRef = useRef();
+
+  const handleClear = () => {
+    signatureRef.current.clear();
+  };
+
+  const handleAccountSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formDataWithCurrentBalance = {
+        ...accountFormData,
+        currentBalance: accountFormData.openingBalance, // Assigning openingBalance to currentBalance
+      };
+
+      const response = await axios.post(
+        `${API_BASE_URL}/accounts-exp`,
+        formDataWithCurrentBalance
+      );
+      // Handle the response or perform any necessary actions upon successful submission
+      // // console.log("Account submitted successfully:", response.data);
+      window.alert("Successfully Created Account");
+      handleCloseAccountModal();
+    } catch (error) {
+      // Handle errors if the request fails
+      console.error("Error submitting account:", error);
+
+      window.alert("Account Creating Failed. Try Again");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log(walletId);
     const formDataWithImages = new FormData();
     formDataWithImages.append("images", formData.photo);
     formDataWithImages.append("images", formData.idProof);
-    // console.log(formDataWithImages);
 
     const responseUpload = await axios.post(
       `${API_BASE_URL}/uploadmultiple`,
@@ -523,61 +530,79 @@ const Members = () => {
     );
 
     const imageUrls = {
-      imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
-      imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+      imageUrl1: responseUpload.data.urls[0],
+      imageUrl2: responseUpload.data.urls[1],
     };
 
-    // Validate and format the date of birth
-    const formattedDateOfBirth = moment(
-      formData.dateOfBirth,
-      "YYYY-MM-DD",
-      true
-    );
-    const formattednomineedateofbirth = moment(
+    // Validation checks
+    const missingFields = [];
+    if (!uniquememberid) missingFields.push("Member Number");
+    if (!formData.fullName) missingFields.push("Full Name");
+    if (!formData.email) missingFields.push("Email");
+    if (!formData.fatherName) missingFields.push("Father's Name");
+    if (!formData.gender) missingFields.push("Gender");
+    if (!formData.maritalStatus) missingFields.push("Marital Status");
+    if (!formData.dateOfBirth) missingFields.push("Date of Birth");
+    if (!formData.currentAddress) missingFields.push("Current Address");
+    if (!formData.permanentAddress) missingFields.push("Permanent Address");
+    if (!formData.whatsAppNo) missingFields.push("WhatsApp Number");
+    if (!formData.nomineeName) missingFields.push("Nominee Name");
+    if (!formData.relationship) missingFields.push("Relationship with Nominee");
+    if (!formData.nomineeMobileNo) missingFields.push("Nominee Mobile Number");
+    if (!formData.nomineeDateOfBirth) missingFields.push("Nominee Date of Birth");
+    if (!walletId) missingFields.push("Wallet ID");
+    if (!formData.numberOfShares) missingFields.push("Number of Shares");
+    if (!formData.signature) missingFields.push("Signature");
+
+    if (missingFields.length > 0) {
+      const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
+      window.alert(missingFieldsMessage);
+      return;
+    }
+
+    // Date of birth validation
+    const formattedDateOfBirth = moment(formData.dateOfBirth, "YYYY-MM-DD", true);
+    if (!formattedDateOfBirth.isValid()) {
+      window.alert("Please enter a valid date of birth.");
+      return;
+    }
+
+    // Nominee date of birth validation
+    const formattedNomineeDateOfBirth = moment(
       formData.nomineeDateOfBirth,
       "YYYY-MM-DD",
       true
     );
 
-    if (!formattedDateOfBirth.isValid()) {
-      // Handle the case where the date of birth is not in the expected format
-      console.error("Invalid date of birth format");
-      return;
-    }
-
-    if (!formattednomineedateofbirth.isValid()) {
-      console.error("Invalid Date of Birth Format");
+    if (!formattedNomineeDateOfBirth.isValid()) {
+      window.alert("Please enter a valid nominee date of birth.");
       return;
     }
 
     // Create member
     try {
+      const requestData = {
+        ...formData,
+        photo: imageUrls.imageUrl1,
+        idProof: imageUrls.imageUrl2,
+        walletId: walletId,
+        dateOfBirth: formattedDateOfBirth.format("YYYY-MM-DD"),
+        nomineeDateOfBirth: formattedNomineeDateOfBirth.format("YYYY-MM-DD"),
+        memberNo: uniquememberid,
+      };
+
       if (userType === "admin") {
-        await axios.post(`${API_BASE_URL}/createmember`, {
-          ...formData,
-          memberNo: uniquememberid,
-          photo: imageUrls.imageUrl1,
-          idProof: imageUrls.imageUrl2,
-          walletId: walletId,
-        });
+        await axios.post(`${API_BASE_URL}/createmember`, requestData);
       } else {
-        await axios.post(`${API_BASE_URL}/createmember`, {
-          ...formData,
-          memberNo: uniquememberid,
-          photo: imageUrls.imageUrl1,
-          idProof: imageUrls.imageUrl2,
-          walletId: walletId,
-          branchName: branchnamedata,
-          dateOfBirth: formattedDateOfBirth.format("YYYY-MM-DD"),
-          nomineeDateOfBirth: formattednomineedateofbirth.format("YYYY-MM-DD"),
-        });
+        requestData.branchName = branchnamedata;
+        await axios.post(`${API_BASE_URL}/createmember`, requestData);
       }
 
       // Show success alert for create
       window.alert("Member successfully created");
 
       setFormData({
-        memberNo: 0,
+        memberNo: "",
         fullName: "",
         email: "",
         branchName: "",
@@ -602,10 +627,7 @@ const Members = () => {
       handleCloseModal();
       fetchData();
     } catch (error) {
-      // Handle error
       console.error("Error:", error);
-
-      // Show error alert for create
       window.alert("Failed to create member. Please try again.");
     }
   };
@@ -615,7 +637,7 @@ const Members = () => {
     try {
       let photoUrl = "";
       let idProofUrl = "";
-  
+
       // Check if photo file is present
       if (formData.photo) {
         const photoFormData = new FormData();
@@ -629,15 +651,15 @@ const Members = () => {
             },
           }
         );
-  
+
         photoUrl = responsePhoto.data.url;
       }
-  
+
       // Check if idProof file is present
       if (formData.idProof) {
         const idProofFormData = new FormData();
         idProofFormData.append("imageone", formData.idProof);
-  
+
         const responseIdProof = await axios.post(
           `${API_BASE_URL}/uploadimage`,
           idProofFormData,
@@ -647,25 +669,25 @@ const Members = () => {
             },
           }
         );
-  
+
         idProofUrl = responseIdProof.data.url;
       }
-  
+
       // Validate and format the date of birth
       const formattedDateOfBirth = moment(updateData.dateOfBirth, "YYYY-MM-DD", true);
       const formattednomineedateofbirth = moment(updateData.nomineeDateOfBirth, "YYYY-MM-DD", true);
-  
+
       if (!formattedDateOfBirth.isValid()) {
         // Handle the case where the date of birth is not in the expected format
         console.error("Invalid date of birth format");
         return;
       }
-  
+
       if (!formattednomineedateofbirth.isValid()) {
         console.error("Invalid Date of Birth Format");
         return;
       }
-  
+
       // Prepare the updated member data with image URLs
       const updatedData = {
         ...updateData,
@@ -674,7 +696,7 @@ const Members = () => {
         dateOfBirth: formattedDateOfBirth.format("YYYY-MM-DD"),
         nomineeDateOfBirth: formattednomineedateofbirth.format("YYYY-MM-DD"),
       };
-  
+
       // Send the updated member data to the backend for updating
       const responseUpdate = await axios.put(
         `${API_BASE_URL}/updatemember/${updateData.id}`,
@@ -682,18 +704,18 @@ const Members = () => {
       );
       // Show success alert for update
       window.alert("Member successfully updated");
-  
+
       handleCloseEditModal();
       fetchData();
     } catch (error) {
       // Handle error
       console.error("Error:", error);
-  
+
       // Show error alert for update
       window.alert("Failed to update member. Please try again.");
     }
   };
-    
+
   const handleDelete = async (id) => {
     try {
       // Ask for confirmation
@@ -721,16 +743,13 @@ const Members = () => {
     }
   };
 
-  const signatureRef = useRef();
-
-  const handleClear = () => {
-    signatureRef.current.clear();
-  };
-
   const handleSave = async () => {
     const signatureCanvas = signatureRef.current; // Assuming signatureRef is a reference to a canvas element
 
     try {
+      // Set loading to true to indicate the upload process has started
+      setLoading(true);
+
       // Get the base64 representation of the canvas content
       const imageData = signatureCanvas.toDataURL("image/png");
 
@@ -754,9 +773,15 @@ const Members = () => {
       });
 
       // Perform any additional actions here if needed
+
+      // Clear loading state once the process is complete
+      setLoading(false);
     } catch (error) {
       // Handle error if the image upload fails
       console.error("Error uploading signature:", error);
+
+      // Clear loading state in case of error
+      setLoading(false);
     }
   };
 
@@ -775,7 +800,7 @@ const Members = () => {
                 <Form.Group controlId="formMemberNo">
                   <Form.Label>Membership</Form.Label>
                   <Form.Control
-                    type="integer"
+                    type="text"
                     name="memberNo"
                     value={uniquememberid}
                     placeholder=""
@@ -1140,6 +1165,7 @@ const Members = () => {
                 className: "signature-canvas",
               }}
             />
+            {loading && <p>Loading...</p>}
             <div>
               <Button onClick={handleClear}>Clear</Button>
               <Button onClick={handleSave}>Save</Button>
@@ -1163,7 +1189,7 @@ const Members = () => {
                 <Form.Group controlId="formMemberNo">
                   <Form.Label>Member Number</Form.Label>
                   <Form.Control
-                    type="integer"
+                    type="text"
                     name="memberNo"
                     value={updateData.memberNo}
                     placeholder=""
@@ -1499,7 +1525,9 @@ const Members = () => {
               <Nav.Item>
                 <Nav.Link eventKey="loans">Loans</Nav.Link>
               </Nav.Item>
-              {/* Add more Nav.Item components as needed */}
+              <Nav.Item>
+                <Nav.Link eventKey="Print">Print</Nav.Link>
+              </Nav.Item>
             </Nav>
 
             <Tab.Content>
@@ -1521,7 +1549,9 @@ const Members = () => {
               <Tab.Pane eventKey="loans">
                 <Loans id={viewMemberData._id} memberData={viewMemberData} />
               </Tab.Pane>
-              {/* Add more Tab.Pane components as needed */}
+              <Tab.Pane eventKey="Print">
+                <Print id={viewMemberData._id} memberData={viewMemberData} />
+              </Tab.Pane>
             </Tab.Content>
           </Tab.Container>
         </Modal.Body>
