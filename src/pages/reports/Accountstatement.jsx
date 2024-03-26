@@ -5,7 +5,7 @@ import axios from "axios";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// // console.log("Api URL:", API_BASE_URL);
+const FRONT_BASE_URL = process.env.REACT_APP_FRONT_URL;
 
 const AccountStatement = () => {
   const [transactions, setTransactions] = useState([]);
@@ -52,11 +52,21 @@ const AccountStatement = () => {
       const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      // Add Bank Name and Bank ID in the header
+      if (`${FRONT_BASE_URL}/logo.png`) {
+        pdf.addImage(`${FRONT_BASE_URL}/logo.png`, 'JPEG', 10, 10, 50, 50);
+      }
+
+      pdf.setFontSize(16);
+      pdf.text("Swastik", 70, 20); // Adjusted position for Bank Name to avoid overlap
+      pdf.setFontSize(12);
+      pdf.text("Unhel Branch", 70, 30); // Adjusted position for Bank ID to avoid overlap
+  
+      pdf.addImage(imgData, "PNG", 0, 70, imgWidth, imgHeight);
       pdf.save("accountstatement.pdf");
     });
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
     fetchData();
