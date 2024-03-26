@@ -9,11 +9,14 @@ import { parseISO } from "date-fns";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import Objectionloan from "./Objectionloan";
 import LoanCalci from "./LoanCalci";
+import jsPDF from 'jspdf';
+
+const FRONT_BASE_URL = process.env.REACT_APP_FRONT_URL;
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// // console.log("Api URL:", API_BASE_URL);
 
 const Loans = () => {
   const [showModal, setShowModal] = useState(false);
+  const [printdata, setprintdata] = useState({});
   const [formData, setFormData] = useState({
     loanId: "",
     loanProduct: "",
@@ -146,10 +149,10 @@ const Loans = () => {
     try {
       // Ask for confirmation
       const confirmed = window.confirm("Are you sure you want to delete this loan?");
-  
+
       if (confirmed) {
         const response = await axios.delete(`${API_BASE_URL}/deleteloan/${id}`);
-  
+
         // Check the HTTP status code for success (assumes a 2xx status code indicates success)
         if (response.status >= 200 && response.status < 300) {
           // Show success alert for delete
@@ -166,12 +169,12 @@ const Loans = () => {
     } catch (error) {
       // Handle error
       console.error("Failed to delete loan:", error);
-  
+
       // Show error alert for delete
       window.alert("Failed to delete loan. Please try again.");
     }
   };
-  
+
   const fetchDetails = async (inputValue, type) => {
     try {
       let response;
@@ -185,7 +188,6 @@ const Loans = () => {
           ...prevFormData,
           account: accountNumber,
           memberName: memberName,
-          // Update other form fields as needed
         }));
       } else if (type === "account") {
         response = await axios.get(
@@ -197,10 +199,8 @@ const Loans = () => {
           ...prevFormData,
           memberNo: memberNo,
           memberName: memberName,
-          // Update other form fields as needed
         }));
       }
-      // Handle the retrieved details accordingly
     } catch (error) {
       // Handle error or display an error message
       // // console.error("Error fetching details:", error);
@@ -217,7 +217,7 @@ const Loans = () => {
     const formDataWithImages = new FormData();
     formDataWithImages.append("images", formData.pan);
     formDataWithImages.append("images", formData.aadhar);
-  
+
     try {
       const responseUpload = await axios.post(
         `${API_BASE_URL}/uploadmultiple`,
@@ -228,12 +228,12 @@ const Loans = () => {
           },
         }
       );
-  
+
       const imageUrls = {
         imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
         imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
       };
-  
+
       const {
         loanId,
         account,
@@ -249,7 +249,7 @@ const Loans = () => {
         durationMonths,
         objections,
       } = formData;
-  
+
       await axios.post(`${API_BASE_URL}/createloan`, {
         loanId: uniqueloanid,
         loanProduct,
@@ -265,7 +265,7 @@ const Loans = () => {
         durationMonths,
         objections,
       });
-  
+
       handleCloseModal();
       setFormData({
         loanId: "",
@@ -281,10 +281,10 @@ const Loans = () => {
         endDate: new Date(),
         durationMonths: 0,
       });
-  
+
       // Show success alert for create
       window.alert("Loan successfully created");
-  
+
       fetchData(); // Refetch data after submission
     } catch (error) {
       // Handle errors appropriately, such as displaying an error message
@@ -293,13 +293,13 @@ const Loans = () => {
       window.alert("Failed to create loan. Please try again.");
     }
   };
-  
+
   const handleUpdate = async (e) => {
     e.preventDefault();
     const formDataWithImages = new FormData();
     formDataWithImages.append("images", formData.pan);
     formDataWithImages.append("images", formData.aadhar);
-  
+
     try {
       const responseUpload = await axios.post(
         `${API_BASE_URL}/uploadmultiple`,
@@ -310,12 +310,12 @@ const Loans = () => {
           },
         }
       );
-  
+
       const imageUrls = {
         imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
         imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
       };
-  
+
       const response = await axios.put(
         `${API_BASE_URL}/updateloan/${formData.id}`,
         {
@@ -323,8 +323,8 @@ const Loans = () => {
           pan: imageUrls.imageUrl1,
           aadhar: imageUrls.imageUrl2,
         }
-      );    
-  
+      );
+
       setFormData({
         loanId: "",
         account: "",
@@ -339,10 +339,10 @@ const Loans = () => {
         endDate: new Date(),
         durationMonths: "",
       });
-  
+
       // Show success alert for update
       window.alert("Loan successfully updated");
-  
+
       handleCloseEditModal();
       fetchData(); // Refetch data after update
     } catch (error) {
@@ -420,7 +420,7 @@ const Loans = () => {
         `${API_BASE_URL}/randomgenLoanId`
       );
       setuniqueloanid(uniqueloanresponse.data.uniqueid);
-      
+
       const token = localStorage.getItem("token");
       if (token) {
         const tokenParts = token.split(".");
@@ -456,16 +456,16 @@ const Loans = () => {
         <p>End Date: {new Date(data.endDate).toLocaleDateString()}</p>
         <div>
           <p>PAN Image:</p>
-          <img src={data.pan} alt="PAN Image" width={"300px"} height={"300px"}/>
+          <img src={data.pan} alt="PAN Image" width={"300px"} height={"300px"} />
         </div>
         <div>
           <p>Aadhar Image:</p>
-          <img src={data.aadhar} alt="Aadhar Image" width={"300px"} height={"300px"}/>
+          <img src={data.aadhar} alt="Aadhar Image" width={"300px"} height={"300px"} />
         </div>
       </div>
     );
   };
-  
+
   useEffect(() => {
     // Filter loans based on search term in 'memberNo' and 'borrowerNumber' columns
     const filteredLoans = loansData.filter((loan) => {
@@ -482,6 +482,98 @@ const Loans = () => {
 
     setFilteredLoans(filteredLoans);
   }, [searchTerm, loansData]);
+
+  const handleprint = async (loanId) => {
+    const loansResponse = await axios.get(`${API_BASE_URL}/loans/${loanId}`);
+    const fetchedLoans = loansResponse.data.data;
+    setprintdata(fetchedLoans);
+    generateBankDocumentPDF();
+
+    console.log("Print Clicked");
+  }
+
+// loanId	5153654332
+// loanProduct	"test"
+// memberName	"test"
+// memberNo	52
+// pan	"https://res.cloudinary.com/df6mzmw3v/image/upload/v1711435727/gsadksg3gjx1eewewhb4.png"
+// aadhar	"https://res.cloudinary.com/df6mzmw3v/image/upload/v1711435722/ykfug3iypmfuejfxc15w.png"
+// releaseDate	"2024-03-26T00:00:00.000Z"
+// appliedAmount	120000
+// status	"Approved"
+// account	"21808508989"
+// endDate	"2025-03-26T00:00:00.000Z"
+// durationMonths	12
+
+  const generateBankDocumentPDF = () => {
+    const doc = new jsPDF();
+
+    // Add Border around the whole document
+    doc.setLineWidth(1);
+    doc.rect(5, 5, 200, 280);
+
+    // Add Bank Name and Bank ID in the header
+    if (`${FRONT_BASE_URL}/logo.png`) {
+      doc.addImage(`${FRONT_BASE_URL}/logo.png`, 'JPEG', 10, 10, 50, 50);
+    }
+
+    doc.setFontSize(16);
+    doc.text("Swastik", 70, 20); // Adjusted position for Bank Name to avoid overlap
+    doc.setFontSize(12);
+    doc.text("Unhel Branch", 70, 30); // Adjusted position for Bank ID to avoid overlap
+    doc.line(5, 60, 205, 60); // Line to separate header from content
+
+    // Personal Information Section
+    doc.text("Personal Information", 15, 68);
+    doc.line(5, 70, 205, 70); // Line to separate sections
+    doc.text(`Name: ${printdata["memberName"] || 'Undefined'}`, 15, 78);
+    doc.text(`Member Number: ${printdata["memberNo"] || 'Undefined'}`, 65, 78);
+    doc.text(`Applied Amount: ${printdata["appliedAmount"] || 'Undefined'}`, 125, 78);
+    doc.text(`Account Number: ${printdata["account"] || 'Undefined'}`, 15, 88);
+    doc.text(`Release Date: ${new Date(printdata["releaseDate"]).toLocaleString() || 'Undefined'}`, 85, 88);
+    doc.text(`End Date: ${new Date(printdata["endDate"]).toLocaleString() || 'Undefined'}`, 65, 98);
+    doc.text(`Duration in Months: ${printdata["durationMonths"] || 'Undefined'}`, 15, 98);
+
+    // PAN and Aadhar Attached Section
+    doc.line(5, 108, 205, 108); // Line to separate sections
+    doc.text("Id Proof and Photo Attached", 15, 113);
+    doc.line(5, 118, 205, 118); // Line to separate sections
+
+    // Assuming the PDF link is stored in memberDetails["PDF Link"]
+    const pdfLink = printdata["aadhar"];
+
+    // Create a hidden link element
+    const downloadLink = document.createElement('a');
+
+    downloadLink.style.display = 'none';
+    downloadLink.href = pdfLink;
+    downloadLink.download = 'aadhar.pdf'; // Set the default download filename
+
+    // Append the link to the body and trigger the download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+
+    // Clean up: remove the link from the DOM
+    document.body.removeChild(downloadLink);
+
+    // Assuming the PDF link is stored in memberDetails["PDF Link"]
+    const pdfLink1 = printdata["pan"];
+
+    // Create a hidden link element
+    const downloadLink1 = document.createElement('a');
+
+    downloadLink1.style.display = 'none';
+    downloadLink1.href = pdfLink1;
+
+    // Append the link to the body and trigger the download
+    document.body.appendChild(downloadLink1);
+    downloadLink1.click();
+
+    // Clean up: remove the link from the DOM
+    document.body.removeChild(downloadLink1);
+
+    doc.save('bank_document.pdf');
+  };
 
   function showdropdownfortype(loanId) {
     switch (userType) {
@@ -520,7 +612,7 @@ const Loans = () => {
               Actions
             </Dropdown.Toggle>
             <Dropdown.Menu style={{ zIndex: 9999 }}>
-            <Dropdown.Item onClick={() => handleOpenViewModal(loanId)}>
+              <Dropdown.Item onClick={() => handleOpenViewModal(loanId)}>
                 View
               </Dropdown.Item>
               <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
@@ -548,7 +640,7 @@ const Loans = () => {
               Actions
             </Dropdown.Toggle>
             <Dropdown.Menu style={{ zIndex: 9999 }}>
-            <Dropdown.Item onClick={() => handleOpenViewModal(loanId)}>
+              <Dropdown.Item onClick={() => handleOpenViewModal(loanId)}>
                 View
               </Dropdown.Item>
               <Dropdown.Item onClick={() => handleOpenEditModal(loanId)}>
@@ -957,22 +1049,22 @@ const Loans = () => {
         </Modal.Header>
 
         <Modal.Body>
-        <Tab.Container id="loan-details-tabs" defaultActiveKey="details">
-          <Nav variant="tabs" className="mb-6">
-            <Nav.Item>
-              <Nav.Link eventKey="details">Details</Nav.Link>
-            </Nav.Item>
-            {/* Add more Nav.Item components as needed */}
-          </Nav>
+          <Tab.Container id="loan-details-tabs" defaultActiveKey="details">
+            <Nav variant="tabs" className="mb-6">
+              <Nav.Item>
+                <Nav.Link eventKey="details">Details</Nav.Link>
+              </Nav.Item>
+              {/* Add more Nav.Item components as needed */}
+            </Nav>
 
-          <Tab.Content>
-            <Tab.Pane eventKey="details">
-              <LoanDetailsTab data={viewMemberData} />
-            </Tab.Pane>
-            {/* Add more Tab.Pane components as needed */}
-          </Tab.Content>
-        </Tab.Container>
-      </Modal.Body>
+            <Tab.Content>
+              <Tab.Pane eventKey="details">
+                <LoanDetailsTab data={viewMemberData} />
+              </Tab.Pane>
+              {/* Add more Tab.Pane components as needed */}
+            </Tab.Content>
+          </Tab.Container>
+        </Modal.Body>
       </Modal>
 
       {selectedLoanForApproval && (
@@ -1002,6 +1094,7 @@ const Loans = () => {
             <th>Duration in Months</th>
             <th>Objections</th>
             <th>Action</th>
+            <th>Print</th>
           </tr>
         </thead>
 
@@ -1024,6 +1117,9 @@ const Loans = () => {
               <td>{loan.durationMonths || "-"}</td>
               <td>{loan.objections}</td>
               <td>{showdropdownfortype(loan._id)}</td>
+              <td>
+                <Button onClick={() => handleprint(loan._id)} > Print </Button>
+              </td>
             </tr>
           ))}
           {/* Objection Modal */}

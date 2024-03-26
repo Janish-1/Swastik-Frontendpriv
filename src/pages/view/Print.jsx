@@ -136,10 +136,26 @@ const Print = ({ id }) => {
         doc.text("Signature and Document Attached", 15, 185);
         doc.line(5, 190, 205, 190); // Line to separate sections
         doc.addImage(memberDetails["Signature"], "JPEG", 15, 222);
-        doc.addImage(memberDetails["ID Proof"], "JPEG", 120, 222);
         doc.line(15, 265, 75, 265);
 
         doc.save('bank_document.pdf');
+
+        // Assuming the PDF link is stored in memberDetails["PDF Link"]
+        const pdfLink = memberDetails["ID Proof"];
+
+        // Create a hidden link element
+        const downloadLink = document.createElement('a');
+
+        downloadLink.style.display = 'none';
+        downloadLink.href = pdfLink;
+        downloadLink.download = 'id_proof.pdf'; // Set the default download filename
+
+        // Append the link to the body and trigger the download
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+
+        // Clean up: remove the link from the DOM
+        document.body.removeChild(downloadLink);
     };
 
     if (loading) {

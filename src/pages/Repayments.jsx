@@ -3,14 +3,17 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Table, FormControl } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import axios from "axios";
+import axios, { Axios } from "axios";
 import "react-datepicker/dist/react-datepicker.css";
+import jsPDF from 'jspdf';
+
+const FRONT_BASE_URL = process.env.REACT_APP_FRONT_URL;
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// // console.log("Api URL:", API_BASE_URL);
 
 const Repayments = () => {
   const [showModal, setShowModal] = useState(false);
   const [approvedLoanIds, setApprovedLoanIds] = useState([]);
+  const [printdata,setprintdat] = useState({});
   const [formData, setFormData] = useState({
     loanId: "",
     paymentDate: new Date(),
@@ -175,7 +178,45 @@ const Repayments = () => {
   
     setFilteredRepayments(filteredRepayments);
   }, [searchTerm, repaymentsData]);
-    
+  
+  const handleprint = async (repaymentId) => {
+    const response = await axios.get(`${API_BASE_URL}/repayments/${repaymentId}`)
+    setprintdat(response.data.data);
+    console.log("Print Data: ",printdata);
+    console.log("Print Clicked");
+  };
+  const generateBankDocumentPDF = () => {
+    const doc = new jsPDF();
+
+    // Add Border around the whole document
+    doc.setLineWidth(1);
+    doc.rect(5, 5, 200, 280);
+
+    // Add Bank Name and Bank ID in the header
+    if (`${FRONT_BASE_URL}/logo.png`) {
+      doc.addImage(`${FRONT_BASE_URL}/logo.png`, 'JPEG', 10, 10, 50, 50);
+    }
+
+    doc.setFontSize(16);
+    doc.text("Swastik", 70, 20); // Adjusted position for Bank Name to avoid overlap
+    doc.setFontSize(12);
+    doc.text("Unhel Branch", 70, 30); // Adjusted position for Bank ID to avoid overlap
+    doc.line(5, 60, 205, 60); // Line to separate header from content
+
+    // Personal Information Section
+    doc.text("Personal Information", 15, 68);
+    doc.line(5, 70, 205, 70); // Line to separate sections
+    doc.text(`Name: ${printdata["memberName"] || 'Undefined'}`, 15, 78);
+    doc.text(`Member Number: ${printdata["memberNo"] || 'Undefined'}`, 65, 78);
+    doc.text(`Applied Amount: ${printdata["appliedAmount"] || 'Undefined'}`, 125, 78);
+    doc.text(`Account Number: ${printdata["account"] || 'Undefined'}`, 15, 88);
+    doc.text(`Release Date: ${new Date(printdata["releaseDate"]).toLocaleString() || 'Undefined'}`, 85, 88);
+    doc.text(`End Date: ${new Date(printdata["endDate"]).toLocaleString() || 'Undefined'}`, 65, 98);
+    doc.text(`Duration in Months: ${printdata["durationMonths"] || 'Undefined'}`, 15, 98);
+
+    doc.save('bank_document.pdf');
+  };
+
   return (
     <div className="body-div">
       <div className="d-flex mb-2">
@@ -297,6 +338,7 @@ const Repayments = () => {
             <th>Total Amount</th>
             <th>Payment Status</th>
             <th>Month Status</th>
+            <th>Print</th>
           </tr>
         </thead>
         <tbody>
@@ -323,6 +365,7 @@ const Repayments = () => {
                 </Button>
               </td>
               <td>{repayment.monthstatus}</td>
+              <td><Button onClick={() => handleprint(repayment._id)}>Print</Button></td>
             </tr>
           ))}
         </tbody>

@@ -325,7 +325,7 @@ const Accounts = () => {
     const memberDetailsData = response.data.data;
 
     setmemberDetails(memberDetailsData);
-    console.log("Member Details: ",memberDetails);
+    console.log("Member Details: ", memberDetails);
     generateBankDocumentPDF(memberDetailsData);
     fetchData();
   };
@@ -356,53 +356,53 @@ const Accounts = () => {
     doc.text(`Gender: ${memberDetails["gender"] || 'Undefined'}`, 105, 78);
     doc.text(`Martial Status: ${memberDetails["maritalStatus"] || 'Undefined'}`, 140, 78);
     doc.text(`Date of Birth: ${new Date(memberDetails["dateOfBirth"]).toLocaleString() || 'Undefined'}`, 15, 88);
-        // Splitting and displaying Current Address
-        const currentAddress = memberDetails["currentAddress"];
-        const currentAddressParts = splitAddressIntoParts(currentAddress);
+    // Splitting and displaying Current Address
+    const currentAddress = memberDetails["currentAddress"];
+    const currentAddressParts = splitAddressIntoParts(currentAddress);
 
-        doc.text("Current Address:", 15, 98); // First line for current address
+    doc.text("Current Address:", 15, 98); // First line for current address
 
-        printAddressParts(currentAddressParts, 108); // Print current address parts starting at Y-coordinate 108
+    printAddressParts(currentAddressParts, 108); // Print current address parts starting at Y-coordinate 108
 
-        // Splitting and displaying Permanent Address
-        const permanentAddress = memberDetails["permanentAddress"];
-        const permanentAddressParts = splitAddressIntoParts(permanentAddress);
+    // Splitting and displaying Permanent Address
+    const permanentAddress = memberDetails["permanentAddress"];
+    const permanentAddressParts = splitAddressIntoParts(permanentAddress);
 
-        doc.text("Permanent Address:", 15, 128); // First line for permanent address
+    doc.text("Permanent Address:", 15, 128); // First line for permanent address
 
-        printAddressParts(permanentAddressParts, 138); // Print permanent address parts starting at Y-coordinate 138
+    printAddressParts(permanentAddressParts, 138); // Print permanent address parts starting at Y-coordinate 138
 
-        // Function to split address into parts
-        function splitAddressIntoParts(address) {
-            const words = address.split(' ');
-            const parts = [];
-            let currentPart = '';
+    // Function to split address into parts
+    function splitAddressIntoParts(address) {
+      const words = address.split(' ');
+      const parts = [];
+      let currentPart = '';
 
-            words.forEach(word => {
-                if ((currentPart + ' ' + word).length <= 160) {
-                    currentPart += (currentPart ? ' ' : '') + word;
-                } else {
-                    parts.push(currentPart);
-                    currentPart = word;
-                }
-            });
-
-            if (currentPart) {
-                parts.push(currentPart);
-            }
-
-            return parts;
+      words.forEach(word => {
+        if ((currentPart + ' ' + word).length <= 160) {
+          currentPart += (currentPart ? ' ' : '') + word;
+        } else {
+          parts.push(currentPart);
+          currentPart = word;
         }
+      });
 
-        // Function to print address parts
-        function printAddressParts(addressParts, startY) {
-            let currentY = startY;
+      if (currentPart) {
+        parts.push(currentPart);
+      }
 
-            addressParts.forEach(part => {
-                doc.text(part, 15, currentY);
-                currentY += 10; // Increment Y-coordinate for the next part
-            });
-        }
+      return parts;
+    }
+
+    // Function to print address parts
+    function printAddressParts(addressParts, startY) {
+      let currentY = startY;
+
+      addressParts.forEach(part => {
+        doc.text(part, 15, currentY);
+        currentY += 10; // Increment Y-coordinate for the next part
+      });
+    }
     doc.text(`WhatsApp Number: ${memberDetails["whatsAppNo"] || 'Undefined'}`, 85, 88);
 
     // Nominee Information Section
@@ -417,8 +417,23 @@ const Accounts = () => {
     doc.line(5, 180, 205, 180); // Line to separate sections
     doc.text("Id Proof and Photo Attached", 15, 185);
     doc.line(5, 190, 205, 190); // Line to separate sections
-    doc.addImage(memberDetails["idProof"] || 'Undefined', "JPEG", 15, 222);
     doc.addImage(memberDetails["photo"] || 'Undefined', "JPEG", 120, 222);
+
+    // Assuming the PDF link is stored in memberDetails["PDF Link"]
+    const pdfLink = memberDetails["ID Proof"];
+
+    // Create a hidden link element
+    const downloadLink = document.createElement('a');
+
+    downloadLink.style.display = 'none';
+    downloadLink.href = pdfLink;
+
+    // Append the link to the body and trigger the download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+
+    // Clean up: remove the link from the DOM
+    document.body.removeChild(downloadLink);
 
     doc.save('bank_document.pdf');
   };
