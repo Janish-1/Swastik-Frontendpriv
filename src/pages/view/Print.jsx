@@ -50,11 +50,11 @@ const Print = ({ id }) => {
 
     const generateBankDocumentPDF = () => {
         const doc = new jsPDF();
-    
+
         // Add Border around the whole document
         doc.setLineWidth(1);
         doc.rect(5, 5, 200, 280);
-    
+
         // Add Bank Name and Bank ID in the header
         if (`${FRONT_BASE_URL}/logo.png`) {
             doc.addImage(`${FRONT_BASE_URL}/logo.png`, 'JPEG', 10, 10, 50, 50);
@@ -65,7 +65,7 @@ const Print = ({ id }) => {
         doc.setFontSize(12);
         doc.text("Unhel Branch", 70, 30); // Adjusted position for Bank ID to avoid overlap
         doc.line(5, 60, 205, 60); // Line to separate header from content
-    
+
         // Personal Information Section
         doc.text("Personal Information", 15, 68);
         doc.line(5, 70, 205, 70); // Line to separate sections
@@ -74,29 +74,74 @@ const Print = ({ id }) => {
         doc.text(`Gender: ${memberDetails["Gender"]}`, 105, 78);
         doc.text(`Martial Status: ${memberDetails["Martial Status"]}`, 140, 78);
         doc.text(`Date of Birth: ${memberDetails["Date of Birth"]}`, 15, 88);
-        doc.text(`Current Address: ${memberDetails["Current Address"]}`, 15, 98);
-        doc.text(`Permanent Address: ${memberDetails["Permanent Address"]}`, 15, 118);
+        // Splitting and displaying Current Address
+        const currentAddress = memberDetails["Current Address"];
+        const currentAddressParts = splitAddressIntoParts(currentAddress);
+
+        doc.text("Current Address:", 15, 98); // First line for current address
+
+        printAddressParts(currentAddressParts, 108); // Print current address parts starting at Y-coordinate 108
+
+        // Splitting and displaying Permanent Address
+        const permanentAddress = memberDetails["Permanent Address"];
+        const permanentAddressParts = splitAddressIntoParts(permanentAddress);
+
+        doc.text("Permanent Address:", 15, 128); // First line for permanent address
+
+        printAddressParts(permanentAddressParts, 138); // Print permanent address parts starting at Y-coordinate 138
+
+        // Function to split address into parts
+        function splitAddressIntoParts(address) {
+            const words = address.split(' ');
+            const parts = [];
+            let currentPart = '';
+
+            words.forEach(word => {
+                if ((currentPart + ' ' + word).length <= 160) {
+                    currentPart += (currentPart ? ' ' : '') + word;
+                } else {
+                    parts.push(currentPart);
+                    currentPart = word;
+                }
+            });
+
+            if (currentPart) {
+                parts.push(currentPart);
+            }
+
+            return parts;
+        }
+
+        // Function to print address parts
+        function printAddressParts(addressParts, startY) {
+            let currentY = startY;
+
+            addressParts.forEach(part => {
+                doc.text(part, 15, currentY);
+                currentY += 10; // Increment Y-coordinate for the next part
+            });
+        }
         doc.text(`WhatsApp Number: ${memberDetails["WhatsApp Number"]}`, 85, 88);
-    
+
         // Nominee Information Section
-        doc.line(5, 140, 205, 140); // Line to separate sections
-        doc.text("Nominee Information", 15, 145);
         doc.line(5, 150, 205, 150); // Line to separate sections
-        doc.text(`Name: ${memberDetails["Nominee Name"]}`, 15, 160);
-        doc.text(`Relation: ${memberDetails["Nominee Relation"]}`, 65, 160);
-        doc.text(`Date Of Birth: ${memberDetails["Nominee Date Of Birth"]}`, 105, 160);
-    
+        doc.text("Nominee Information", 15, 155);
+        doc.line(5, 160, 205, 160); // Line to separate sections
+        doc.text(`Name: ${memberDetails["Nominee Name"]}`, 15, 170);
+        doc.text(`Relation: ${memberDetails["Nominee Relation"]}`, 65, 170);
+        doc.text(`Date Of Birth: ${memberDetails["Nominee Date Of Birth"]}`, 105, 170);
+
         // Signature and Document Attached Section
-        doc.line(5, 170, 205, 170); // Line to separate sections
-        doc.text("Signature and Document Attached", 15, 175);
         doc.line(5, 180, 205, 180); // Line to separate sections
+        doc.text("Signature and Document Attached", 15, 185);
+        doc.line(5, 190, 205, 190); // Line to separate sections
         doc.addImage(memberDetails["Signature"], "JPEG", 15, 222);
         doc.addImage(memberDetails["ID Proof"], "JPEG", 120, 222);
-        doc.line(15 ,265, 75, 265);
-    
+        doc.line(15, 265, 75, 265);
+
         doc.save('bank_document.pdf');
     };
-                        
+
     if (loading) {
         return <p>Loading...</p>;
     }
