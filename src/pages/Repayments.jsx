@@ -183,8 +183,10 @@ const Repayments = () => {
     const response = await axios.get(`${API_BASE_URL}/repayments/${repaymentId}`)
     setprintdat(response.data.data);
     console.log("Print Data: ",printdata);
+    generateBankDocumentPDF();
     console.log("Print Clicked");
   };
+
   const generateBankDocumentPDF = () => {
     const doc = new jsPDF();
 
@@ -204,15 +206,16 @@ const Repayments = () => {
     doc.line(5, 60, 205, 60); // Line to separate header from content
 
     // Personal Information Section
-    doc.text("Personal Information", 15, 68);
+    doc.text("Repayment Information", 15, 68);
     doc.line(5, 70, 205, 70); // Line to separate sections
-    doc.text(`Name: ${printdata["memberName"] || 'Undefined'}`, 15, 78);
-    doc.text(`Member Number: ${printdata["memberNo"] || 'Undefined'}`, 65, 78);
-    doc.text(`Applied Amount: ${printdata["appliedAmount"] || 'Undefined'}`, 125, 78);
-    doc.text(`Account Number: ${printdata["account"] || 'Undefined'}`, 15, 88);
-    doc.text(`Release Date: ${new Date(printdata["releaseDate"]).toLocaleString() || 'Undefined'}`, 85, 88);
-    doc.text(`End Date: ${new Date(printdata["endDate"]).toLocaleString() || 'Undefined'}`, 65, 98);
-    doc.text(`Duration in Months: ${printdata["durationMonths"] || 'Undefined'}`, 15, 98);
+    doc.text(`Loan ID: ${printdata["loanId"] || 'Undefined'}`, 15, 78);
+    doc.text(`Interest: ${printdata["interest"] || 'Undefined'}`, 65, 78);
+    doc.text(`Due Amount: ${printdata["dueAmount"] || 'Undefined'}`, 125, 78);
+    doc.text(`Late Penalties: ${printdata["latePenalties"] || 'Undefined'}`, 15, 88);
+    doc.text(`Due Date: ${new Date(printdata["dueDate"]).toLocaleString() || 'Undefined'}`, 85, 88);
+    doc.text(`Payment Date: ${new Date(printdata["paymentDate"]).toLocaleString() || 'Undefined'}`, 65, 98);
+    doc.text(`Principal Amount: ${printdata["principalAmount"] || 'Undefined'}`, 15, 98);
+    doc.text(`Total Amount: ${printdata["totalAmount"] || 'Undefined'}`, 155, 98);
 
     doc.save('bank_document.pdf');
   };

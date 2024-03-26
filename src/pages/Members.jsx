@@ -463,12 +463,6 @@ const Members = () => {
               Actions
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              {/* <Dropdown.Item onClick={() => handleOpenEditModal(memberId)}>
-                    Edit
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleDelete(memberId)}>
-                    Delete
-                  </Dropdown.Item> */}
               <Dropdown.Item onClick={() => handleOpenViewModal(memberId)}>
                 View
               </Dropdown.Item>

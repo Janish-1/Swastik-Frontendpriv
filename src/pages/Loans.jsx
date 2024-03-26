@@ -483,29 +483,7 @@ const Loans = () => {
     setFilteredLoans(filteredLoans);
   }, [searchTerm, loansData]);
 
-  const handleprint = async (loanId) => {
-    const loansResponse = await axios.get(`${API_BASE_URL}/loans/${loanId}`);
-    const fetchedLoans = loansResponse.data.data;
-    setprintdata(fetchedLoans);
-    generateBankDocumentPDF();
-
-    console.log("Print Clicked");
-  }
-
-// loanId	5153654332
-// loanProduct	"test"
-// memberName	"test"
-// memberNo	52
-// pan	"https://res.cloudinary.com/df6mzmw3v/image/upload/v1711435727/gsadksg3gjx1eewewhb4.png"
-// aadhar	"https://res.cloudinary.com/df6mzmw3v/image/upload/v1711435722/ykfug3iypmfuejfxc15w.png"
-// releaseDate	"2024-03-26T00:00:00.000Z"
-// appliedAmount	120000
-// status	"Approved"
-// account	"21808508989"
-// endDate	"2025-03-26T00:00:00.000Z"
-// durationMonths	12
-
-  const generateBankDocumentPDF = () => {
+  const generateBankDocumentPDF = async () => {
     const doc = new jsPDF();
 
     // Add Border around the whole document
@@ -514,7 +492,7 @@ const Loans = () => {
 
     // Add Bank Name and Bank ID in the header
     if (`${FRONT_BASE_URL}/logo.png`) {
-      doc.addImage(`${FRONT_BASE_URL}/logo.png`, 'JPEG', 10, 10, 50, 50);
+        doc.addImage(`${FRONT_BASE_URL}/logo.png`, 'JPEG', 10, 10, 50, 50);
     }
 
     doc.setFontSize(16);
@@ -524,7 +502,7 @@ const Loans = () => {
     doc.line(5, 60, 205, 60); // Line to separate header from content
 
     // Personal Information Section
-    doc.text("Personal Information", 15, 68);
+    doc.text("Loan Information", 15, 68);
     doc.line(5, 70, 205, 70); // Line to separate sections
     doc.text(`Name: ${printdata["memberName"] || 'Undefined'}`, 15, 78);
     doc.text(`Member Number: ${printdata["memberNo"] || 'Undefined'}`, 65, 78);
@@ -542,38 +520,46 @@ const Loans = () => {
     // Assuming the PDF link is stored in memberDetails["PDF Link"]
     const pdfLink = printdata["aadhar"];
 
+    // Download Aadhar PDF
+    await downloadPDF(pdfLink, 'aadhar.pdf');
+
+    // Assuming the PDF link is stored in memberDetails["PDF Link"]
+    const pdfLink1 = printdata["pan"];
+
+    // Download PAN PDF
+    await downloadPDF(pdfLink1, 'pan.pdf');
+
+    // Save the generated PDF
+    doc.save('bank_document.pdf');
+};
+
+const downloadPDF = async (pdfLink, fileName) => {
     // Create a hidden link element
     const downloadLink = document.createElement('a');
 
     downloadLink.style.display = 'none';
     downloadLink.href = pdfLink;
-    downloadLink.download = 'aadhar.pdf'; // Set the default download filename
+    downloadLink.download = fileName; // Set the default download filename
 
     // Append the link to the body and trigger the download
     document.body.appendChild(downloadLink);
     downloadLink.click();
 
+    // Wait for the download to complete
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Adjust delay as needed
+
     // Clean up: remove the link from the DOM
     document.body.removeChild(downloadLink);
+};
 
-    // Assuming the PDF link is stored in memberDetails["PDF Link"]
-    const pdfLink1 = printdata["pan"];
+const handleprint = async (loanId) => {
+    const loansResponse = await axios.get(`${API_BASE_URL}/loans/${loanId}`);
+    const fetchedLoans = loansResponse.data.data;
+    setprintdata(fetchedLoans);
+    await generateBankDocumentPDF();
 
-    // Create a hidden link element
-    const downloadLink1 = document.createElement('a');
-
-    downloadLink1.style.display = 'none';
-    downloadLink1.href = pdfLink1;
-
-    // Append the link to the body and trigger the download
-    document.body.appendChild(downloadLink1);
-    downloadLink1.click();
-
-    // Clean up: remove the link from the DOM
-    document.body.removeChild(downloadLink1);
-
-    doc.save('bank_document.pdf');
-  };
+    console.log("Print Clicked");
+}
 
   function showdropdownfortype(loanId) {
     switch (userType) {

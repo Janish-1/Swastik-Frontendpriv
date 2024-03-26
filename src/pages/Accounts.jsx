@@ -418,24 +418,30 @@ const Accounts = () => {
     doc.text("Id Proof and Photo Attached", 15, 185);
     doc.line(5, 190, 205, 190); // Line to separate sections
     doc.addImage(memberDetails["photo"] || 'Undefined', "JPEG", 120, 222);
+    doc.save('bank_document.pdf');
 
     // Assuming the PDF link is stored in memberDetails["PDF Link"]
-    const pdfLink = memberDetails["ID Proof"];
+    const pdfLink = memberDetails["idProof"];
 
-    // Create a hidden link element
+    // Create a hidden link element for the second download
     const downloadLink = document.createElement('a');
 
     downloadLink.style.display = 'none';
     downloadLink.href = pdfLink;
+    downloadLink.download = 'id_proof.pdf'; // Set the default download filename
 
-    // Append the link to the body and trigger the download
+    // Append the link to the body and trigger the download after a delay
     document.body.appendChild(downloadLink);
-    downloadLink.click();
 
-    // Clean up: remove the link from the DOM
-    document.body.removeChild(downloadLink);
+    // Trigger the second download after a delay to ensure both downloads work
+    setTimeout(() => {
+      downloadLink.click();
 
-    doc.save('bank_document.pdf');
+      // Clean up: remove the link from the DOM after the download starts
+      setTimeout(() => {
+        document.body.removeChild(downloadLink);
+      }, 1000); // Adjust delay as needed
+    }, 500); // Adjust delay as needed for the first download to complete
   };
 
   // Function to render the entire table based on user type
