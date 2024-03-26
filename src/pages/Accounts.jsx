@@ -13,7 +13,7 @@ import {
 import jsPDF from 'jspdf';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
-// // console.log("Api URL:", API_BASE_URL);
+const FRONT_BASE_URL = process.env.REACT_APP_FRONT_URL;
 
 const Accounts = () => {
   const [showModal, setShowModal] = useState(false);
@@ -33,7 +33,7 @@ const Accounts = () => {
   const [uniqueaccountid, setuniqueaccountid] = useState(0);
   const [branchNames, setBranchNames] = useState([]);
   const [userRole, setuserRole] = useState("");
-  const [memberDetails, setmemberDetails] = useState([]);
+  const [memberDetails, setmemberDetails] = useState({});
 
   const [accountFormData, setAccountFormData] = useState({
     _id: "",
@@ -130,11 +130,11 @@ const Accounts = () => {
   const handleCloseEditModal = () => {
     setShowEditModal(false);
   };
-  
+
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
-  
+
     if (files && files.length > 0) {
       // If the input is a file type
       const file = files[0]; // Get the first file from the input
@@ -151,7 +151,7 @@ const Accounts = () => {
       }));
     }
   };
-    
+
   const handleDelete = async (id) => {
     try {
       // Ask for confirmation
@@ -170,14 +170,14 @@ const Accounts = () => {
       window.alert("Failed to delete account. Please try again.");
     }
   };
-  
+
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
       const formDataWithImages = new FormData();
       formDataWithImages.append("images", accountFormData.photo);
       formDataWithImages.append("images", accountFormData.idProof);
-  
+
       const responseUpload = await axios.post(
         `${API_BASE_URL}/uploadmultiple`,
         formDataWithImages,
@@ -187,23 +187,23 @@ const Accounts = () => {
           },
         }
       );
-  
+
       const imageUrls = {
         imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
         imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
       };
-  
+
       const updatedAccountData = {
         ...accountFormData,
         photo: imageUrls.imageUrl1,
         idProof: imageUrls.imageUrl2,
       };
-  
+
       await axios.put(
         `${API_BASE_URL}/updateaccounts/${updatedAccountData._id}`,
         updatedAccountData
       );
-  
+
       // Show success alert for update
       window.alert("Account updated successfully");
       fetchData(); // Fetch data after successful update
@@ -214,7 +214,7 @@ const Accounts = () => {
       handleCloseEditModal();
     }
   };
-    
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -234,7 +234,7 @@ const Accounts = () => {
       // Fetch accounts data
       const response = await axios.get(`${API_BASE_URL}/accounts`);
       const allAccountsData = response.data.data; // Assuming response.data contains the account data
-    
+
       if (userRole === 'agent') {
         // Filter accounts for agent with approved status
         const agentApprovedAccounts = allAccountsData.filter(
@@ -248,7 +248,7 @@ const Accounts = () => {
     } catch (error) {
       // Handle error or display an error message to the user
     }
-        
+
     const response = await axios
       .get(`${API_BASE_URL}/readmembersname`)
       .then((response) => {
@@ -322,15 +322,15 @@ const Accounts = () => {
 
   const handleAccountPrint = async (accountId) => {
     const response = await axios.get(`${API_BASE_URL}/accounts/${accountId}`);
-    const memberDetails = response.data;
+    const memberDetailsData = response.data.data;
 
-    console.log("Member Data: ", memberDetails);
-
-    generateBankDocumentPDF(memberDetails);
+    setmemberDetails(memberDetailsData);
+    console.log("Member Details: ",memberDetails);
+    generateBankDocumentPDF(memberDetailsData);
     fetchData();
-};
+  };
 
-const generateBankDocumentPDF = (memberDetails) => {
+  const generateBankDocumentPDF = () => {
     const doc = new jsPDF();
 
     // Add Border around the whole document
@@ -338,53 +338,87 @@ const generateBankDocumentPDF = (memberDetails) => {
     doc.rect(5, 5, 200, 280);
 
     // Add Bank Name and Bank ID in the header
-    if (memberDetails["photo"]) {
-        doc.addImage(memberDetails["photo"], 'JPEG', 10, 10, 50, 50);
+    if (`${FRONT_BASE_URL}/logo.png`) {
+      doc.addImage(`${FRONT_BASE_URL}/logo.png`, 'JPEG', 10, 10, 50, 50);
     }
-    
+
     doc.setFontSize(16);
     doc.text("Swastik", 70, 20); // Adjusted position for Bank Name to avoid overlap
     doc.setFontSize(12);
-    doc.text(memberDetails["branchName"], 70, 30); // Adjusted position for Bank ID to avoid overlap
+    doc.text("Unhel Branch", 70, 30); // Adjusted position for Bank ID to avoid overlap
     doc.line(5, 60, 205, 60); // Line to separate header from content
 
     // Personal Information Section
     doc.text("Personal Information", 15, 68);
     doc.line(5, 70, 205, 70); // Line to separate sections
-    doc.text(`Name: ${memberDetails["memberName"]}`, 15, 78);
-    doc.text(`Account Number: ${memberDetails["accountNumber"]}`, 15, 88);
-    doc.text(`Father Name: ${memberDetails["fatherName"]}`, 15, 98);
-    doc.text(`Gender: ${memberDetails["gender"]}`, 15, 108);
-    doc.text(`Martial Status: ${memberDetails["maritalStatus"]}`, 15, 118);
-    doc.text(`Date of Birth: ${new Date(memberDetails["dateOfBirth"]).toLocaleDateString()}`, 15, 128);
-    doc.text(`Current Address: ${memberDetails["currentAddress"]}`, 15, 138);
-    doc.text(`Permanent Address: ${memberDetails["permanentAddress"]}`, 15, 148);
-    doc.text(`WhatsApp Number: ${memberDetails["whatsAppNo"]}`, 15, 158);
+    doc.text(`Name: ${memberDetails["memberName"] || 'Undefined'}`, 15, 78);
+    doc.text(`Father Name: ${memberDetails["fatherName"] || 'Undefined'}`, 65, 78);
+    doc.text(`Gender: ${memberDetails["gender"] || 'Undefined'}`, 105, 78);
+    doc.text(`Martial Status: ${memberDetails["maritalStatus"] || 'Undefined'}`, 140, 78);
+    doc.text(`Date of Birth: ${new Date(memberDetails["dateOfBirth"]).toLocaleString() || 'Undefined'}`, 15, 88);
+        // Splitting and displaying Current Address
+        const currentAddress = memberDetails["currentAddress"];
+        const currentAddressParts = splitAddressIntoParts(currentAddress);
+
+        doc.text("Current Address:", 15, 98); // First line for current address
+
+        printAddressParts(currentAddressParts, 108); // Print current address parts starting at Y-coordinate 108
+
+        // Splitting and displaying Permanent Address
+        const permanentAddress = memberDetails["permanentAddress"];
+        const permanentAddressParts = splitAddressIntoParts(permanentAddress);
+
+        doc.text("Permanent Address:", 15, 128); // First line for permanent address
+
+        printAddressParts(permanentAddressParts, 138); // Print permanent address parts starting at Y-coordinate 138
+
+        // Function to split address into parts
+        function splitAddressIntoParts(address) {
+            const words = address.split(' ');
+            const parts = [];
+            let currentPart = '';
+
+            words.forEach(word => {
+                if ((currentPart + ' ' + word).length <= 160) {
+                    currentPart += (currentPart ? ' ' : '') + word;
+                } else {
+                    parts.push(currentPart);
+                    currentPart = word;
+                }
+            });
+
+            if (currentPart) {
+                parts.push(currentPart);
+            }
+
+            return parts;
+        }
+
+        // Function to print address parts
+        function printAddressParts(addressParts, startY) {
+            let currentY = startY;
+
+            addressParts.forEach(part => {
+                doc.text(part, 15, currentY);
+                currentY += 10; // Increment Y-coordinate for the next part
+            });
+        }
+    doc.text(`WhatsApp Number: ${memberDetails["whatsAppNo"] || 'Undefined'}`, 85, 88);
 
     // Nominee Information Section
-    doc.line(5, 162, 205, 162); // Line to separate sections
-    doc.text("Nominee Information", 15, 170);
-    doc.line(5, 172, 205, 172); // Line to separate sections
-    doc.text(`Nominee Name: ${memberDetails["nomineeName"]}`, 15, 180);
-    doc.text(`Nominee Relation: ${memberDetails["relationship"]}`, 15, 190);
-    doc.text(`Nominee Date Of Birth: ${new Date(memberDetails["nomineeDateOfBirth"]).toLocaleDateString()}`, 15, 200);
+    doc.line(5, 150, 205, 150); // Line to separate sections
+    doc.text("Nominee Information", 15, 155);
+    doc.line(5, 160, 205, 160); // Line to separate sections
+    doc.text(`Name: ${memberDetails["nomineeName"] || 'Undefined'}`, 15, 170);
+    doc.text(`Relation: ${memberDetails["relationship"] || 'Undefined'}`, 65, 170);
+    doc.text(`Date Of Birth: ${new Date(memberDetails["nomineeDateOfBirth"]).toLocaleString() || 'Undefined'}`, 105, 170);
 
     // Signature and Document Attached Section
-    doc.line(5, 204, 205, 204); // Line to separate sections
-    doc.text("Signature and Document Attached", 15, 212);
-    doc.line(5, 214, 205, 214); // Line to separate sections
-    if (memberDetails["idProof"]) {
-        doc.addImage(memberDetails["idProof"], "JPEG", 15, 222);
-    }
-    if (memberDetails["photo"]) {
-        doc.addImage(memberDetails["photo"], "JPEG", 120, 222);
-    }
-
-    // Additional Details
-    doc.text(`Email: ${memberDetails["email"]}`, 15, 232);
-    doc.text(`Account Type: ${memberDetails["accountType"]}`, 15, 242);
-    doc.text(`Opening Balance: ${memberDetails["openingBalance"]}`, 15, 252);
-    doc.text(`Current Balance: ${memberDetails["currentBalance"]}`, 15, 262);
+    doc.line(5, 180, 205, 180); // Line to separate sections
+    doc.text("Id Proof and Photo Attached", 15, 185);
+    doc.line(5, 190, 205, 190); // Line to separate sections
+    doc.addImage(memberDetails["idProof"] || 'Undefined', "JPEG", 15, 222);
+    doc.addImage(memberDetails["photo"] || 'Undefined', "JPEG", 120, 222);
 
     doc.save('bank_document.pdf');
   };
@@ -452,8 +486,8 @@ const generateBankDocumentPDF = (memberDetails) => {
                         </Dropdown.Item>
                         <Dropdown.Item
                           onClick={() => handleAccountPrint(account._id)}>
-                            Print
-                          </Dropdown.Item>
+                          Print
+                        </Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
                   </td>
@@ -463,106 +497,106 @@ const generateBankDocumentPDF = (memberDetails) => {
             </tbody>
           </table>
         );
-        case "manager":
-          return (
-            <table>
-              <thead>
-                <tr>
-                  <th>Account Number</th>
-                  <th>Member Number</th>
-                  <th>Member Name</th>
-                  <th>Account Type</th>
-                  <th>Opening Balance</th>
-                  <th>Current Balance</th>
-                  <th>Branch</th>
-                  <th>Email</th>
-                  <th>Action</th>
-                  <th>Approval</th>
-                </tr>
-              </thead>
-              <tbody className="relative z-10 min-h-[12rem]">
-                {filteredAccounts.map((account) => (
-                  <tr key={account._id}>
-                    <td>{account.accountNumber}</td>
-                    <td>{account.memberNo}</td>
-                    <td>{account.memberName}</td>
-                    <td>{account.accountType}</td>
-                    <td>{account.openingBalance}</td>
-                    <td>{account.currentBalance}</td>
-                    <td>{account.branchName}</td>
-                    <td>{account.email}</td>
-                    <td>
-                      <Dropdown>
-                        <Dropdown.Toggle
-                          className="btn-secondary"
-                          variant="primary"
-                          id={`dropdown-${account._id}`}
+      case "manager":
+        return (
+          <table>
+            <thead>
+              <tr>
+                <th>Account Number</th>
+                <th>Member Number</th>
+                <th>Member Name</th>
+                <th>Account Type</th>
+                <th>Opening Balance</th>
+                <th>Current Balance</th>
+                <th>Branch</th>
+                <th>Email</th>
+                <th>Action</th>
+                <th>Approval</th>
+              </tr>
+            </thead>
+            <tbody className="relative z-10 min-h-[12rem]">
+              {filteredAccounts.map((account) => (
+                <tr key={account._id}>
+                  <td>{account.accountNumber}</td>
+                  <td>{account.memberNo}</td>
+                  <td>{account.memberName}</td>
+                  <td>{account.accountType}</td>
+                  <td>{account.openingBalance}</td>
+                  <td>{account.currentBalance}</td>
+                  <td>{account.branchName}</td>
+                  <td>{account.email}</td>
+                  <td>
+                    <Dropdown>
+                      <Dropdown.Toggle
+                        className="btn-secondary"
+                        variant="primary"
+                        id={`dropdown-${account._id}`}
+                      >
+                        Action
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu>
+                        <Dropdown.Item
+                          onClick={() => handleOpenEditModal(account._id)}
                         >
-                          Action
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                          <Dropdown.Item
-                            onClick={() => handleOpenEditModal(account._id)}
-                          >
-                            Edit
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() => handleDelete(account._id)}
-                          >
-                            Delete
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() => handleAccountApproval(account._id)}
-                          >
-                            Approve
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() => handleAccountCancel(account._id)}
-                          >
-                            Reject
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </td>
-                    <td>{account.approval}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          );
-          case "agent":
-            return (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Account Number</th>
-                    <th>Member Number</th>
-                    <th>Member Name</th>
-                    <th>Account Type</th>
-                    <th>Opening Balance</th>
-                    <th>Current Balance</th>
-                    <th>Branch</th>
-                    <th>Email</th>
-                    <th>Approval</th>
-                  </tr>
-                </thead>
-                <tbody className="relative z-10 min-h-[12rem]">
-                  {filteredAccounts.map((account) => (
-                    <tr key={account._id}>
-                      <td>{account.accountNumber}</td>
-                      <td>{account.memberNo}</td>
-                      <td>{account.memberName}</td>
-                      <td>{account.accountType}</td>
-                      <td>{account.openingBalance}</td>
-                      <td>{account.currentBalance}</td>
-                      <td>{account.branchName}</td>
-                      <td>{account.email}</td>
-                      <td>{account.approval}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            );      
+                          Edit
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleDelete(account._id)}
+                        >
+                          Delete
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleAccountApproval(account._id)}
+                        >
+                          Approve
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleAccountCancel(account._id)}
+                        >
+                          Reject
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </td>
+                  <td>{account.approval}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+      case "agent":
+        return (
+          <table>
+            <thead>
+              <tr>
+                <th>Account Number</th>
+                <th>Member Number</th>
+                <th>Member Name</th>
+                <th>Account Type</th>
+                <th>Opening Balance</th>
+                <th>Current Balance</th>
+                <th>Branch</th>
+                <th>Email</th>
+                <th>Approval</th>
+              </tr>
+            </thead>
+            <tbody className="relative z-10 min-h-[12rem]">
+              {filteredAccounts.map((account) => (
+                <tr key={account._id}>
+                  <td>{account.accountNumber}</td>
+                  <td>{account.memberNo}</td>
+                  <td>{account.memberName}</td>
+                  <td>{account.accountType}</td>
+                  <td>{account.openingBalance}</td>
+                  <td>{account.currentBalance}</td>
+                  <td>{account.branchName}</td>
+                  <td>{account.email}</td>
+                  <td>{account.approval}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
       // Add cases for other user types if needed
       default:
         return null; // If userType doesn't match any case, return null or handle accordingly
