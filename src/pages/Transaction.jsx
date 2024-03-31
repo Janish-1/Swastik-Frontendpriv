@@ -102,9 +102,24 @@ const Transaction = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validation checks
+      const missingFields = [];
+      if (!formData.date) missingFields.push("Date");
+      if (!formData.member) missingFields.push("Member");
+      if (!formData.accountNumber) missingFields.push("Account Number");
+      if (!formData.transactionAmount) missingFields.push("Transaction Amount");
+      if (!formData.debitOrCredit) missingFields.push("Debit/Credit");
+      if (!formData.status) missingFields.push("Status");
+      if (!formData.description) missingFields.push("Description");
+
+      if (missingFields.length > 0) {
+        const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
+        window.alert(missingFieldsMessage);
+        return;
+      }
       // Send form data to your API endpoint to create a transaction
       const response = await axios.post(`${API_BASE_URL}/transactions`, formData);
-  
+
       if (response.status === 200) {
         window.alert("Transaction created successfully");
         // Reset form fields after successful submission if needed
@@ -126,7 +141,7 @@ const Transaction = () => {
       // console.error('Error creating transaction:', error);
     }
   };
-  
+
   return (
     <div className="body-div">
       <Container>
@@ -153,7 +168,7 @@ const Transaction = () => {
                 handleInputChange(e);
                 fetchDetails(e.target.value, "member");
               }}
-            required
+              required
             >
               <option value="">Select Member</option>
               {members.map((member) => (
@@ -176,7 +191,7 @@ const Transaction = () => {
                 handleInputChange(e);
                 fetchDetails(e.target.value, "account");
               }}
-            required
+              required
             >
               <option value="">Select Account</option>
               {accounts.map((accountNumber) => (

@@ -214,11 +214,46 @@ const Loans = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formDataWithImages = new FormData();
-    formDataWithImages.append("images", formData.pan);
-    formDataWithImages.append("images", formData.aadhar);
-
+  
+    // Validation checks
+    const missingFields = [];
+    if (!formData.loanProduct) missingFields.push("Loan Product");
+    if (!formData.memberName) missingFields.push("Member Name");
+    if (!formData.memberNo) missingFields.push("Member Number");
+    if (!formData.pan) missingFields.push("PAN Card");
+    if (!formData.aadhar) missingFields.push("Aadhar Card");
+    if (!formData.releaseDate) missingFields.push("Release Date");
+    if (!formData.appliedAmount) missingFields.push("Applied Amount");
+    if (!formData.status) missingFields.push("Status");
+    if (!formData.endDate) missingFields.push("End Date");
+    if (!formData.durationMonths) missingFields.push("Duration (Months)");
+  
+    if (missingFields.length > 0) {
+      const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
+      window.alert(missingFieldsMessage);
+      return;
+    }
+  
+    // Date validation
+    const releaseDate = moment(formData.releaseDate, "YYYY-MM-DD", true);
+    const endDate = moment(formData.endDate, "YYYY-MM-DD", true);
+  
+    if (!releaseDate.isValid()) {
+      window.alert("Please enter a valid release date.");
+      return;
+    }
+  
+    if (!endDate.isValid()) {
+      window.alert("Please enter a valid end date.");
+      return;
+    }
+  
     try {
+      // Handle file uploads
+      const formDataWithImages = new FormData();
+      formDataWithImages.append("images", formData.pan);
+      formDataWithImages.append("images", formData.aadhar);
+  
       const responseUpload = await axios.post(
         `${API_BASE_URL}/uploadmultiple`,
         formDataWithImages,
@@ -228,103 +263,32 @@ const Loans = () => {
           },
         }
       );
-
+  
       const imageUrls = {
-        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
-        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
+        imageUrl1: responseUpload.data.urls[0],
+        imageUrl2: responseUpload.data.urls[1],
       };
-
-      const {
-        loanId,
-        account,
-        loanProduct,
-        memberName,
-        memberNo,
-        pan,
-        aadhar,
-        releaseDate,
-        appliedAmount,
-        status,
-        endDate,
-        durationMonths,
-        objections,
-      } = formData;
-
+  
+      // Create loan with validated data
       await axios.post(`${API_BASE_URL}/createloan`, {
         loanId: uniqueloanid,
-        loanProduct,
-        memberName,
-        memberNo,
-        releaseDate,
-        appliedAmount,
+        loanProduct: formData.loanProduct,
+        memberName: formData.memberName,
+        memberNo: formData.memberNo,
         pan: imageUrls.imageUrl1,
         aadhar: imageUrls.imageUrl2,
-        status,
-        account, // Include accountId in the POST request
-        endDate,
-        durationMonths,
-        objections,
+        releaseDate: releaseDate.format("YYYY-MM-DD"),
+        appliedAmount: formData.appliedAmount,
+        status: formData.status,
+        endDate: endDate.format("YYYY-MM-DD"),
+        durationMonths: formData.durationMonths,
+        objections: formData.objections,
       });
-
-      handleCloseModal();
-      setFormData({
-        loanId: "",
-        account: "",
-        loanProduct: "",
-        memberName: "",
-        memberNo: "",
-        pan: null,
-        aadhar: null,
-        releaseDate: new Date(),
-        appliedAmount: "",
-        status: "",
-        endDate: new Date(),
-        durationMonths: 0,
-      });
-
+  
       // Show success alert for create
       window.alert("Loan successfully created");
-
-      fetchData(); // Refetch data after submission
-    } catch (error) {
-      // Handle errors appropriately, such as displaying an error message
-      console.error('Error:', error);
-      // Show error alert for create
-      window.alert("Failed to create loan. Please try again.");
-    }
-  };
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    const formDataWithImages = new FormData();
-    formDataWithImages.append("images", formData.pan);
-    formDataWithImages.append("images", formData.aadhar);
-
-    try {
-      const responseUpload = await axios.post(
-        `${API_BASE_URL}/uploadmultiple`,
-        formDataWithImages,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      const imageUrls = {
-        imageUrl1: responseUpload.data.urls[0], // Adjust index based on your response structure
-        imageUrl2: responseUpload.data.urls[1], // Adjust index based on your response structure
-      };
-
-      const response = await axios.put(
-        `${API_BASE_URL}/updateloan/${formData.id}`,
-        {
-          ...formData,
-          pan: imageUrls.imageUrl1,
-          aadhar: imageUrls.imageUrl2,
-        }
-      );
-
+  
+      // Reset form data
       setFormData({
         loanId: "",
         account: "",
@@ -338,21 +302,115 @@ const Loans = () => {
         status: "",
         endDate: new Date(),
         durationMonths: "",
+        objections: "",
       });
-
+  
+      handleCloseModal();
+      fetchData(); // Refetch data after submission
+    } catch (error) {
+      // Handle errors appropriately, such as displaying an error message
+      console.error('Error:', error);
+      // Show error alert for create
+      window.alert("Failed to create loan. Please try again.");
+    }
+  };
+  
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+  
+    // Validation checks
+    const missingFields = [];
+    if (!formData.loanProduct) missingFields.push("Loan Product");
+    if (!formData.memberName) missingFields.push("Member Name");
+    if (!formData.memberNo) missingFields.push("Member Number");
+    if (!formData.pan) missingFields.push("PAN Card");
+    if (!formData.aadhar) missingFields.push("Aadhar Card");
+    if (!formData.releaseDate) missingFields.push("Release Date");
+    if (!formData.appliedAmount) missingFields.push("Applied Amount");
+    if (!formData.status) missingFields.push("Status");
+    if (!formData.endDate) missingFields.push("End Date");
+    if (!formData.durationMonths) missingFields.push("Duration (Months)");
+  
+    if (missingFields.length > 0) {
+      const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
+      window.alert(missingFieldsMessage);
+      return;
+    }
+  
+    // Date validation
+    const releaseDate = moment(formData.releaseDate, "YYYY-MM-DD", true);
+    const endDate = moment(formData.endDate, "YYYY-MM-DD", true);
+  
+    if (!releaseDate.isValid()) {
+      window.alert("Please enter a valid release date.");
+      return;
+    }
+  
+    if (!endDate.isValid()) {
+      window.alert("Please enter a valid end date.");
+      return;
+    }
+  
+    try {
+      // Handle file uploads
+      const formDataWithImages = new FormData();
+      formDataWithImages.append("images", formData.pan);
+      formDataWithImages.append("images", formData.aadhar);
+  
+      const responseUpload = await axios.post(
+        `${API_BASE_URL}/uploadmultiple`,
+        formDataWithImages,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      const imageUrls = {
+        imageUrl1: responseUpload.data.urls[0],
+        imageUrl2: responseUpload.data.urls[1],
+      };
+  
+      // Update loan with validated data
+      await axios.put(
+        `${API_BASE_URL}/updateloan/${formData.id}`,
+        {
+          ...formData,
+          pan: imageUrls.imageUrl1,
+          aadhar: imageUrls.imageUrl2,
+        }
+      );
+  
       // Show success alert for update
       window.alert("Loan successfully updated");
-
+  
+      // Reset form data
+      setFormData({
+        loanId: "",
+        account: "",
+        loanProduct: "",
+        memberName: "",
+        memberNo: "",
+        pan: null,
+        aadhar: null,
+        releaseDate: new Date(),
+        appliedAmount: "",
+        status: "",
+        endDate: new Date(),
+        durationMonths: "",
+        objections: "",
+      });
+  
       handleCloseEditModal();
       fetchData(); // Refetch data after update
     } catch (error) {
       // Show error alert for update
       window.alert("Failed to update loan. Please check the data fields.");
       console.error('Error:', error);
-      // handleCloseEditModal();
     }
   };
-
+  
   const handleApproveLoan = async (loanId) => {
     // Implement approve loan logic
     const response = await axios.put(`${API_BASE_URL}/approveLoan/${loanId}`);
@@ -393,6 +451,7 @@ const Loans = () => {
     setShowObjectionModal(false);
     setSelectedLoanId(null);
   };
+
   // Function to fetch data
   const fetchData = async () => {
     try {
@@ -441,6 +500,7 @@ const Loans = () => {
     // Fetch data initially on component mount
     fetchData();
   }, []);
+
   const LoanDetailsTab = ({ data }) => {
     return (
       <div>

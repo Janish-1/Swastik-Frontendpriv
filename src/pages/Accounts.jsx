@@ -178,6 +178,23 @@ const Accounts = () => {
       formDataWithImages.append("images", accountFormData.photo);
       formDataWithImages.append("images", accountFormData.idProof);
 
+      // Validation checks
+      const missingFields = [];
+      if (!accountFormData.accountNumber) missingFields.push("Account Number");
+      if (!accountFormData.memberName) missingFields.push("Member Name");
+      if (!accountFormData.email) missingFields.push("Email");
+      if (!accountFormData.branchName) missingFields.push("Branch Name");
+      if (!accountFormData.accountType) missingFields.push("Account Type");
+      if (!accountFormData.status) missingFields.push("Status");
+      if (!accountFormData.openingBalance) missingFields.push("Opening Balance");
+      // Add more validation checks for other required fields
+
+      if (missingFields.length > 0) {
+        const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
+        window.alert(missingFieldsMessage);
+        return;
+      }
+
       const responseUpload = await axios.post(
         `${API_BASE_URL}/uploadmultiple`,
         formDataWithImages,
@@ -218,10 +235,25 @@ const Accounts = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validation checks
+      const missingFields = [];
+      if (!formData.accountNumber) missingFields.push("Account Number");
+      if (!formData.memberName) missingFields.push("Member Name");
+      if (!formData.email) missingFields.push("Email");
+      if (!formData.branchName) missingFields.push("Branch Name");
+      if (!formData.accountType) missingFields.push("Account Type");
+      if (!formData.status) missingFields.push("Status");
+      if (!formData.openingBalance) missingFields.push("Opening Balance");
+
+      if (missingFields.length > 0) {
+        const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
+        window.alert(missingFieldsMessage);
+        return;
+      }
+
       await axios.post(`${API_BASE_URL}/createaccounts`, formData);
       // alert('Data Entered Successfully');
       fetchData(); // Fetch data after successful addition
-      handleCloseModal();
       handleCloseModal();
     } catch (error) {
       // alert('Check Data Fields for no duplicates');
@@ -284,7 +316,6 @@ const Accounts = () => {
   useEffect(() => {
     // Fetch accounts data initially
     fetchData();
-    // ... Rest of your useEffect code remains the same
   }, []); // Run once on component mount
 
   useEffect(() => {

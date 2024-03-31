@@ -13,7 +13,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 const Repayments = () => {
   const [showModal, setShowModal] = useState(false);
   const [approvedLoanIds, setApprovedLoanIds] = useState([]);
-  const [printdata,setprintdat] = useState({});
+  const [printdata, setprintdat] = useState({});
   const [formData, setFormData] = useState({
     loanId: "",
     paymentDate: new Date(),
@@ -56,9 +56,26 @@ const Repayments = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validation checks
+      const missingFields = [];
+      if (!formData.loanId) missingFields.push("Loan ID");
+      if (!formData.paymentDate) missingFields.push("Payment Date");
+      if (!formData.dueDate) missingFields.push("Due Date");
+      if (!formData.dueAmount) missingFields.push("Due Amount");
+      if (!formData.principalAmount) missingFields.push("Principal Amount");
+      if (!formData.interest) missingFields.push("Interest");
+      if (!formData.latePenalties) missingFields.push("Late Penalties");
+      if (!formData.totalAmount) missingFields.push("Total Amount");
+
+      if (missingFields.length > 0) {
+        const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
+        window.alert(missingFieldsMessage);
+        return;
+      }
+      
       const response = await axios.post(`${API_BASE_URL}/repayments`, formData);
-    // Show success alert for form submission
-    window.alert("Repayment data submitted successfully");
+      // Show success alert for form submission
+      window.alert("Repayment data submitted successfully");
       fetchData();
       handleCloseModal();
       setFormData({
@@ -76,13 +93,13 @@ const Repayments = () => {
       window.alert("Error submitting repayment data. Please try again.");
       handleCloseModal();
     }
-    };
+  };
 
   const fetchData = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/repayments`);
       setRepaymentsData(response.data.data);
-      console.log("Response Data repayments:",response);
+      console.log("Response Data repayments:", response);
     } catch (error) {
       // Handle error or display an error message to the user
     }
@@ -132,8 +149,8 @@ const Repayments = () => {
           )
         );
         // console.log("Repayment data exists for the current month.");
-              // Show success alert for payment
-      window.alert("Repayment marked as paid successfully.");
+        // Show success alert for payment
+        window.alert("Repayment marked as paid successfully.");
       } else {
         const createResponse = await axios.post(
           `${API_BASE_URL}/api/updatePaymentAndCreateDetails/${repaymentId}`
@@ -147,17 +164,17 @@ const Repayments = () => {
                 : repayment
             )
           );
-        // Show success alert for payment and data creation
-        window.alert("Repayment marked as paid, and data created for the current month.");
-      } else {
-        // Handle failure to create repayment data and show error alert
-        window.alert("Failed to create repayment data for the current month.");
+          // Show success alert for payment and data creation
+          window.alert("Repayment marked as paid, and data created for the current month.");
+        } else {
+          // Handle failure to create repayment data and show error alert
+          window.alert("Failed to create repayment data for the current month.");
         }
       }
     } catch (error) {
       // Handle errors or display a message to the user
       window.alert("Error handling payment. Please try again.");
-      }
+    }
   };
 
   useEffect(() => {
@@ -167,22 +184,22 @@ const Repayments = () => {
   useEffect(() => {
     const filteredRepayments = repaymentsData.filter((repayment) => {
       const loanId = repayment.loanId;
-  
+
       // Check if loanId is a non-null integer before filtering
       if (Number.isInteger(loanId) && loanId.toString().includes(searchTerm.toString())) {
         return true;
       }
-  
+
       return false;
     });
-  
+
     setFilteredRepayments(filteredRepayments);
   }, [searchTerm, repaymentsData]);
-  
+
   const handleprint = async (repaymentId) => {
     const response = await axios.get(`${API_BASE_URL}/repayments/${repaymentId}`)
     setprintdat(response.data.data);
-    console.log("Print Data: ",printdata);
+    console.log("Print Data: ", printdata);
     generateBankDocumentPDF();
     console.log("Print Clicked");
   };

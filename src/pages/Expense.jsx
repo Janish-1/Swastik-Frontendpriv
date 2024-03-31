@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form, Table,Row, Col } from "react-bootstrap";
+import { Modal, Button, Form, Table, Row, Col } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
@@ -93,6 +93,21 @@ const Expense = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validation checks
+      const missingFields = [];
+      if (!formData.date) missingFields.push("Date");
+      if (!formData.category) missingFields.push("Category");
+      if (!formData.amount) missingFields.push("Amount");
+      if (!formData.reference) missingFields.push("Refrence");
+      if (!formData.note) missingFields.push("Note");
+      if (!formData.branchName) missingFields.push("Branch Name");
+
+      if (missingFields.length > 0) {
+        const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
+        window.alert(missingFieldsMessage);
+        return;
+      }
+      
       await axios.post(`${API_BASE_URL}/expenses`, formData);
       setFormData({
         date: new Date(),
@@ -108,7 +123,7 @@ const Expense = () => {
     }
     handleModalClose();
   };
-  
+
   const handleBranchSelect = (event) => {
     setSelectedBranch(event.target.value);
   };
@@ -150,23 +165,23 @@ const Expense = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formBranch">
-                  <Form.Label>Branch</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="branchName"
-                    value={formData.branchName}
-                    onChange={handleInputChange}
-                    as="select"
-                  >
-                    <option value="">Select Branch</option>
-                    {branchNames.map((branch, index) => (
-                      <option key={index} value={branch}>
-                        {branch}
-                      </option>
-                    ))}
-                  </Form.Control>
-                </Form.Group>{" "}
+            <Form.Group controlId="formBranch">
+              <Form.Label>Branch</Form.Label>
+              <Form.Control
+                type="text"
+                name="branchName"
+                value={formData.branchName}
+                onChange={handleInputChange}
+                as="select"
+              >
+                <option value="">Select Branch</option>
+                {branchNames.map((branch, index) => (
+                  <option key={index} value={branch}>
+                    {branch}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>{" "}
             <Form.Group controlId="date">
               <Form.Label>Date</Form.Label>
               <Form.Control
@@ -265,18 +280,18 @@ const Expense = () => {
           </tr>
         </thead>
         <tbody>
-        {expenses
-          .filter((expense) => selectedBranch === "All" || expense.branchName === selectedBranch)
-          .map((expense, index) => (
-            <tr key={index}>
-              <td>{new Date(expense.date).toISOString().split("T")[0]}</td>
-              <td>{expense.category}</td>
-              <td>{expense.amount}</td>
-              <td>{expense.reference}</td>
-              <td>{expense.note}</td>
-              <td>{expense.branchName}</td>
-            </tr>
-          ))}
+          {expenses
+            .filter((expense) => selectedBranch === "All" || expense.branchName === selectedBranch)
+            .map((expense, index) => (
+              <tr key={index}>
+                <td>{new Date(expense.date).toISOString().split("T")[0]}</td>
+                <td>{expense.category}</td>
+                <td>{expense.amount}</td>
+                <td>{expense.reference}</td>
+                <td>{expense.note}</td>
+                <td>{expense.branchName}</td>
+              </tr>
+            ))}
         </tbody>
       </Table>
     </div>

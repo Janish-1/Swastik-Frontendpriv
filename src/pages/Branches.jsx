@@ -269,7 +269,7 @@ const Branches = () => {
       window.alert("Phone number must be 10 digits.");
       return;
     }
-    
+
     try {
       const response = await axios.put(
         `${API_BASE_URL}/updatebranch/${formData.branchId}`,

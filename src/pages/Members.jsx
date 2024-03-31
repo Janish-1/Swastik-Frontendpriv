@@ -485,7 +485,50 @@ const Members = () => {
 
   const handleAccountSubmit = async (e) => {
     e.preventDefault();
+    
     try {
+      // Validation checks
+      const missingFields = [];
+      if (!accountFormData.memberNo) missingFields.push("Member Number");
+      if (!accountFormData.memberName) missingFields.push("Member Name");
+      if (!accountFormData.email) missingFields.push("Email");
+      if (!accountFormData.branchName) missingFields.push("Branch Name");
+      if (!accountFormData.photo) missingFields.push("Photo");
+      if (!accountFormData.accountNumber) missingFields.push("Account Number");
+      if (!accountFormData.accountType) missingFields.push("Account Type");
+      if (!accountFormData.fatherName) missingFields.push("Father's Name");
+      if (!accountFormData.gender) missingFields.push("Gender");
+      if (!accountFormData.maritalStatus) missingFields.push("Marital Status");
+      if (!accountFormData.dateOfBirth) missingFields.push("Date of Birth");
+      if (!accountFormData.currentAddress) missingFields.push("Current Address");
+      if (!accountFormData.permanentAddress) missingFields.push("Permanent Address");
+      if (!accountFormData.whatsAppNo) missingFields.push("WhatsApp Number");
+      if (!accountFormData.idProof) missingFields.push("ID Proof");
+      if (!accountFormData.nomineeName) missingFields.push("Nominee Name");
+      if (!accountFormData.relationship) missingFields.push("Relationship with Nominee");
+      if (!accountFormData.nomineeMobileNo) missingFields.push("Nominee Mobile Number");
+      if (!accountFormData.nomineeDateOfBirth) missingFields.push("Nominee Date of Birth");
+
+      if (missingFields.length > 0) {
+        const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
+        window.alert(missingFieldsMessage);
+        return;
+      }
+
+      // Date of birth validation
+      const formattedDateOfBirth = moment(accountFormData.dateOfBirth, "YYYY-MM-DD", true);
+      if (!formattedDateOfBirth.isValid()) {
+        window.alert("Please enter a valid date of birth.");
+        return;
+      }
+
+      // Nominee date of birth validation
+      const formattedNomineeDateOfBirth = moment(accountFormData.nomineeDateOfBirth, "YYYY-MM-DD", true);
+      if (!formattedNomineeDateOfBirth.isValid()) {
+        window.alert("Please enter a valid nominee date of birth.");
+        return;
+      }
+
       const formDataWithCurrentBalance = {
         ...accountFormData,
         currentBalance: accountFormData.openingBalance, // Assigning openingBalance to currentBalance
@@ -671,14 +714,44 @@ const Members = () => {
       const formattedDateOfBirth = moment(updateData.dateOfBirth, "YYYY-MM-DD", true);
       const formattednomineedateofbirth = moment(updateData.nomineeDateOfBirth, "YYYY-MM-DD", true);
 
-      if (!formattedDateOfBirth.isValid()) {
-        // Handle the case where the date of birth is not in the expected format
-        console.error("Invalid date of birth format");
+      // Validation checks
+      const missingFields = [];
+      if (!updateData.memberNo) missingFields.push("Member Number");
+      if (!updateData.fullName) missingFields.push("Full Name");
+      if (!updateData.email) missingFields.push("Email");
+      if (!updateData.branchName) missingFields.push("Branch Name");
+      if (!updateData.photo) missingFields.push("Photo");
+      if (!updateData.fatherName) missingFields.push("Father's Name");
+      if (!updateData.gender) missingFields.push("Gender");
+      if (!updateData.maritalStatus) missingFields.push("Marital Status");
+      if (!updateData.dateOfBirth) missingFields.push("Date of Birth");
+      if (!updateData.currentAddress) missingFields.push("Current Address");
+      if (!updateData.permanentAddress) missingFields.push("Permanent Address");
+      if (!updateData.whatsAppNo) missingFields.push("WhatsApp Number");
+      if (!updateData.idProof) missingFields.push("ID Proof");
+      if (!updateData.nomineeName) missingFields.push("Nominee Name");
+      if (!updateData.relationship) missingFields.push("Relationship with Nominee");
+      if (!updateData.nomineeMobileNo) missingFields.push("Nominee Mobile Number");
+      if (!updateData.nomineeDateOfBirth) missingFields.push("Nominee Date of Birth");
+      if (!updateData.walletId) missingFields.push("Wallet ID");
+      if (!updateData.numberOfShares) missingFields.push("Number of Shares");
+      if (!updateData.signature) missingFields.push("Signature");
+
+      if (missingFields.length > 0) {
+        const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
+        window.alert(missingFieldsMessage);
         return;
       }
 
+      // Date of birth validation
+      if (!formattedDateOfBirth.isValid()) {
+        window.alert("Please enter a valid date of birth.");
+        return;
+      }
+
+      // Nominee date of birth validation
       if (!formattednomineedateofbirth.isValid()) {
-        console.error("Invalid Date of Birth Format");
+        window.alert("Please enter a valid nominee date of birth.");
         return;
       }
 
