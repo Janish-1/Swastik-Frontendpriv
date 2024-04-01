@@ -185,7 +185,6 @@ const Accounts = () => {
       if (!accountFormData.email) missingFields.push("Email");
       if (!accountFormData.branchName) missingFields.push("Branch Name");
       if (!accountFormData.accountType) missingFields.push("Account Type");
-      if (!accountFormData.status) missingFields.push("Status");
       if (!accountFormData.openingBalance) missingFields.push("Opening Balance");
       // Add more validation checks for other required fields
 
@@ -354,8 +353,8 @@ const Accounts = () => {
   const handleAccountPrint = async (accountId) => {
     const response = await axios.get(`${API_BASE_URL}/accounts/${accountId}`);
     const memberDetailsData = response.data.data;
+    await setmemberDetails(memberDetailsData);
 
-    setmemberDetails(memberDetailsData);
     console.log("Member Details: ", memberDetails);
     generateBankDocumentPDF(memberDetailsData);
     fetchData();
@@ -377,6 +376,8 @@ const Accounts = () => {
     doc.text("Swastik", 70, 20); // Adjusted position for Bank Name to avoid overlap
     doc.setFontSize(12);
     doc.text("Unhel Branch", 70, 30); // Adjusted position for Bank ID to avoid overlap
+    doc.text("REGP. Office 1st Floor,Purani Sabji Mandi Unhel, Dist.Ujjain(M.P)",70,40);
+    doc.text("Pincode 456221",70,50);
     doc.line(5, 60, 205, 60); // Line to separate header from content
 
     // Personal Information Section
@@ -454,27 +455,24 @@ const Accounts = () => {
     // Assuming the PDF link is stored in memberDetails["PDF Link"]
     const pdfLink = memberDetails["idProof"];
 
-    // Create a hidden link element for the second download
-    const downloadLink = document.createElement('a');
+    downloadPDF(pdfLink);
+  }; // Adjust delay as needed for the first download to complete
 
-    downloadLink.style.display = 'none';
-    downloadLink.href = pdfLink;
-    downloadLink.download = 'id_proof.pdf'; // Set the default download filename
-
-    // Append the link to the body and trigger the download after a delay
-    document.body.appendChild(downloadLink);
-
-    // Trigger the second download after a delay to ensure both downloads work
-    setTimeout(() => {
-      downloadLink.click();
-
-      // Clean up: remove the link from the DOM after the download starts
-      setTimeout(() => {
-        document.body.removeChild(downloadLink);
-      }, 1000); // Adjust delay as needed
-    }, 500); // Adjust delay as needed for the first download to complete
+  const downloadPDF = async (pdfLink) => {
+    // Create a temporary anchor element
+    const tempAnchor = document.createElement('a');
+    tempAnchor.href = pdfLink;
+    tempAnchor.target = '_blank';
+  
+    // Dispatch a click event on the anchor element
+    const event = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+    });
+    tempAnchor.dispatchEvent(event);
   };
-
+  
   // Function to render the entire table based on user type
   function renderTableForUserType(filteredAccounts) {
     switch (userRole) {
@@ -606,6 +604,10 @@ const Accounts = () => {
                           onClick={() => handleAccountCancel(account._id)}
                         >
                           Reject
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleAccountPrint(account._id)}>
+                          Print
                         </Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>

@@ -515,20 +515,6 @@ const Members = () => {
         return;
       }
 
-      // Date of birth validation
-      const formattedDateOfBirth = moment(accountFormData.dateOfBirth, "YYYY-MM-DD", true);
-      if (!formattedDateOfBirth.isValid()) {
-        window.alert("Please enter a valid date of birth.");
-        return;
-      }
-
-      // Nominee date of birth validation
-      const formattedNomineeDateOfBirth = moment(accountFormData.nomineeDateOfBirth, "YYYY-MM-DD", true);
-      if (!formattedNomineeDateOfBirth.isValid()) {
-        window.alert("Please enter a valid nominee date of birth.");
-        return;
-      }
-
       const formDataWithCurrentBalance = {
         ...accountFormData,
         currentBalance: accountFormData.openingBalance, // Assigning openingBalance to currentBalance
@@ -734,8 +720,6 @@ const Members = () => {
       if (!updateData.nomineeMobileNo) missingFields.push("Nominee Mobile Number");
       if (!updateData.nomineeDateOfBirth) missingFields.push("Nominee Date of Birth");
       if (!updateData.walletId) missingFields.push("Wallet ID");
-      if (!updateData.numberOfShares) missingFields.push("Number of Shares");
-      if (!updateData.signature) missingFields.push("Signature");
 
       if (missingFields.length > 0) {
         const missingFieldsMessage = "Please fill in the following fields: " + missingFields.join(", ");
@@ -1281,24 +1265,34 @@ const Members = () => {
 
             {/* Personal Information */}
             <Row className="mb-3">
-              <Col md={6}>
+            <Col md={6}>
                 <Form.Group controlId="formBranch">
                   <Form.Label>Branch</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="branchName"
-                    value={updateData.branchName}
-                    onChange={handleUpdateChange}
-                    as="select"
-                  >
-                    <option value="">Select Branch</option>
-                    {branchNames.map((branch, index) => (
-                      <option key={index} value={branch}>
-                        {branch}
-                      </option>
-                    ))}
-                  </Form.Control>
-                </Form.Group>{" "}
+                  {userType === "admin" ? (
+                    <Form.Control
+                      type="text"
+                      name="branchName"
+                      value={updateData.branchName}
+                      onChange={handleInputChange}
+                      as="select"
+                    >
+                      <option value="">Select Branch</option>
+                      {branchNames.map((branch, index) => (
+                        <option key={index} value={branch}>
+                          {branch}
+                        </option>
+                      ))}
+                    </Form.Control>
+                  ) : (
+                    <Form.Control
+                      type="text"
+                      name="branchName"
+                      value={branchnamedata} // Use the variable set for the manager's branch
+                      onChange={handleInputChange}
+                      readOnly // Make the input read-only for managers
+                    />
+                  )}
+                </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group controlId="formPhoto">

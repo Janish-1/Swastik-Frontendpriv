@@ -220,6 +220,8 @@ const Repayments = () => {
     doc.text("Swastik", 70, 20); // Adjusted position for Bank Name to avoid overlap
     doc.setFontSize(12);
     doc.text("Unhel Branch", 70, 30); // Adjusted position for Bank ID to avoid overlap
+    doc.text("REGP. Office 1st Floor,Purani Sabji Mandi Unhel, Dist.Ujjain(M.P)",70,40);
+    doc.text("Pincode 456221",70,50);
     doc.line(5, 60, 205, 60); // Line to separate header from content
 
     // Personal Information Section

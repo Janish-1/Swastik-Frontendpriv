@@ -49,6 +49,8 @@ export default function AccountBalance() {
       pdf.text("Swastik", 70, 20); // Adjusted position for Bank Name to avoid overlap
       pdf.setFontSize(12);
       pdf.text("Unhel Branch", 70, 30); // Adjusted position for Bank ID to avoid overlap
+      pdf.text("REGP. Office 1st Floor,Purani Sabji Mandi Unhel, Dist.Ujjain(M.P)",70,40);
+      pdf.text("Pincode 456221",70,50);
 
       pdf.addImage(imgData, "PNG", 0, 70, imgWidth, imgHeight);
       pdf.save("accountbalance.pdf");

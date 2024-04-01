@@ -10,6 +10,7 @@ import { Dropdown, DropdownButton } from "react-bootstrap";
 import Objectionloan from "./Objectionloan";
 import LoanCalci from "./LoanCalci";
 import jsPDF from 'jspdf';
+import moment from "moment";
 
 const FRONT_BASE_URL = process.env.REACT_APP_FRONT_URL;
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -272,15 +273,16 @@ const Loans = () => {
       // Create loan with validated data
       await axios.post(`${API_BASE_URL}/createloan`, {
         loanId: uniqueloanid,
+        account: formData.account,
         loanProduct: formData.loanProduct,
         memberName: formData.memberName,
         memberNo: formData.memberNo,
         pan: imageUrls.imageUrl1,
         aadhar: imageUrls.imageUrl2,
-        releaseDate: releaseDate.format("YYYY-MM-DD"),
+        releaseDate: releaseDate,
         appliedAmount: formData.appliedAmount,
         status: formData.status,
-        endDate: endDate.format("YYYY-MM-DD"),
+        endDate: endDate,
         durationMonths: formData.durationMonths,
         objections: formData.objections,
       });
@@ -311,7 +313,14 @@ const Loans = () => {
       // Handle errors appropriately, such as displaying an error message
       console.error('Error:', error);
       // Show error alert for create
-      window.alert("Failed to create loan. Please try again.");
+      if (error.response) {
+        console.error('Server Error:', error.response.data);
+        window.alert("Failed to create loan. Server Error. Please try again.");
+      } else {
+        // If the error is not from the server (e.g., network error), display a generic error message
+        console.error('Network Error:', error.message);
+        window.alert("Failed to create loan. Network Error. Please check your internet connection and try again.");
+      }
     }
   };
   
@@ -323,8 +332,6 @@ const Loans = () => {
     if (!formData.loanProduct) missingFields.push("Loan Product");
     if (!formData.memberName) missingFields.push("Member Name");
     if (!formData.memberNo) missingFields.push("Member Number");
-    if (!formData.pan) missingFields.push("PAN Card");
-    if (!formData.aadhar) missingFields.push("Aadhar Card");
     if (!formData.releaseDate) missingFields.push("Release Date");
     if (!formData.appliedAmount) missingFields.push("Applied Amount");
     if (!formData.status) missingFields.push("Status");
@@ -340,17 +347,7 @@ const Loans = () => {
     // Date validation
     const releaseDate = moment(formData.releaseDate, "YYYY-MM-DD", true);
     const endDate = moment(formData.endDate, "YYYY-MM-DD", true);
-  
-    if (!releaseDate.isValid()) {
-      window.alert("Please enter a valid release date.");
-      return;
-    }
-  
-    if (!endDate.isValid()) {
-      window.alert("Please enter a valid end date.");
-      return;
-    }
-  
+    
     try {
       // Handle file uploads
       const formDataWithImages = new FormData();
@@ -559,6 +556,8 @@ const Loans = () => {
     doc.text("Swastik", 70, 20); // Adjusted position for Bank Name to avoid overlap
     doc.setFontSize(12);
     doc.text("Unhel Branch", 70, 30); // Adjusted position for Bank ID to avoid overlap
+    doc.text("REGP. Office 1st Floor,Purani Sabji Mandi Unhel, Dist.Ujjain(M.P)",70,40);
+    doc.text("Pincode 456221",70,50);
     doc.line(5, 60, 205, 60); // Line to separate header from content
 
     // Personal Information Section
@@ -593,29 +592,25 @@ const Loans = () => {
     doc.save('bank_document.pdf');
 };
 
-const downloadPDF = async (pdfLink, fileName) => {
-    // Create a hidden link element
-    const downloadLink = document.createElement('a');
+const downloadPDF = async (pdfLink) => {
+  // Create a temporary anchor element
+  const tempAnchor = document.createElement('a');
+  tempAnchor.href = pdfLink;
+  tempAnchor.target = '_blank';
 
-    downloadLink.style.display = 'none';
-    downloadLink.href = pdfLink;
-    downloadLink.download = fileName; // Set the default download filename
-
-    // Append the link to the body and trigger the download
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-
-    // Wait for the download to complete
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Adjust delay as needed
-
-    // Clean up: remove the link from the DOM
-    document.body.removeChild(downloadLink);
+  // Dispatch a click event on the anchor element
+  const event = new MouseEvent('click', {
+      view: window,
+      bubbles: true,
+      cancelable: true
+  });
+  tempAnchor.dispatchEvent(event);
 };
 
 const handleprint = async (loanId) => {
     const loansResponse = await axios.get(`${API_BASE_URL}/loans/${loanId}`);
     const fetchedLoans = loansResponse.data.data;
-    setprintdata(fetchedLoans);
+    await setprintdata(fetchedLoans);
     await generateBankDocumentPDF();
 
     console.log("Print Clicked");
